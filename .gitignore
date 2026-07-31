@@ -17,8 +17,7 @@ data/events.csv
 # devono stare nel repository anche se `run_phase5.py` le riscrive da zero.
 reports/*
 !reports/figures/
-reports/figures/*
-!reports/figures/*.png
+!reports/*.md
 
 # pytest
 .pytest_cache/
