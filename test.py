@@ -1,8 +1,8 @@
 # import relevant functions 
-from main import getLeagueUrls, getMatchUrls, getTeamUrls, getMatchesData, getMatchData, createEventsDF, createMatchesDF, addEpvToDataFrame
+from env.main import getLeagueUrls, getMatchUrls, getTeamUrls, getMatchesData, getMatchData, createEventsDF, createMatchesDF, addEpvToDataFrame
 
 # import relevant variables
-from main import main_url
+from env.main import main_url
 
 # import relevant packages
 import pandas as pd

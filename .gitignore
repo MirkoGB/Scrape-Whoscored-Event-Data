@@ -1,3 +1,24 @@
 __pycache__/
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+
+# Ambiente virtuale
+.venv/
+venv/
+
+# Dati grezzi ed elaborati: ~2 GB, rigenerabili con lo scraper.
+data/serie_a_2025_2026/
+data/processed/
+serie_a_2025_2026_events.csv
+events.csv
+data/events.csv
+
+# Output rigenerabili. Le figure sono l'eccezione: il README le mostra, quindi
+# devono stare nel repository anche se `run_phase5.py` le riscrive da zero.
+reports/*
+!reports/figures/
+reports/figures/*
+!reports/figures/*.png
+
+# pytest
+.pytest_cache/

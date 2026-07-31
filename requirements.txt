@@ -1,9 +1,31 @@
+# Modello tiri in porta — Serie A
+# Setup:
+#   python -m venv .venv
+#   .venv/Scripts/python.exe -m pip install -r requirements.txt   (Windows)
+#   .venv/bin/python -m pip install -r requirements.txt           (Unix)
+
+# --- analisi e modello ---
 numpy
 pandas
+scipy                 # ottimizzazione della Poisson ridge e distribuzione NB2
+scikit-learn          # modello xG interno, cross-fitting per partita
+pyarrow               # I/O Parquet: senza questo pandas non scrive .parquet
 matplotlib
-seaborn
+
+# --- test ---
+pytest
+
+# --- scraping (solo per rigenerare i dati grezzi) ---
 selenium==4.16.0
-mplsoccer==1.2.2
+beautifulsoup4        # usata da main.py e scrape_serie_a_2025_2026.py
+lxml                  # parser di BeautifulSoup
 requests
-unzip
 tqdm
+
+# --- visualizzazioni del repo originale ---
+mplsoccer==1.2.2
+seaborn
+
+# Nota: la vecchia lista includeva `unzip`, che non e' un pacchetto PyPI
+# (l'installazione falliva), e ometteva scipy, beautifulsoup4 e lxml, che pero'
+# erano importati dal codice.
