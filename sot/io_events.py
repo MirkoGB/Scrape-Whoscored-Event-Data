@@ -15,8 +15,9 @@ Scelte di pulizia dati, tutte deliberate e documentate nel README:
    effettiva e' (matchId, teamId, eventId), che ha zero duplicati.
    `eventId` da solo NON e' unico: e' numerato per squadra.
 
-3. Il file concatenato `serie_a_2025_2026_events.csv` (1 GB) non viene mai
-   letto: si leggono i 380 file per-partita, che sono la stessa cosa.
+3. La concatenazione dei 380 file in un unico CSV da 1 GB non viene mai letta:
+   si leggono i file per-partita, che sono la stessa cosa. La Fase 7A ha
+   cancellato quella copia proprio perche' nessun modulo la apriva.
 """
 
 from __future__ import annotations

@@ -31,7 +31,7 @@ N_SIM = 200000          # alto apposta: l'effetto da leggere e' dell'1% sulla sd
 MINUTI_RIFERIMENTO = 1800.0
 
 # Volume dei dati evento, per il conto del blocco 6D. ~1 GB per 380 partite in
-# `data/serie_a_2025_2026/`, cioe' 2.6 MB a partita.
+# `config.RAW_MATCH_DIR`, cioe' 2.6 MB a partita.
 MB_PER_PARTITA = 1000.0 / 380.0
 PARTITE_PER_GIORNATA = 10       # 20 squadre
 GIORNATE_STAGIONE = 38

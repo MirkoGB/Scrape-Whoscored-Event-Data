@@ -17,7 +17,7 @@ pytest
 
 # --- scraping (solo per rigenerare i dati grezzi) ---
 selenium==4.16.0
-beautifulsoup4        # usata da main.py e scrape_serie_a_2025_2026.py
+beautifulsoup4        # usata da acquisition/whoscored/{main,scrape_season}.py
 lxml                  # parser di BeautifulSoup
 requests
 tqdm

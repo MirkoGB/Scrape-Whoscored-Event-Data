@@ -3,10 +3,9 @@
 Tiri in porta (shots on target) di una squadra, partita per partita.
 
 Uso:
-    python tiri_in_porta.py "Napoli"
-    python tiri_in_porta.py "AC Milan" --csv serie_a_2025_2026_events.csv
-    python tiri_in_porta.py Roma --no-plot          # solo tabella
-    python tiri_in_porta.py Roma --out roma.png     # salva il grafico
+    python scripts/tiri_in_porta.py "Napoli"
+    python scripts/tiri_in_porta.py Roma --no-plot          # solo tabella
+    python scripts/tiri_in_porta.py Roma --out roma.png     # salva il grafico
 
 Definizione usata (convenzione WhoScored):
     tiro in porta = evento 'SavedShot' NON bloccato da un difensore  +  'Goal'
@@ -14,10 +13,10 @@ Definizione usata (convenzione WhoScored):
     Sono esclusi: MissedShots, ShotOnPost (legno) e i tiri respinti da un
     giocatore di movimento (shotBlocked == True).
 
-Il CSV completo pesa ~1 GB: viene letto a blocchi e solo sulle colonne
-necessarie, quindi la RAM usata resta bassa. Se la cartella
-`data/serie_a_2025_2026/` e' presente, viene usata di default perche' e' molto
-piu' veloce (un CSV per partita).
+I dati si leggono da `config.RAW_MATCH_DIR`, un CSV per partita. L'opzione
+`--csv` accetta ancora un file concatenato letto a blocchi, ma quel file non
+esiste piu' nel repository: la Fase 7A ne ha cancellato la copia da 1 GB perche'
+era la concatenazione dei CSV per partita e nessun modulo la leggeva.
 """
 
 import argparse
@@ -27,10 +26,13 @@ from pathlib import Path
 
 import pandas as pd
 
-BASE = Path(__file__).resolve().parent
-BIG_CSV = BASE / 'serie_a_2025_2026_events.csv'
-MATCH_DIR = BASE / 'data' / 'serie_a_2025_2026'
-MATCHES_JSON = BASE / 'data' / 'serie_a_2025_2026_matches.json'
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from sot import config  # noqa: E402
+
+BIG_CSV = config.PROCESSED / 'events_concat.csv'
+MATCH_DIR = config.RAW_MATCH_DIR
+MATCHES_JSON = config.MATCHES_JSON
 
 # Solo queste colonne servono: leggere le altre 250 sarebbe uno spreco.
 COLS = ['matchId', 'teamId', 'h_a', 'type', 'isShot',

@@ -1,5 +1,9 @@
 # Fase 7A — Consolidare prima di moltiplicare
 
+> **ESEGUITO** dopo l'approvazione, sul commit `728a782`. Le sezioni 1-7 sono
+> la proposta come è stata approvata e restano invariate; l'esito, le cinque
+> deviazioni e le verifiche stanno in **§8**, in fondo.
+
 **Proposta. Niente è stato spostato, rinominato o cancellato.** Questo documento
 è l'oggetto dell'approvazione richiesta dal punto 1 del blocco; l'esecuzione
 avviene solo dopo, e solo sulle voci approvate.
@@ -444,3 +448,120 @@ Sono sette decisioni indipendenti: si può approvarne una parte.
 Alla tua approvazione eseguo, nell'ordine, gli spostamenti, le quattro modifiche
 di §2.5, `config.py` di §3.6, `tests/test_layout.py` di §5, e il protocollo di
 verifica di §4 — e riferisco l'esito prima di aprire 7B.
+
+---
+
+## 8. Esito dell'esecuzione
+
+Tutte e sette le decisioni sono state approvate ed eseguite. Il commit di
+partenza è `728a782`; ogni spostamento è un `git mv`, quindi git riconosce le
+rinomine (`R` in `git status`) e la storia non si spezza.
+
+### 8.1 Il controllo — nessun numero si è mosso, ed è verificato
+
+Il punto 3 del blocco, eseguito secondo il protocollo di §4.
+
+| controllo | prima | dopo |
+|---|---|---|
+| `pytest tests/ -q` | 184 passed, 9.98 s | **206 passed, 7.55 s** (22 nuovi) |
+| `run_phase1.py --force` (rilegge i 380 CSV) | — | 562.672 eventi, 380 partite, **4.034 / 4.432 / 3.637 / 5.105**, minuti 760/760 |
+| `run_phase5.py` | — | Como **4.34** · **5.03**/partita · **191** stagione · IC80% **[151, 240]** |
+| `phase1_audit.md` | | **identico** byte a byte |
+| `phase5_proiezione_como_2627.{md,csv}` | | **identico** byte a byte |
+| `phase5_ratings.csv` | | **identico** byte a byte |
+| `fig1..fig8.png` | | **identiche** byte a byte, tutte e otto |
+
+Due letture che il semplice "verde" non darebbe:
+
+- **Il tempo della suite non è salito** (9.98 → 7.55 s con 22 test in più). Se i
+  Parquet non fossero stati dove `config` li cerca, `conftest.py` li avrebbe
+  ricalcolati e il tempo sarebbe passato a ~1 minuto. Il tempo è il controllo
+  che la cache si è spostata insieme ai dati.
+- **`run_phase1.py --force` è l'unico controllo che chiude il cerchio sul
+  grezzo**: rilegge i 380 CSV dal percorso nuovo invece di fidarsi della cache.
+  Senza quello, «verde» avrebbe significato solo «i Parquet esistono ancora».
+
+### 8.2 Cinque deviazioni dalla proposta
+
+Nessuna cambia un numero; tre sono correzioni della proposta stessa.
+
+**1. `data/external/` non è escluso da `.gitignore`, contro §3.5.** Il file
+delle quote risultava già tracciato nel commit `728a782`. Escludere una cartella
+il cui unico file è tracciato non ha effetto e descrive male ciò che accade:
+`.gitignore` avrebbe detto una cosa e il repository ne avrebbe fatta un'altra.
+La regola è stata tolta, con la motivazione scritta nel file — ed è la scelta
+più coerente col vincolo 8: i dati forniti a mano sono piccoli e la loro
+provenienza non è ricostruibile da nessuna catena, quindi la storia in git è
+l'unica traccia che ne resta.
+
+**2. Nessun `acquisition/whoscored/__init__.py`.** §2.2 lo prevedeva. Quei
+quattro file sono script: fanno import relativi alla propria cartella
+(`from main import ...`, `import scrape_matches`) e si eseguono, non si
+importano. Un `__init__.py` li dichiarerebbe importabili come pacchetto, cosa
+che non funziona. La ragione è scritta in `acquisition/__init__.py`.
+
+**3. `OUTPUT_FILE` di `scrape_season.py` è stato ripuntato**, non solo
+riadattato. Scriveva in radice il CSV concatenato da 1 GB che questo blocco ha
+cancellato: lasciarlo lì avrebbe fatto ricomparire alla prima riesecuzione
+esattamente ciò che si è tolto. Ora va sotto `processed/`, che è l'albero
+rigenerabile — non sotto `raw/`, che non ospita derivati.
+
+**4. Due docstring corrette in `sot/io_events.py` e `scripts/run_phase6f.py`**,
+che nominavano ancora `data/serie_a_2025_2026/`. Non erano nell'elenco di §2.5
+perché la ricognizione aveva cercato percorsi *usati*, non percorsi *citati*.
+Le ha trovate il test 4 di §5, che è precisamente il suo mestiere.
+
+**5. Il test «nessun letterale di stagione fuori da `config.py`» è stato
+ristretto ai percorsi.** Nella forma di §5 falliva su decine di righe di prosa:
+i report parlano di «2025-26» e «2026-27» in continuazione, ed è corretto che lo
+facciano. Vietare la parola avrebbe reso il test rumore e lo avrebbe fatto
+disattivare al primo fastidio. Ora richiede che il letterale contenga anche un
+separatore o un'estensione — cioè che sia un percorso. Il difetto da bloccare è
+il percorso scritto a mano, non la parola.
+
+### 8.3 Fatto in più, perché il resto sarebbe rimasto inconsistente
+
+- **`CLAUDE.md`**: la sezione «Dati» indicava `data/serie_a_2025_2026/` e le
+  trappole dei due `events.csv`, entrambe ora false. Aggiunti i vincoli **7, 8 e
+  9** della Fase 7 accanto ai sei esistenti, l'albero di `data/`, e la sezione
+  di fase 7A. Un diario che indica percorsi inesistenti è peggio di un diario
+  assente: la prossima sessione ci si fida.
+- **`README.md`**: sezione «Struttura» e attribuzione al fork, che nominava i
+  tre script per il loro percorso di prima.
+- **`legacy/README.md`**: sezione su `legacy/fork/`, e la distinzione fra i due
+  divieti — `legacy/*` non si riusa **in nessun caso** (backtest circolare),
+  `legacy/fork/` semplicemente non serve. Annotato lì anche che
+  `Modello tiri in porta.py` legge file in stile `football-data.co.uk`, cioè la
+  fonte del blocco 7B: è archiviato per la circolarità del backtest, non per la
+  provenienza dei dati, e il divieto di riuso resta comunque.
+
+### 8.4 Quello che resta aperto per 7B
+
+- ~~`scrape_season.py` ha ancora `SEASON` e `COMPETITION_URL` scritti a mano~~
+  **→ chiuso subito dopo, su richiesta**: `acquisition/whoscored/target.py`,
+  `Target(league, season)` immutabile al posto di cinque globali, CLI con
+  `--season`/`--dry-run`, e le cinque stagioni di `config.SEASONS_STORICHE` come
+  default. 34 test in `tests/test_acquisizione_target.py`, che girano **senza
+  selenium**: la logica sta in un modulo che non lo importa, proprio perché la
+  fonte non è ancora contattabile. Dettaglio in `CLAUDE.md`, sezione 7A-bis.
+- **`main_url` in `main.py` vale `https://1xbet.whoscored.com/`**, un mirror di
+  affiliazione, non `www.whoscored.com`. È il dominio a cui ogni richiesta
+  andrebbe: la verifica dei termini d'uso riguarda quello, non whoscored.com.
+  Trovato eseguendo `--dry-run`, non modificato — cambiare il dominio dello
+  scraper del fork è una decisione, non una correzione.
+- **I termini d'uso di WhoScored non sono mai stati verificati**
+  (`regole_fantacalcio.md` §7.1, terza conseguenza). L'autorizzazione ottenuta
+  riguarda Fantacalcio.it e non si estende a una fonte diversa. Va accertato
+  **prima** di estendere lo scraper all'indietro, non prima di spostarne il file
+  — che è ciò che questo blocco ha fatto.
+- **`data/raw/manifest.json` non esiste ancora**: la regola di `.gitignore` che
+  lo versiona è stata verificata con `git check-ignore` su un file di prova, poi
+  rimosso. Il file lo scrive 7B, che è il primo blocco ad acquisire qualcosa.
+- **Lo scraper WhoScored non era eseguibile in questo `.venv`**: `selenium`,
+  `mplsoccer` e `seaborn` erano in `requirements.txt` ma non installati. Era
+  **preesistente** — l'ambiente era stato costruito per la modellazione, non per
+  l'acquisizione — e non causato dagli spostamenti: i quattro file compilavano
+  (`py_compile`), a fallire era l'`import selenium`, non un percorso.
+  **`selenium` è stato installato** durante la parametrizzazione, altrimenti
+  nemmeno `--dry-run` sarebbe partito. `mplsoccer` e `seaborn` restano fuori:
+  servivano solo a `legacy/fork/visuals.py`.

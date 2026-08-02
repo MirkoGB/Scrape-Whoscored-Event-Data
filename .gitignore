@@ -6,12 +6,24 @@ __pycache__/
 .venv/
 venv/
 
-# Dati grezzi ed elaborati: ~2 GB, rigenerabili con lo scraper.
-data/serie_a_2025_2026/
+# Grezzo ed elaborato: ~1 GB, rigenerabili.
+#
+# Il manifest e' l'eccezione, ed e' l'unica: registra fonte, URL, data di
+# download e hash di ogni file acquisito (vincolo 8 della Fase 7). Una
+# provenienza senza storia in git non e' verificabile, e il file e' piccolo,
+# testuale e diffabile.
+data/raw/**
+!data/raw/manifest.json
 data/processed/
-serie_a_2025_2026_events.csv
+#
+# `data/external/` NON e' escluso, ed e' una scelta: contiene i file forniti a
+# mano, che sono piccoli e la cui provenienza non e' ricostruibile da nessuna
+# catena di acquisizione. Proprio per questo la storia in git e' l'unica traccia
+# che ne resta — cfr. il file delle quote, che il blocco 7F deve documentare.
+#
+# Nome di default dell'output di acquisition/whoscored/scrape_matches.py, che
+# scrive nella cartella corrente.
 events.csv
-data/events.csv
 
 # Output rigenerabili. Le figure sono l'eccezione: il README le mostra, quindi
 # devono stare nel repository anche se `run_phase5.py` le riscrive da zero.

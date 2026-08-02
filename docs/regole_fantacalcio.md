@@ -414,9 +414,18 @@ successivi:**
 2. **La 2025/26 è l'unica stagione con entrambe le fonti**, ed è perciò
    l'**unica stagione di misura**: è lì che la regola dell'80' si confronta con
    l's.v. osservato, e lì soltanto.
-3. **I termini d'uso di WhoScored sono una verifica a parte, mai fatta.**
-   L'autorizzazione ottenuta riguarda Fantacalcio.it e non si estende a una
-   fonte diversa. Da accertare prima di estendere lo scraper all'indietro.
+3. ~~**I termini d'uso di WhoScored sono una verifica a parte, mai fatta.**~~
+   `[RISOLTO — 2026-07-31]` **autorizzazione WhoScored dichiarata dall'utente**,
+   distinta da quella di Fantacalcio.it e non derivata da essa. È il presupposto
+   su cui è partita l'acquisizione delle cinque stagioni; come per
+   l'autorizzazione Fantacalcio (decisione 1), il repository ne registra la
+   dichiarazione, non ne conserva il documento.
+
+   **Il dominio a cui lo scraper si rivolge è `1xbet.whoscored.com`**, un mirror
+   di affiliazione fissato in `acquisition/whoscored/main.py:60` e ereditato dal
+   fork — non `www.whoscored.com`. È un fatto rilevato eseguendo lo scraper e
+   riportato qui perché un'autorizzazione riguarda un soggetto: se quella
+   ottenuta copre WhoScored ma non il mirror, il dominio va cambiato.
 
 `[NON DECISO]` da quale delle due vie si acquisisce — export Excel da sessione
 autenticata, oppure vista HTML pubblica. Le colonne dell'Excel restano

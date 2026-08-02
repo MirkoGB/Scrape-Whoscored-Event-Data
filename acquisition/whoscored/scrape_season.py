@@ -1,29 +1,52 @@
 # -*- coding: utf-8 -*-
 """
-Scrape di TUTTI i dati evento della Serie A 2025/2026 da WhoScored.
+Scrape dei dati evento da WhoScored, per una o piu' stagioni.
 
 Uso:
-    python scrape_serie_a_2025_2026.py
+    python acquisition/whoscored/scrape_season.py --dry-run
+    python acquisition/whoscored/scrape_season.py
+    python acquisition/whoscored/scrape_season.py --season 2021-2022
+    python acquisition/whoscored/scrape_season.py --season 2021-2022 2022-2023
 
-Cosa fa:
-    1. Apre la pagina della Serie A, seleziona la stagione 2025/2026 e raccoglie
-       gli URL di tutte le partite giocate (salvati in cache JSON).
-    2. Scarica gli eventi partita per partita, salvando un CSV per ogni match
-       nella cartella `data/serie_a_2025_2026/`.
-    3. Unisce tutto in un unico CSV finale.
+**Senza argomenti scarica tutte e cinque le stagioni** di
+`config.SEASONS_STORICHE` (2021-2022 .. 2025-2026), non solo quella corrente:
+e' il perimetro dichiarato in `docs/regole_fantacalcio.md` §5 e §7.1.
 
-Lo script e' riavviabile: le partite gia' salvate vengono saltate, quindi se
-viene interrotto (o WhoScored blocca temporaneamente) basta rilanciarlo.
+Cosa fa, per ogni stagione:
+    1. Apre la pagina della competizione, seleziona la stagione e raccoglie gli
+       URL di tutte le partite giocate (in cache JSON accanto ai dati).
+    2. Scarica gli eventi partita per partita, un CSV per `matchId` sotto
+       `raw/whoscored/<campionato>/<stagione>/events/`.
+    3. Con `--merge`, e solo con quello, ne scrive anche la concatenazione.
 
-Nota: main.py e "Scrape matches.py" devono essere nella stessa cartella.
+Tre proprieta' che vanno tenute, non sono comodita':
+
+- **Ripartibile e idempotente** (vincolo 9): una partita gia' su disco viene
+  saltata, mai riscaricata e mai sovrascritta. Interrompere e rilanciare e' il
+  modo previsto di usarlo, non un incidente.
+- **Il grezzo non si tocca**: si scrive solo dove il file non esiste. La
+  concatenazione, che e' derivata, va sotto `processed/` e per default **non si
+  scrive affatto** — su cinque stagioni sarebbero cinque copie da 1 GB di dati
+  gia' presenti, cioe' esattamente cio' che la Fase 7A ha cancellato.
+- **Educato con la fonte**: una richiesta alla volta, `--sleep` secondi fra una
+  partita e l'altra. Abbassarlo fa scattare il blocco.
+
+La risoluzione campionato-stagione sta in `target.py`, che non importa selenium
+ed e' percio' verificabile dai test senza browser ne' rete. `--dry-run` stampa
+bersagli, percorsi e stato di avanzamento senza aprire niente.
+
+Nota: main.py, scrape_matches.py e target.py devono essere nella stessa cartella.
+
+**I termini d'uso di WhoScored non sono mai stati verificati**
+(`docs/regole_fantacalcio.md` §7.1, terza conseguenza): l'autorizzazione
+ottenuta riguarda Fantacalcio.it e non si estende a questa fonte. Va accertato
+prima di lanciare lo scraper sulle stagioni arretrate.
 """
 
 import json
 import sys
 import time
 from datetime import datetime as dt
-from importlib import util as _util
-from pathlib import Path
 
 import pandas as pd
 
@@ -52,44 +75,29 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 #    ->  vedi _parse_date() / _sort_matches() piu' sotto.
 from main import getMatchData, main_url
 
+# Campionato, stagione e percorsi non sono piu' globali del modulo: sono un
+# `Target`, che li tiene insieme e li rende immutabili. Finche' erano cinque
+# variabili globali, una stagione alla volta era l'unica cosa possibile.
+from target import (Target, parser, report_completeness, stato,  # noqa: E402
+                    targets)
+import pagina  # noqa: E402
+
 
 # ──────────────────────────────────────────────
 #  CONFIGURAZIONE
 # ──────────────────────────────────────────────
-SEASON = '2025/2026'
-COMPETITION_URL = main_url.rstrip('/') + '/regions/108/tournaments/5/italy-serie-a'
-
-BASE_DIR = Path(__file__).resolve().parent
-MATCHES_DIR = BASE_DIR / 'data' / 'serie_a_2025_2026'   # un CSV per partita
-URLS_CACHE = BASE_DIR / 'data' / 'serie_a_2025_2026_matches.json'
-OUTPUT_FILE = BASE_DIR / 'serie_a_2025_2026_events.csv'
-
-SLEEP_BETWEEN_REQUESTS = 7    # secondi tra una partita e l'altra (evita il ban)
 MINIMIZE_WINDOW = True
-# La lista partite viene comunque ri-raccolta finche' la cache non e' completa
-# (38 partite a squadra): metti True per forzare un giro anche se e' gia' completa.
-REFRESH_URLS = False
 MAX_URL_PASSES = 4            # passate massime sul calendario per colmare i buchi
 
 
 # ──────────────────────────────────────────────
-#  Riuso di createEventsDF (con fix playerId/teamId) e build_driver
-#  definiti in "Scrape matches.py" (il nome col
-#  spazio impedisce un import normale).
+#  Riuso di createEventsDF (con fix playerId/teamId) e build_driver.
+#  Fino alla Fase 7A il file si chiamava "Scrape matches.py" e lo spazio nel
+#  nome impediva l'import: andava caricato per percorso con importlib. Il
+#  rinomino a scrape_matches.py elimina l'aggiramento invece di trasportarlo.
 # ──────────────────────────────────────────────
-def _load_scrape_matches_module():
-    path = BASE_DIR / 'Scrape matches.py'
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Non trovo '{path.name}': serve per createEventsDF (fix playerId) e build_driver."
-        )
-    spec = _util.spec_from_file_location('scrape_matches', str(path))
-    module = _util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+import scrape_matches as _sm  # noqa: E402
 
-
-_sm = _load_scrape_matches_module()
 createEventsDF = _sm.createEventsDF
 build_driver = _sm.build_driver
 
@@ -327,13 +335,51 @@ def _scrape_current_fixtures(driver):
     return _sort_matches(matches)
 
 
-def get_match_urls(driver, season=SEASON):
+def _script_di(driver):
+    """Il tag <script> con i dati partita, o None se non c'e'.
+
+    Non solleva: serve a *diagnosticare* un fallimento gia' avvenuto, e
+    un'eccezione qui maschererebbe quella vera.
+    """
+    try:
+        return driver.find_element(
+            By.XPATH, '//*[@id="layout-wrapper"]/script[1]').get_attribute('innerHTML')
+    except WebDriverException:
+        return None
+
+
+def _select_stage(driver, index):
+    """Seleziona uno stage, ripiegando su JavaScript se un banner copre il menu.
+
+    E' lo stesso problema gia' noto per il bottone 'giorno precedente'
+    (`_click_prev_day`): WhoScored piazza banner pubblicitari sopra i controlli e
+    il click nativo di Selenium fallisce con ElementClickInterceptedException.
+    Sul menu `stages` non era gestito, e il costo non era una pagina persa ma
+    **un'intera stagione**: la 2022-2023 si e' interrotta esattamente qui, con
+    `<select id="stages"> is not clickable ... another element obscures it`.
+
+    Il click via JavaScript ignora gli elementi sovrapposti, ma non fa scattare
+    da solo il ricaricamento: serve l'evento 'change' esplicito, altrimenti la
+    pagina resta sullo stage precedente e si rileggono le stesse partite.
+    """
+    el = driver.find_element(By.ID, 'stages')
+    try:
+        Select(el).select_by_index(index)
+    except (ElementClickInterceptedException, StaleElementReferenceException,
+            WebDriverException):
+        driver.execute_script(
+            "arguments[0].selectedIndex = arguments[1];"
+            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+            el, index)
+
+
+def get_match_urls(driver, target: Target):
     """Restituisce la lista di dict {date, home, away, score, url} della stagione."""
-    driver.get(COMPETITION_URL)
+    driver.get(target.url_competizione(main_url))
     time.sleep(5)
     _accept_cookies(driver)
 
-    label = _select_season(driver, season)
+    label = _select_season(driver, target.stagione_sito)
     print(f"Stagione selezionata: {label}")
 
     all_urls = []
@@ -345,11 +391,14 @@ def get_match_urls(driver, season=SEASON):
             stages = Select(driver.find_element(By.ID, 'stages'))
             stage_name = stages.options[i].text
             print(f"  Stage: {stage_name}")
-            stages.select_by_index(i)
+            _select_stage(driver, i)
             time.sleep(5)
             all_urls += _scrape_current_fixtures(driver)
-    except (NoSuchElementException, TimeoutException):
-        # Serie A: normalmente nessun menu "stages"
+    except (NoSuchElementException, TimeoutException,
+            ElementClickInterceptedException):
+        # Serie A: normalmente nessun menu "stages". Se c'e' ma non e'
+        # utilizzabile, si legge comunque il calendario visibile invece di
+        # perdere la stagione: vedi _select_stage.
         all_urls += _scrape_current_fixtures(driver)
 
     # dedup per URL, mantenendo l'ordine cronologico
@@ -357,36 +406,13 @@ def get_match_urls(driver, season=SEASON):
     return _sort_matches(list(unique.values()))
 
 
-def report_completeness(matches):
-    """Stampa quante partite ha ogni squadra: in Serie A devono essere 38."""
-    per_team = {}
-    for match in matches:
-        for team in (match['home'], match['away']):
-            per_team[team] = per_team.get(team, 0) + 1
-
-    expected = (len(per_team) - 1) * 2 if per_team else 0
-    incomplete = {t: n for t, n in per_team.items() if n != expected}
-
-    print(f"\nSquadre: {len(per_team)} | partite totali: {len(matches)} "
-          f"(attese: {len(per_team) * expected // 2 if per_team else 0})")
-
-    if not incomplete:
-        print('Calendario completo.')
-        return True
-
-    print(f"Calendario INCOMPLETO - squadre con meno di {expected} partite:")
-    for team, n in sorted(incomplete.items(), key=lambda p: p[1]):
-        print(f"  {n:3d}/{expected}  {team}")
-    print("Rilancia con REFRESH_URLS = True: i risultati si sommano alla cache.")
-    return False
-
-
-def load_match_urls(driver):
+def load_match_urls(driver, target: Target, refresh=False):
+    cache = target.cache_url
     cached = []
-    if URLS_CACHE.exists():
-        cached = json.loads(URLS_CACHE.read_text(encoding='utf-8'))
-        print(f"Lista partite dalla cache: {len(cached)} match ({URLS_CACHE.name})")
-        if not REFRESH_URLS and report_completeness(cached):
+    if cache.exists():
+        cached = json.loads(cache.read_text(encoding='utf-8'))
+        print(f"Lista partite dalla cache: {len(cached)} match ({cache})")
+        if not refresh and report_completeness(cached):
             return cached
         print('\nRiscansione del calendario per recuperare le partite mancanti...')
 
@@ -397,17 +423,17 @@ def load_match_urls(driver):
 
     for attempt in range(1, MAX_URL_PASSES + 1):
         print(f"\n--- Passata {attempt}/{MAX_URL_PASSES} sul calendario ---")
-        found = get_match_urls(driver)
+        found = get_match_urls(driver, target)
 
         new = [m for m in found if m['url'] not in merged]
         merged.update({m['url']: m for m in found})
         urls = _sort_matches(list(merged.values()))
 
-        URLS_CACHE.parent.mkdir(parents=True, exist_ok=True)
-        URLS_CACHE.write_text(json.dumps(urls, indent=2, ensure_ascii=False), encoding='utf-8')
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps(urls, indent=2, ensure_ascii=False), encoding='utf-8')
 
         print(f"Trovate {len(found)} partite in questa passata ({len(new)} nuove) "
-              f"-> {len(urls)} totali in {URLS_CACHE.name}")
+              f"-> {len(urls)} totali in {cache.name}")
 
         if report_completeness(urls):
             break
@@ -439,7 +465,7 @@ class Progress:
         self.total = total
         self.desc = desc
         self.done = 0
-        self.stats = {'ok': 0, 'skip': 0, 'err': 0}
+        self.stats = {'ok': 0, 'skip': 0, 'nodata': 0, 'err': 0}
         self.started = time.time()
         self._last_len = 0
         self.bar = tqdm(total=total, desc=desc, unit='match', ncols=100,
@@ -449,7 +475,8 @@ class Progress:
             self._render()
 
     def _postfix(self):
-        return 'ok {ok} | skip {skip} | err {err}'.format(**self.stats)
+        return ('ok {ok} | skip {skip} | senza dati {nodata} | err {err}'
+                .format(**self.stats))
 
     def _render(self):
         filled = int(self.BAR_WIDTH * self.done / self.total) if self.total else self.BAR_WIDTH
@@ -472,7 +499,12 @@ class Progress:
             self._render()
 
     def update(self, outcome):
-        """outcome: 'ok' | 'skip' | 'err'."""
+        """outcome: 'ok' | 'skip' | 'nodata' | 'err'.
+
+        `nodata` non e' un errore: e' una partita che la fonte non ha. Tenerlo
+        separato da `err` e' l'unico modo perche' il riepilogo dica se c'e'
+        qualcosa da ritentare.
+        """
         self.stats[outcome] += 1
         self.done += 1
         if self.bar is not None:
@@ -501,18 +533,26 @@ def match_id_from_url(url):
     return parts[-1]
 
 
-def scrape_season(driver, match_urls):
-    MATCHES_DIR.mkdir(parents=True, exist_ok=True)
+def scarica_partite(driver, target: Target, match_urls, sleep=7.0):
+    """Scarica gli eventi delle partite non ancora su disco.
+
+    Il `continue` su `out_path.exists()` e' il vincolo 9 in una riga: nessuna
+    esecuzione puo' sovrascrivere grezzo gia' acquisito. Vale anche per un file
+    corrotto o troncato — cancellarlo a mano e' una decisione, non un effetto
+    collaterale di un rilancio.
+    """
+    target.dir_partite.mkdir(parents=True, exist_ok=True)
 
     failed = []
+    senza_dati = []
     scraped = 0
-    progress = Progress(len(match_urls), desc='Serie A 2025/2026')
+    progress = Progress(len(match_urls), desc=str(target))
 
     try:
         for fixture in match_urls:
             match_url = main_url.rstrip('/') + fixture['url']
             match_id = match_id_from_url(fixture['url'])
-            out_path = MATCHES_DIR / f'{match_id}.csv'
+            out_path = target.dir_partite / f'{match_id}.csv'
             label = f"{fixture['home']} - {fixture['away']} ({fixture['date']})"
 
             if out_path.exists():
@@ -521,7 +561,7 @@ def scrape_season(driver, match_urls):
 
             try:
                 if scraped > 0:
-                    time.sleep(SLEEP_BETWEEN_REQUESTS)
+                    time.sleep(sleep)
 
                 match_data = getMatchData(driver, match_url, display=False, close_window=False)
                 events_df = createEventsDF(match_data)
@@ -531,17 +571,26 @@ def scrape_season(driver, match_urls):
                 progress.update('ok')
 
             except Exception as exc:
-                progress.write(f"  ERR  {label}: {exc}")
-                progress.update('err')
-                failed.append((match_url, str(exc)))
+                # `substring not found` puo' voler dire due cose opposte: un
+                # difetto di lettura, oppure che la fonte non ha i dati. Si
+                # guarda la pagina invece di indovinare — vedi pagina.py.
+                verdetto = pagina.diagnosi(_script_di(driver))
+                if verdetto == pagina.DATI_ASSENTI:
+                    progress.write(f"  --   {label}: {pagina.spiega(verdetto)}")
+                    progress.update('nodata')
+                    senza_dati.append((match_url, label))
+                else:
+                    progress.write(f"  ERR  {label}: {exc}")
+                    progress.update('err')
+                    failed.append((match_url, str(exc)))
     finally:
         progress.close()
 
-    return failed
+    return failed, senza_dati
 
 
-def merge_matches():
-    files = sorted(MATCHES_DIR.glob('*.csv'))
+def merge_matches(target: Target):
+    files = sorted(target.dir_partite.glob('*.csv'))
     if not files:
         return pd.DataFrame()
 
@@ -560,30 +609,109 @@ def merge_matches():
 # ──────────────────────────────────────────────
 #  MAIN
 # ──────────────────────────────────────────────
-def main():
+def _stampa_dry_run(bersagli):
+    """Cosa verrebbe fatto, senza aprire un browser ne' toccare la rete.
+
+    Non e' una comodita': i termini d'uso di WhoScored non sono ancora stati
+    verificati, quindi serve un modo di controllare la parametrizzazione che
+    non passi dalla fonte.
+    """
+    print(f"DRY RUN — {len(bersagli)} stagion{'e' if len(bersagli) == 1 else 'i'}, "
+          "niente browser, niente rete\n")
+    for t in bersagli:
+        s = stato(t)
+        print(f"  {t}")
+        print(f"    stagione sul sito   {t.stagione_sito}")
+        print(f"    url competizione    {t.url_competizione(main_url)}")
+        print(f"    CSV partita         {t.dir_partite}")
+        print(f"    cache calendario    {t.cache_url}")
+        print(f"    gia' su disco       {s['csv_su_disco']} CSV"
+              + (f" | {s['partite_in_cache']} in cache"
+                 f" | {s['da_scaricare']} da scaricare" if s['partite_in_cache'] else
+                 " | nessuna cache calendario: la prima passata la costruisce"))
+        print()
+
+
+def scarica(target: Target, args):
+    """Una stagione intera. Restituisce (fallite ritentabili, senza dati)."""
+    print(f"\n{'=' * 70}\n{target}\n{'=' * 70}")
+
     driver = build_driver()
     if MINIMIZE_WINDOW:
         driver.minimize_window()
 
     try:
-        match_urls = load_match_urls(driver)
-        failed = scrape_season(driver, match_urls)
+        match_urls = load_match_urls(driver, target, refresh=args.refresh_urls)
+        failed, senza_dati = scarica_partite(
+            driver, target, match_urls, sleep=args.sleep)
     finally:
         driver.quit()
 
-    df = merge_matches()
-    if df.empty:
-        print('Nessun dato raccolto.')
+    if args.merge:
+        df = merge_matches(target)
+        if df.empty:
+            print('Nessun dato da unire.')
+        else:
+            target.file_unito.parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(target.file_unito, index=False)
+            print(f"\n{len(df)} eventi da {df['matchId'].nunique()} partite "
+                  f"-> {target.file_unito}")
+
+    n = len(list(target.dir_partite.glob('*.csv')))
+    print(f"\n{target}: {n} CSV su disco.")
+    return failed
+
+
+def main(argv=None):
+    args = parser().parse_args(argv)
+
+    # I bersagli si risolvono per primi, e un errore qui e' fatale: una stagione
+    # mal formata o un campionato senza codici verificati deve fermare tutto
+    # PRIMA di aprire un browser, non dopo trenta secondi su una pagina.
+    try:
+        bersagli = targets(args.league, args.season)
+    except ValueError as exc:
+        sys.exit(f"errore: {exc}")
+
+    if args.dry_run:
+        _stampa_dry_run(bersagli)
         return
 
-    df.to_csv(OUTPUT_FILE, index=False)
-    print(f"\nTotale: {len(df)} eventi da {df['matchId'].nunique()} partite")
-    print(f"Salvato in '{OUTPUT_FILE.name}'")
+    # Una stagione che fallisce non deve fermare le altre: sono acquisizioni
+    # indipendenti, e la ripartibilita' vale anche fra stagioni.
+    esiti = {}
+    for target in bersagli:
+        try:
+            esiti[str(target)] = scarica(target, args)
+        except Exception as exc:            # noqa: BLE001 — vale per l'intera stagione
+            print(f"\n!! {target} interrotta: {exc}")
+            esiti[str(target)] = ([('<intera stagione>', str(exc))], [])
 
-    if failed:
-        print(f"\nPartite fallite ({len(failed)}) - rilancia lo script per riprovarle:")
+    print(f"\n{'=' * 70}\nRIEPILOGO\n{'=' * 70}")
+    ritentabili = 0
+    for nome, (failed, senza_dati) in esiti.items():
+        t = Target(args.league, nome.split()[-1])
+        n = len(list(t.dir_partite.glob('*.csv'))) if t.dir_partite.is_dir() else 0
+        ritentabili += len(failed)
+        coda = []
+        if failed:
+            coda.append(f"{len(failed)} da ritentare")
+        if senza_dati:
+            coda.append(f"{len(senza_dati)} senza dati alla fonte")
+        print(f"  {nome}: {n} CSV su disco" + (f" | {' | '.join(coda)}" if coda else ""))
         for url, err in failed:
-            print(f"  - {url}  ({err})")
+            print(f"      ritentabile  {url}  ({err})")
+        # Elencate a parte, e senza la parola "fallita": ritentarle non serve,
+        # e chiamarle errori manda a cercare un difetto che non c'e'.
+        for url, label in senza_dati:
+            print(f"      senza dati   {label}  {url}")
+
+    if ritentabili:
+        print(f"\n{ritentabili} partite ritentabili: rilancia lo script, quelle "
+              "gia' scaricate vengono saltate.")
+    if any(sd for _, sd in esiti.values()):
+        print("Le partite 'senza dati' NON si recuperano rilanciando: "
+              "matchCentreData e' null alla fonte. Vanno dichiarate come assenti.")
 
 
 if __name__ == '__main__':

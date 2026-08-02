@@ -612,14 +612,26 @@ sot/          il pacchetto: definizione dei tiri, minuti, xG interno, feature,
               dispersione, modello per giocatore, rosa e proiezione, figure,
               catena del livello e sensibilità a rho, potenza del test dei
               predittori, insieme degli avversari e calendario
-scripts/      run_phase1..5.py e run_phase6a/b/c/d/e.py — ogni fase riscrive i
-              propri report
-tests/        160 test: dati, leakage, modello, proiezione, metriche, figure,
+acquisition/  ciò che porta dati dentro il repository. `whoscored/` sono gli
+              script del fork che hanno prodotto i 380 CSV
+scripts/      run_phase1..5.py, run_phase6a..f.py e la CLI tiri_in_porta.py —
+              ogni fase riscrive i propri report
+tests/        206 test: dati, leakage, modello, proiezione, metriche, figure,
               catena del livello, i due estimatori, rho, potenza dei
-              predittori, calendario
-legacy/       backtest circolare archiviato (NON riusare)
-reports/      output rigenerabili; solo le figure sono versionate
+              predittori, calendario, piano dati, layout
+legacy/       backtest circolare archiviato (NON riusare); `fork/` è il
+              materiale d'origine, conservato per attribuzione
+reports/      output rigenerabili
+data/         raw/ grezzo (mai trasformato) · processed/ rigenerabile ·
+              external/ fornito a mano, provenienza da accertare
 ```
+
+`data/` è organizzato per campionato e stagione — `ITA-serie-a/2025-2026` —
+e la coppia ha un nome **in un posto solo**, `sot/config.py`. La stagione è
+`2025-2026` e non `2025-26` (ambiguo a cavallo di secolo) né `2526` (è la forma
+degli URL di football-data.co.uk: adottarla farebbe entrare la convenzione di
+una fonte nella struttura di tutte). Stessa ragione per `ITA-serie-a` invece di
+`I1`. `tests/test_layout.py` blocca il ritorno di un percorso scritto a mano.
 
 Codice e docstring sono in **italiano**. Ogni scelta non ovvia è spiegata nella
 docstring del modulo con il *perché*, non solo il cosa.
@@ -631,12 +643,15 @@ docstring del modulo con il *perché*, non solo il cosa.
 
 Nasce come fork di
 [Scrape-Whoscored-Event-Data](https://github.com/Ali-Hasan-Khan/Scrape-Whoscored-Event-Data)
-di Ali Hasan Khan, che resta la fonte dei dati: `main.py`,
-`Scrape matches.py` e `scrape_serie_a_2025_2026.py` scaricano gli eventi dalla
+di Ali Hasan Khan, che resta la fonte dei dati:
+[`acquisition/whoscored/`](acquisition/whoscored/) — `main.py`,
+`scrape_matches.py` e `scrape_season.py` — scarica gli eventi dalla
 chalkboard di [WhoScored](https://www.whoscored.com/) via Selenium e li
-appiattiscono con `createEventsDF`. Il modello EPV nel repository originale è
+appiattisce con `createEventsDF`. Il modello EPV nel repository originale è
 di [Laurie Shaw](http://eightyfivepoints.blogspot.com/); le visualizzazioni
-usano [mplsoccer](https://github.com/andrewRowlinson/mplsoccer).
+usano [mplsoccer](https://github.com/andrewRowlinson/mplsoccer). Il resto del
+materiale d'origine è in [`legacy/fork/`](legacy/fork/), conservato per
+attribuzione e non usato dal modello.
 
 Da lì in poi il progetto è di modellazione statistica e non ha più a che fare
 con lo scraping, che serve solo a rigenerare i dati grezzi.

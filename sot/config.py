@@ -8,15 +8,124 @@ from pathlib import Path
 SEED = 42
 
 # --------------------------------------------------------------------------
+# Tassonomia: campionato e stagione
+#
+# Unico posto in cui un campionato e una stagione hanno un nome. Prima della
+# Fase 7 la coppia era incollata nel nome di una cartella
+# (`data/serie_a_2025_2026/`) e non esisteva posto per una seconda stagione.
+#
+# Due scelte che sembrano cosmetiche e non lo sono:
+#
+# 1. La stagione e' `2025-2026`, non `2025-26` (il secondo anno a due cifre e'
+#    ambiguo a cavallo di secolo) e non `2526` (e' la forma degli URL di
+#    football-data.co.uk: adottarla farebbe entrare la convenzione di UNA fonte
+#    nella struttura di tutte).
+# 2. Il campionato e' `ITA-serie-a`, non `I1`. Stessa ragione: `I1` e' il codice
+#    di una fonte. I codici delle fonti vivono qui dentro, in
+#    LEAGUE_CODES, e si leggono al punto d'uso; non diventano nomi di cartella.
+# --------------------------------------------------------------------------
+SEASON_RE = r"^\d{4}-\d{4}$"
+
+# Il valore di `whoscored` e' cio' che serve a comporre l'URL della competizione
+# (`/regions/<regione>/tournaments/<torneo>/<slug>`). E' `None` dove non e' stato
+# verificato: meglio un KeyError che un URL inventato che porta a un'altra
+# competizione senza dirlo.
+LEAGUE_CODES = {
+    # cartella          football-data.co.uk   WhoScored
+    "ITA-serie-a": {
+        "football_data": "I1",
+        "whoscored": {"regione": 108, "torneo": 5, "slug": "italy-serie-a"},
+    },
+    "ENG-premier-league":  {"football_data": "E0",  "whoscored": None},
+    "ESP-la-liga":         {"football_data": "SP1", "whoscored": None},
+    "GER-bundesliga":      {"football_data": "D1",  "whoscored": None},
+    "FRA-ligue-1":         {"football_data": "F1",  "whoscored": None},
+}
+
+# Perimetro pubblicato delle Fasi 0-6. Le altre coppie campionato-stagione
+# esistono nella tassonomia ma non hanno dati finche' la Fase 7 non li porta.
+LEAGUE = "ITA-serie-a"
+SEASON = "2025-2026"
+
+# Perimetro storico dichiarato dall'utente in `docs/regole_fantacalcio.md` §5 e
+# §7.1 (decisione 3): cinque stagioni complete. La 2025-26 e' l'unica in cui
+# coesistono i minuti WhoScored e l's.v. osservato, quindi l'unica su cui la
+# regola dell'80' e' falsificabile — le altre quattro servono a portare i minuti
+# indietro, non a misurare.
+#
+# **La 2021-22 e' la prima stagione di ritorno del pubblico** dopo le
+# restrizioni: il vantaggio del campo di quel periodo non e' confrontabile con
+# quello delle successive, e va dichiarato accanto a ogni stima che lo
+# attraversi (§5 dello stesso documento).
+SEASONS_STORICHE = (
+    "2021-2022",
+    "2022-2023",
+    "2023-2024",
+    "2024-2025",
+    "2025-2026",
+)
+
+# --------------------------------------------------------------------------
 # Percorsi
+#
+# Tre alberi separati, e la separazione corrisponde a tre regole diverse:
+#   raw/        grezzo, non si trasforma e non si sovrascrive mai;
+#   processed/  interamente rigenerabile, cancellabile senza perdita;
+#   external/   fornito a mano, provenienza da accertare caso per caso.
 # --------------------------------------------------------------------------
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-RAW_MATCH_DIR = DATA / "serie_a_2025_2026"
-MATCHES_JSON = DATA / "serie_a_2025_2026_matches.json"
-PROCESSED = DATA / "processed"
+RAW = DATA / "raw"
+MANIFEST = RAW / "manifest.json"
+EXTERNAL = DATA / "external"
 REPORTS = ROOT / "reports"
 FIGURES = REPORTS / "figures"
+
+
+def _check_season(season: str) -> str:
+    """Rifiuta una stagione mal formata invece di costruire un percorso sbagliato.
+
+    Un percorso costruito su `2025-26` non fallisce: crea silenziosamente una
+    cartella accanto a quella giusta, e i dati si dividono in due senza che
+    nessuno se ne accorga. Meglio l'eccezione.
+    """
+    import re
+    if not re.match(SEASON_RE, season):
+        raise ValueError(
+            f"stagione {season!r} non conforme a {SEASON_RE} "
+            "(attesa la forma 2025-2026, non 2025-26 ne' 2526)"
+        )
+    return season
+
+
+def _check_league(league: str) -> str:
+    if league not in LEAGUE_CODES:
+        raise ValueError(
+            f"campionato {league!r} non in LEAGUE_CODES: {sorted(LEAGUE_CODES)}"
+        )
+    return league
+
+
+def raw_dir(fonte: str, league: str = None, season: str = None) -> Path:
+    """Cartella del grezzo di una fonte per una coppia campionato-stagione."""
+    league = _check_league(LEAGUE if league is None else league)
+    season = _check_season(SEASON if season is None else season)
+    return RAW / fonte / league / season
+
+
+def processed_dir(league: str = None, season: str = None) -> Path:
+    """Cartella degli elaborati per una coppia campionato-stagione."""
+    league = _check_league(LEAGUE if league is None else league)
+    season = _check_season(SEASON if season is None else season)
+    return DATA / "processed" / league / season
+
+
+# I NOMI di queste costanti non cambiano dalla Fase 0: cambia solo il loro
+# valore. E' cio' che rende la riorganizzazione della Fase 7A invisibile a
+# valle — nessun modulo fuori da questo file costruisce percorsi a mano.
+RAW_MATCH_DIR = raw_dir("whoscored") / "events"
+MATCHES_JSON = raw_dir("whoscored") / "matches.json"
+PROCESSED = processed_dir()
 
 EVENTS_SLIM = PROCESSED / "events_slim.parquet"
 SHOTS_PARQUET = PROCESSED / "shots.parquet"

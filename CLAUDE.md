@@ -18,12 +18,13 @@ Il lavoro procede per fasi. **Alla fine di ogni fase ci si ferma e si riferisce
 all'utente prima di proseguire.** Non passare alla fase successiva di propria
 iniziativa.
 
-Stato: **fasi 0-5 completate, piu' tutti i blocchi della Fase 6 (6A-6F).**
-Dettaglio ed esiti nella sezione "Le fasi e i risultati raggiunti" piu' sotto.
-Il deliverable e' `README.md`. La Fase 6 e' descritta in
-`docs/prompt_fase6.md`; il seguito del lavoro e' il piano dati prodotto da 6F
-(`reports/phase6_piano_dati.md`), che **richiede dati non presenti nel
-repository** e non va iniziato senza averli.
+Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), e il
+blocco 7A.** Dettaglio ed esiti nella sezione "Le fasi e i risultati
+raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e' descritta in
+`docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`; il seguito del
+lavoro e' il piano dati prodotto da 6F (`reports/phase6_piano_dati.md`), che
+**richiede dati non presenti nel repository** ed e' cio' che la Fase 7 va a
+prendere. Il blocco successivo da fare e' **7B**.
 
 ## Comandi
 
@@ -31,7 +32,7 @@ repository** e non va iniziato senza averli.
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 184 test, ~10 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 206 test, ~8 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -43,7 +44,18 @@ repository** e non va iniziato senza averli.
 ./.venv/Scripts/python.exe scripts/run_phase6d.py   # predittori acerbi (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase6e.py   # calendario 26-27 (~1 min)
 ./.venv/Scripts/python.exe scripts/run_phase6f.py   # piano dati (~1 min)
+
+# acquisizione WhoScored — parametrizzata su campionato e stagione
+./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py --dry-run
+./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py --season 2021-2022
 ```
+
+`scrape_season.py` **senza argomenti scarica tutte e cinque le stagioni** di
+`config.SEASONS_STORICHE`. `--dry-run` stampa bersagli, percorsi e stato di
+avanzamento **senza aprire il browser e senza toccare la rete**: e' l'unico modo
+di verificare la parametrizzazione finche' i termini d'uso di WhoScored non sono
+accertati. Una partita gia' su disco viene saltata, mai riscaricata e mai
+sovrascritta; la concatenazione dei CSV si scrive solo con `--merge`.
 
 `run_phase6d.py` mette in cache i nove walk-forward in
 `data/processed/phase6d_predittori.parquet`: senza `--force` le riesegue in
@@ -79,6 +91,20 @@ Sono richieste esplicite dell'utente, non preferenze:
 6. **Baseline stupidi accanto a ogni metrica.** "R2 0.6" non e' un risultato
    finche' non si sa cosa fa la media semplice.
 
+Dalla Fase 7, tre in piu', e sono il motivo per cui quella fase esiste:
+
+7. **Mai mescolare due definizioni della stessa grandezza senza averle prima
+   misurate una contro l'altra.** Un "tiro in porta" preso da una fonte diversa
+   da Opta non e' la stessa grandezza finche' non e' dimostrato che lo sia. Se
+   divergono, si tengono in due colonne separate: non si converte, non si
+   sceglie la piu' comoda.
+8. **Ogni riga scaricata porta con se' la sua provenienza**: fonte, URL, data di
+   download, hash del file, e la definizione della metrica *in quella fonte*.
+   Una riga senza provenienza non entra nel dataset.
+9. **Ogni download e' idempotente e ripartibile.** Un file gia' scaricato e con
+   hash invariato non si riscarica. Nessuna esecuzione deve poter cancellare o
+   sovrascrivere dati grezzi gia' acquisiti.
+
 ## Architettura
 
 ```
@@ -109,21 +135,50 @@ sot/
                    scenari sulle promosse, limite della congestione
   data_plan.py     inventario delle domande aperte, granularita' minime,
                    simulazione sui nuovi arrivi, righe di eventi per il 6D
-scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py
-tests/    conftest + 14 moduli
+acquisition/       cio' che porta dati dentro il repository (Fase 7A)
+  whoscored/       gli script del fork: main.py, scrape_matches.py,
+                   scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
+                   eseguono, non si importano, e non c'e' __init__.py li' dentro
+    target.py      l'eccezione: risoluzione campionato+stagione, percorsi e CLI.
+                   NON importa selenium, ed e' percio' l'unica parte
+                   dell'acquisizione verificabile dai test senza browser
+scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py, tiri_in_porta.py
+tests/    conftest + 15 moduli
 legacy/   backtest circolare archiviato (NON riusare)
-reports/  output rigenerabili (in .gitignore)
+  fork/            materiale d'origine del fork, conservato per attribuzione:
+                   EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
+                   logo.jpg, collaudo_fork_manuale.py (ex test.py in radice —
+                   NON e' un test pytest, vedi legacy/README.md)
+reports/  output rigenerabili
+data/
+  raw/             grezzo. Non si trasforma e non si sovrascrive mai.
+    whoscored/ITA-serie-a/2025-2026/{events/*.csv, matches.json}
+    manifest.json  provenienza di ogni file acquisito. E' l'UNICA cosa sotto
+                   data/ che sta in git.
+  processed/ITA-serie-a/2025-2026/*.parquet    rigenerabile
+  external/quote/                              fornito a mano, provenienza da
+                                               accertare (blocco 7F)
 ```
 
 ## Dati
 
-380 CSV per-partita in `data/serie_a_2025_2026/` (~1 GB, uno per `matchId`),
+380 CSV per-partita in `config.RAW_MATCH_DIR`
+(`data/raw/whoscored/ITA-serie-a/2025-2026/events/`, ~1 GB, uno per `matchId`),
 562.672 eventi, schema **WhoScored/Opta appiattito** da `createEventsDF` in
-`main.py`. Non leggere mai `serie_a_2025_2026_events.csv` (1 GB, e' la
-concatenazione degli stessi dati).
+`acquisition/whoscored/main.py`.
 
-`events.csv` nella cartella principale **non e' Serie A**: e' una partita di
-Women's Super League, output demo di `Scrape matches.py`.
+**Mai scrivere un percorso a mano.** Campionato e stagione hanno un nome in un
+posto solo, `sot/config.py`: `LEAGUE`, `SEASON`, `LEAGUE_CODES`, `raw_dir()`,
+`processed_dir()`. La stagione e' `2025-2026`, non `2025-26` (ambiguo) ne'
+`2526` (e' la forma di football-data.co.uk, cioe' la convenzione di una fonte);
+il campionato e' `ITA-serie-a`, non `I1`, per la stessa ragione. I codici delle
+fonti stanno in `LEAGUE_CODES` e si leggono al punto d'uso.
+`tests/test_layout.py` blocca il ritorno di un percorso scritto a mano.
+
+I tre file demo che stavano in radice — `events.csv` (una partita di Women's
+Super League), `data/events.csv` (cinque partite di Liga 2022) e
+`serie_a_2025_2026_events.csv` (1 GB, concatenazione dei 380) — **sono stati
+cancellati dalla Fase 7A**. Erano trappole di lettura, non dati.
 
 ### Trappole che sono gia' costate tempo
 
@@ -154,7 +209,8 @@ Women's Super League, output demo di `Scrape matches.py`.
 
 ## Definizione di tiro in porta
 
-Una sola, in `sot/shots.py`. Non duplicarla: `tiri_in_porta.py` la importa.
+Una sola, in `sot/shots.py`. Non duplicarla: `scripts/tiri_in_porta.py` la
+importa.
 
 ```
 isShot AND ( (type=='SavedShot' AND NOT shotBlocked) OR (type=='Goal' AND NOT isOwnGoal) )
@@ -773,6 +829,152 @@ stagione — la granularita' piu' grossolana che esista.
   simulazione; `None` = comportamento pubblicato, e un test verifica
   l'uguaglianza bit per bit. Nessuno script della proiezione importa
   `data_plan`, e un test lo blocca.
+
+### Fase 7A — consolidare prima di moltiplicare ✅
+
+`reports/phase7a_riorganizzazione.md` (la proposta approvata) e questa sezione.
+**Nessun numero e' cambiato, ed e' stato verificato invece che assunto**:
+`run_phase1.py --force` rilegge i 380 CSV dai percorsi nuovi e ridà
+4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi; `run_phase5.py` ridà Como 4.34
+e 5.03 / 191 / [151, 240]; i quattro report rigenerati e **tutte e otto le
+figure** sono byte a byte identici alla copia presa prima del refactor.
+La suite passa da 184 a 206 test in ~8 s — invariato il tempo, quindi nessun
+Parquet e' stato ricalcolato.
+
+**Il punto del blocco: la radice conteneva tre punti d'ingresso di scraping,
+sei residui del fork, due `events.csv` di altri campionati e 1 GB di dati
+duplicati. Moltiplicare quello per trenta stagioni-campionato era il modo
+sicuro di rendere il repository ingestibile.**
+
+- **`acquisition/whoscored/`**: `main.py`, `scrape_matches.py` (era
+  `Scrape matches.py` — lo spazio nel nome costringeva a caricarlo per percorso
+  con `importlib`; il rinomino ha **eliminato** l'aggiramento, non trasportato),
+  `scrape_season.py` (era `scrape_serie_a_2025_2026.py`), `utils.py`.
+- **`data/{raw,processed,external}`** con `ITA-serie-a/2025-2026`. **Solo
+  `config.py` e' cambiato**: i nomi delle costanti sono gli stessi dalla Fase 0,
+  cambia il valore. Nessun modulo fuori da `config.py` costruisce percorsi a
+  mano — verificato prima del refactor, ed e' la ragione per cui i numeri non
+  potevano muoversi.
+- **1,02 GB cancellati**: `serie_a_2025_2026_events.csv` (concatenazione dei 380
+  CSV, che restano), `data/events.csv` (**5 partite di Liga 2022** — trappola
+  che nessun documento segnalava, trovata in questo blocco), `events.csv`
+  (1 partita di Women's Super League).
+- **`test.py` non e' finito in `tests/`**, benche' la specifica del blocco lo
+  suggerisse: importa `env.main`, modulo che non esiste, apre Chrome e asserisce
+  sulla Premier 2019/20. Sotto `tests/` avrebbe rotto la raccolta di pytest. E'
+  in `legacy/fork/collaudo_fork_manuale.py`, che e' quello che e'.
+- **`data/raw/manifest.json` e' l'unica cosa sotto `data/` che sta in git**: una
+  provenienza senza storia non e' verificabile (vincolo 8).
+- **`tests/test_layout.py`** (22 test): i percorsi si risolvono e contengono 380
+  CSV; `2025-26`, `2526` e `2025/2026` sono rifiutati con eccezione invece di
+  creare in silenzio una cartella accanto a quella giusta; nessun percorso con
+  stagione scritto a mano fuori da `config.py`; il modello non scrive mai sotto
+  `raw/`; la radice non riaccoglie scraper o residui del fork.
+
+**Una cosa dichiarata e non risolta, di proposito:** **`main.py` resta 23 KB di
+codice del fork** con `sys.modules["env.main"]` iniettato a mano, Selenium e
+nessun test. Spostarlo lo mette al posto giusto, non lo rende affidabile: a
+cinque stagioni per cinque campionati e' il collo di bottiglia, e va detto
+adesso invece di scoprirlo dopo.
+
+### Fase 7A-bis — `scrape_season.py` parametrizzato ✅
+
+Richiesta dall'utente subito dopo 7A, e chiude il primo dei due punti lasciati
+aperti sopra. **Nessun numero pubblicato e' cambiato** (verificato rieseguendo
+`run_phase5.py`), e **niente e' stato scaricato**: WhoScored non e' stato
+contattato una sola volta.
+
+- **`acquisition/whoscored/target.py`**, che **non importa selenium**. E' la
+  scelta strutturale del blocco: la parametrizzazione e' cosi' verificabile dai
+  test senza browser e senza rete — e senza rete *deve* essere, perche' i
+  termini d'uso di WhoScored restano non accertati. Se la logica stesse dentro
+  lo scraper, l'unico modo di provarla sarebbe eseguirlo.
+- **`Target(league, season)` immutabile** ha sostituito cinque variabili globali
+  (`SEASON`, `COMPETITION_URL`, `MATCHES_DIR`, `URLS_CACHE`, `OUTPUT_FILE`).
+  Erano quelle a rendere impossibile piu' di una stagione per esecuzione.
+- **CLI**: `--season` (una o piu'), `--league`, `--dry-run`, `--refresh-urls`,
+  `--merge`, `--sleep`. **Senza argomenti sono tutte e cinque le stagioni** di
+  `config.SEASONS_STORICHE`, non quella corrente.
+- **Le due forme di stagione restano separate**: `2025-2026` e' la tassonomia,
+  `2025/2026` e' il menu a tendina del sito. La conversione sta in `target.py`,
+  **non** in `config.py`, e va in un verso solo — un test verifica che
+  `2025/2026` sia rifiutata in ingresso. Far entrare la forma della fonte nei
+  nomi di cartella e' esattamente cio' che la 7A ha evitato con `ITA-serie-a`.
+- **Due cambi di comportamento**, entrambi voluti: la concatenazione dei CSV
+  ora si scrive **solo con `--merge`** (su cinque stagioni sarebbero cinque
+  copie da 1 GB di dati gia' presenti, cioe' cio' che la 7A ha cancellato), e
+  una stagione che fallisce non ferma le altre.
+- **`tests/test_acquisizione_target.py`** (34 test): percorsi distinti per le
+  cinque stagioni, default che coincide con `config.RAW_MATCH_DIR`, rifiuto di
+  stagioni mal formate e di campionati senza codici verificati, e la guardia di
+  idempotenza — un test controlla che nel sorgente `if out_path.exists()`
+  preceda `to_csv`.
+
+> **Due trappole trovate rendendolo eseguibile, nessuna delle due introdotta
+> qui.** (1) `main_url` in `main.py` vale `https://1xbet.whoscored.com/`, un
+> mirror di affiliazione, **non** `www.whoscored.com`: e' il dominio a cui ogni
+> richiesta andrebbe, e la verifica dei termini d'uso riguarda quello.
+> (2) `selenium` era in `requirements.txt` ma non installato nel `.venv` — ora
+> lo e', altrimenti nemmeno `--dry-run` partiva.
+
+---
+
+### Acquisizione WhoScored 2021-2026 ✅
+
+`reports/phase7_acquisizione_whoscored.md`. **1.889 CSV, 4,8 GB, copertura
+99,4%**; autorizzazione WhoScored dichiarata dall'utente (§7.1 di
+`regole_fantacalcio.md`). **Nessun numero delle Fasi 1-6 e' cambiato**: la
+2025-26 era gia' in casa ed e' stata saltata dalla guardia di idempotenza.
+
+| stagione | CSV / calendario |
+|---|---|
+| 2021-2022 | 374 / 380 |
+| 2022-2023 | 375 / **381** (380 + playout) |
+| 2023-2024 · 2024-2025 · 2025-2026 | 380 / 380 |
+
+**Le trappole di questa acquisizione, che non sono nei dati ma nel loro
+essere incompleti in modo non uniforme:**
+
+- **12 partite non acquisite perche' WHOSCORED NON HA I DATI.** Accertato
+  riaprendo le pagine una per una: tutte e dodici hanno `matchCentreData: null`
+  e uno script di 5.079 caratteri contro il ~1 MB di una pagina buona.
+  **Non e' un difetto dello scraper e non si recuperano: non ritentarle.**
+  Sono registrate in `data/raw/manifest.json` sotto `assenti_alla_fonte`.
+  Il messaggio `substring not found` che si legge nei log vecchi e' il parser
+  di `main.py` che muore su `metadata.index('{')` con valore `null`: descrive
+  l'incidente e nasconde il fatto. `acquisition/whoscored/pagina.py` ora
+  distingue **dati assenti** (si dichiara) da **pagina inattesa** (si ritenta).
+- **La perdita NON e' casuale rispetto alla squadra.** L'**Atalanta ne perde 6**
+  (35/38 nel 2021-22 e nel 2022-23) contro un'attesa di 1.2; p = 0.054% grezzo,
+  **1.1% corretto** per aver scelto il massimo di venti. Non e' una prova, e' un
+  segnale da dichiarare. Il buco e' nell'archivio della fonte, non
+  nell'acquisizione; perche' riguardi proprio l'Atalanta resta aperto e con
+  dodici eventi non e' rispondibile.
+- **I denominatori si prendono dai dati, mai assunti a 38**: 35 per l'Atalanta,
+  **39 per Spezia e Verona nel 2022-23** (playout, che e' una partita vera e non
+  va scartata), 38 altrove.
+- Lo schema regge su tutte e cinque le stagioni (259 colonne); l'unica
+  differenza e' `isOwnGoal`, cioe' la trappola gia' nota, non una divergenza.
+- **Nessuna verifica di stabilita' del criterio di rilevazione fra stagioni.**
+  Schema identico non implica annotazione identica: da misurare prima di
+  stimare `rho` su cinque stagioni.
+
+**Due difetti trovati solo eseguendo**, entrambi corretti con test:
+(1) un banner sopra `<select id="stages">` sollevava
+`ElementClickInterceptedException`, non intercettata: **costava l'intera
+2022-2023**. Ha retto invece la scelta di non far fermare le altre stagioni.
+(2) `report_completeness` confrontava con `!= expected`, quindi dichiarava
+**incompleto** un calendario a 381 partite. Spostata in `target.py`, dove e'
+verificabile senza browser — che e' il motivo per cui il difetto era arrivato
+fin li'.
+
+**`acquisition/manifest.py` + `data/raw/manifest.json`** (851 KB, in git)
+chiudono il vincolo 8: fonte, URL, `matchId`, data di download reale (dal
+`mtime`, non dall'istante di registrazione), byte, SHA-256, piu' la definizione
+della metrica *nella fonte*. Non scarica, non tocca `raw/`, e un hash cambiato
+lo segnala conservando la revisione precedente invece di assorbirla.
+
+---
 
 ## Convenzioni
 
