@@ -410,9 +410,24 @@ def test_la_macchina_ha_potenza_sui_dati_veri(unita):
 # --------------------------------------------------------------------------
 # 8. Il blocco non tocca niente
 # --------------------------------------------------------------------------
+def _importa(sorgente: str, modulo: str) -> bool:
+    """Cerca un `import`, non una menzione.
+
+    La versione precedente cercava il nome del modulo **ovunque nel file**, e
+    per un po' ha funzionato perche' nessuno lo nominava in prosa. Poi
+    `scripts/run_voti_fantacalcio.py` ha scritto nel proprio report che il test
+    di rottura formale sta in `sot/recording_stability.py` e **non e' stato
+    rifatto sui voti** — cioe' ha citato il modulo proprio per dire che non lo
+    usa — e il test lo ha dichiarato colpevole. Un controllo che vieta di
+    *parlare* di un modulo e' rumore: quello da vietare e' importarlo.
+    """
+    return re.search(rf"^\s*(?:from|import)\b.*\b{re.escape(modulo)}\b",
+                     sorgente, re.MULTILINE) is not None
+
+
 def test_nessuno_script_delle_fasi_1_6_importa_questo_modulo():
     colpevoli = [p.name for p in sorted((ROOT / "scripts").glob("*.py"))
-                 if "recording_stability" in p.read_text(encoding="utf-8")
+                 if _importa(p.read_text(encoding="utf-8"), "recording_stability")
                  and "phase7" not in p.name]
     assert not colpevoli, colpevoli
 
@@ -420,7 +435,7 @@ def test_nessuno_script_delle_fasi_1_6_importa_questo_modulo():
 def test_nessun_modulo_del_modello_importa_questo_modulo():
     colpevoli = [p.name for p in sorted((ROOT / "sot").glob("*.py"))
                  if p.name != "recording_stability.py"
-                 and "recording_stability" in p.read_text(encoding="utf-8")]
+                 and _importa(p.read_text(encoding="utf-8"), "recording_stability")]
     assert not colpevoli, colpevoli
 
 

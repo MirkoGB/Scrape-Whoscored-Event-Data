@@ -19,13 +19,24 @@ all'utente prima di proseguire.** Non passare alla fase successiva di propria
 iniziativa.
 
 Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
-7A, l'acquisizione WhoScored 2021-2026 e la verifica di stabilita' del criterio
-di rilevazione.** Dettaglio ed esiti nella sezione "Le fasi e i risultati
-raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e' descritta in
-`docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`; il seguito del
-lavoro e' il piano dati prodotto da 6F (`reports/phase6_piano_dati.md`), che
-**richiede dati non presenti nel repository** ed e' cio' che la Fase 7 va a
-prendere. Il blocco successivo da fare e' **7B**.
+7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
+di rilevazione, il Blocco 0 della Fase 8 (ricognizione) e l'acquisizione dei
+voti fantacalcio 2021-2026.** Dettaglio ed esiti nella sezione "Le fasi e i
+risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
+descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`; il
+seguito del lavoro e' il piano dati prodotto da 6F
+(`reports/phase6_piano_dati.md`), che **richiede dati non presenti nel
+repository** ed e' cio' che la Fase 7 va a prendere. Il blocco successivo da
+fare e' **7B**.
+
+**Della Fase 8 sono chiusi**: i voti (D1), le quotazioni (D2), la giornata di
+campionato (D6), l'aggancio fra le due fonti, la regola dell'80' misurata, il
+modello per l'asta validato su quattro transizioni, **il modificatore di difesa**
+e una **lista d'asta provvisoria** su listone surrogato. **Tutte e cinque le
+decisioni di §0 sono prese** (`sot/lega.py`). Restano aperte le domande non
+bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore, blocchi
+`T1-T5` (squadra), `P1-P9` (giocatore), `F1-F5` (fantacalcio) — dove `8A = P2`
+(voto base) e `8D = F3` (modificatore).
 
 ## Comandi
 
@@ -33,7 +44,7 @@ prendere. Il blocco successivo da fare e' **7B**.
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 306 test, ~20 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 436 test, ~16 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -50,9 +61,38 @@ prendere. Il blocco successivo da fare e' **7B**.
 # --force rilegge i 1.889 CSV, ~90 s in piu'). Non tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_phase7_stabilita.py
 
+# Fase 8 — Blocco 0, ricognizione. ~5 s da cache; con --force rilegge i 1.889
+# CSV con TUTTE le 259 colonne (~3 min). Non tocca la rete.
+./.venv/Scripts/python.exe scripts/run_blocco0.py
+
+# Voti fantacalcio: dai 190 HTML gia' su disco ai due Parquet, al manifest e al
+# report (~20 s). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_voti_fantacalcio.py
+
+# Aggancio delle due fonti + misura della regola dell'80' (~1 min; --force
+# ricalcola i minuti dai 380 CSV, ~40 s in piu'). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_aggancio.py
+
+# Modello per l'asta: fantavoto di lega, walk-forward su 4 transizioni,
+# 4 baseline, report (~30 s). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_modello_asta.py
+
+# Lista d'asta 2026-27 su listone SURROGATO (il vero non esiste ancora) +
+# modificatore simulato per giornata e per modulo (~2 min). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_asta_2627.py
+
+# acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
+./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
+./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote
+
 # acquisizione WhoScored — parametrizzata su campionato e stagione
 ./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py --dry-run
 ./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py --season 2021-2022
+
+# acquisizione dei voti fantacalcio — 5 stagioni x 38 giornate, ~12 min a 3 s
+# di pausa. Una pagina gia' su disco viene saltata, mai riscaricata.
+./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_voti --dry-run
+./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_voti
 ```
 
 `scrape_season.py` **senza argomenti scarica tutte e cinque le stagioni** di
@@ -144,6 +184,29 @@ sot/
                    con phi, scansione del punto di rottura col nullo simulato,
                    MDE, frequenze dei qualifier. **Multi-stagione**: e' l'unico
                    modulo che legge tutte e cinque le stagioni
+  voti.py          dai 190 HTML di fantacalcio.it alla tabella giocatore-partita.
+                   Non scarica. Contiene la riconciliazione FV = V + bonus, che
+                   e' la verifica piu' forte di quell'acquisizione perche' non
+                   passa da nessun modello
+  aggancio.py      la corrispondenza fra WhoScored e fantacalcio. **La chiave e'
+                   diversa ai due livelli**: per le squadre il calendario, per i
+                   giocatori il cognome. Non e' simmetrico ed e' misurato, non
+                   assunto
+  presenza.py      presenza fantacalcistica e regola dell'80' misurata nei due
+                   versi. E' il bersaglio del modello P1
+  lega.py          LA CONFIGURAZIONE DELLA LEGA, separata dal codice (§6): bonus,
+                   fasce del modificatore, formato. Non legge dati e non stima
+                   niente. `gestione_sv()` solleva DecisioneMancante finche' la
+                   0.3 non e' decisa, invece di scegliere un default
+  quotazioni.py    il listone. QI e' il prezzo d'asta, FVM e' un CONCORRENTE del
+                   modello e non un riferimento
+  fantapunti.py    il fantavoto DI QUESTA LEGA, ricalcolato dai bonus. Diverge da
+                   quello della fonte solo sulle porte inviolate, e lo verifica
+  modello_asta.py  punti totali attesi di stagione. Walk-forward su 4 transizioni
+                   contro 4 baseline, di cui due (QI, FVM) sono concorrenti veri
+  modificatore.py  il modificatore di difesa, SIMULATO per giornata e per modulo.
+                   Mai applicato alle medie di stagione: la scorciatoia sbaglia
+                   di -20 o +50 punti a seconda della linea di riferimento
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -151,9 +214,22 @@ acquisition/       cio' che porta dati dentro il repository (Fase 7A)
     target.py      l'eccezione: risoluzione campionato+stagione, percorsi e CLI.
                    NON importa selenium, ed e' percio' l'unica parte
                    dell'acquisizione verificabile dai test senza browser
+  fantacalcio/     i voti. **E' un pacchetto vero**, non una cartella di script:
+                   `acquisition.fantacalcio`. La cartella whoscored espone gia'
+                   i nomi `target` e `pagina` e i test la mettono in sys.path —
+                   due moduli `target` importabili per nome nudo sarebbero lo
+                   stesso oggetto in sys.modules
+    target.py      bersagli, URL, percorsi, User-Agent. NON importa requests
+    pagina.py      il parser. Funzione pura da byte HTML a righe: tutta la
+                   conoscenza del markup della fonte sta qui
+    scrape_voti.py i voti: 38 pagine per stagione
+    scrape_quote.py il listone: una pagina per stagione. Distingue "listone non
+                   ancora pubblicato" da "markup cambiato" — la 2026-27 e' il
+                   primo caso, e mandarla in quarantena sarebbe stato sbagliato
 scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
-          run_phase7_stabilita.py, tiri_in_porta.py
-tests/    conftest + 17 moduli
+          run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
+          tiri_in_porta.py
+tests/    conftest + 21 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -163,12 +239,20 @@ reports/  output rigenerabili
 data/
   raw/             grezzo. Non si trasforma e non si sovrascrive mai.
     whoscored/ITA-serie-a/2025-2026/{events/*.csv, matches.json}
+    fantacalcio/ITA-serie-a/<stagione>/voti/<gg>.html.gz   190 pagine, 8,3 MB.
+                   gzip con mtime=0: senza perdita, quindi resta grezzo, e
+                   deterministico, quindi l'hash del manifest significa qualcosa
     manifest.json  provenienza di ogni file acquisito. E' l'UNICA cosa sotto
                    data/ che sta in git.
   processed/ITA-serie-a/2025-2026/*.parquet    rigenerabile
   processed/ITA-serie-a/phase7_*.parquet       cache che ATTRAVERSA le stagioni
                    (`config.processed_league_dir`): non sta dentro nessuna
                    cartella di stagione perche' non appartiene a nessuna
+  processed/ITA-serie-a/fantacalcio_{voti,partite}.{parquet,csv}
+                   i voti delle cinque stagioni, in due forme. **Il Parquet e'
+                   quello giusto**: il CSV perde i tipi, e `giocatore_id` (Int64
+                   con i nulli degli allenatori) riletto da CSV torna `4431.0`.
+                   Il CSV serve ad aprire la tabella fuori dal repository
   external/quote/                              fornito a mano, provenienza da
                                                accertare (blocco 7F)
 ```
@@ -200,8 +284,13 @@ cancellati dalla Fase 7A**. Erano trappole di lettura, non dati.
   `satisfiedEventsTypes`. Forzarle a `False`.
 - **30 `id` evento duplicati che NON sono duplicati**: ogni collisione accoppia
   un `OffsideGiven` con un evento normale di minuto e squadra diversi. Non
-  deduplicare. La chiave unica e' `(matchId, teamId, eventId)`; `eventId` da
-  solo no, e' numerato per squadra.
+  deduplicare. `eventId` da solo non e' una chiave, e' numerato per squadra.
+  **`(matchId, teamId, eventId)` non e' unica** (corretto dal Blocco 0, che l'ha
+  misurata su tutte e cinque le stagioni): ha **una** collisione, nella partita
+  `1901279` del 2025-26, dove l'`eventId` 838 della squadra 75 sta su un `Save`
+  a 84:29 e su un `BallRecovery` a 84:32. Una riga su 2,8 milioni non sposta
+  nessuna stima, ma **nessuna delle chiavi disponibili e' unica**: verificare la
+  cardinalita' dopo ogni join invece di fidarsi.
 - `qualifiers` e `satisfiedEventsTypes` sono **repr Python** con apici singoli:
   serve `ast.literal_eval`, `json.loads` fallisce.
 - `maxMinute` a volte e' **minore** dell'ultimo evento. Usare
@@ -232,6 +321,29 @@ stabilita' del criterio, sezione piu' sotto):
 - **Un qualifier puo' sparire senza che nulla se ne accorga**: `StandingSave`
   c'e' su ~81% dei tiri nelle prime quattro stagioni e su ~2% nel 2025-26, a
   schema, conteggio colonne e numero di eventi invariati.
+- **Il nome di un qualifier NON e' un identificatore stabile** (Blocco 0).
+  Misurato su **tutti** gli eventi e non sui soli tiri, `StandingSave` sta sul
+  **71% di tutti gli eventi** nelle prime quattro stagioni — 683 occorrenze su
+  885 stanno su eventi `Pass` — e nel 2025-26 sta su ~30 eventi per partita e
+  solo su `Tackle`/`Foul`/`Save`. Non e' una parata che sparisce: e' **la stessa
+  etichetta su id diversi**, cioe' due versioni del dizionario della fonte.
+  `OtherBodyPart` fa lo stesso e **nelle stesse partite** (91 su 92).
+  **L'id numerico non e' recuperabile dai dati in casa**:
+  `acquisition/whoscored/main.py:432` lo butta via tenendo solo il `displayName`.
+- **72 delle 259 colonne non sono valorizzate in nessuna stagione** (Blocco 0).
+  Fra queste **tutte** le `cleanSheet*`, `goalConcededByTeam*`,
+  `goalScoredByTeam*`, le `save*` per settore di porta e `passAccuracy`: porta
+  inviolata, gol subiti e precisione dei passaggi **si derivano, non si
+  leggono**. Attenzione a `notna()`: lo scraper scrive `False` dove il campo e'
+  assente, quindi la misura giusta e' "ne' nullo ne' `False`".
+- **Le frequenze dei tipi di evento derivano fra stagioni** (Blocco 0), e
+  derivano sulle grandezze che servono al voto base: `Clearance` +48%,
+  `BallRecovery` −26%, `Error` +162% fra 2021-22 e 2025-26. Nessun tipo compare
+  o sparisce; sono le frequenze a muoversi.
+- **La giornata di campionato non esiste nei dati.** `matches.json` e' ordinato
+  **per data**, non per turno (blocchi di dieci coerenti solo 5 volte su 38).
+  Il sostituto e' l'indice cronologico di squadra (`team_match_idx`), che non e'
+  la giornata quando ci sono recuperi.
 - **`isOwnGoal` e' l'unica colonna non sempre presente**, e lo e' in tutte e
   cinque le stagioni allo stesso modo: la trappola nota, non una divergenza.
 
@@ -1066,6 +1178,288 @@ e 5.03 / 191 / [151, 240].
 > scarti assoluti — la media di campionato si e' mossa del 10.1% per ragioni di
 > gioco, e +1 tiro di eccesso non significa la stessa cosa nel 2021-22 e nel
 > 2025-26.
+
+---
+
+### Acquisizione dei voti fantacalcio 2021-2026 ✅
+
+`reports/voti_fantacalcio.md`, da `acquisition/fantacalcio/` +
+`scripts/run_voti_fantacalcio.py`; modulo di lettura `sot/voti.py`, test
+`tests/test_acquisizione_fantacalcio.py` (37). **Chiude la D1 del Blocco 0 e il
+`[NON DECISO]` di `regole_fantacalcio.md` §7.1** (via scelta: **vista HTML
+pubblica**; l'export Excel resta a 401). **Nessun numero delle Fasi 1-6 e'
+cambiato**, verificato rieseguendo: `run_phase1.py` ridà 4.034 / 4.432 / 3.637 /
+5.105, `run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240], e le otto
+figure sono byte a byte identiche.
+
+**190 pagine, 63.105 righe giocatore-partita, 8,3 MB di grezzo**; 380 partite e
+20 squadre in ognuna delle cinque stagioni, nessun buco. Autorizzazione
+Fantacalcio S.r.l. dichiarata dall'utente (§7.1, decisione 1).
+
+**Il risultato che conta e' la riconciliazione: 57.574 righe su 57.574.** La
+fonte pubblica il voto, il fantavoto **e** separatamente le otto voci di bonus:
+le due strade devono chiudere, e non passano da nessun modello. Il barema e'
+stato **ricavato per differenza**, non dichiarato dalla fonte. Cosa ne e' uscito:
+
+- **I cartellini non sono una colonna di bonus.** Stanno come **classe CSS sullo
+  span del voto** (`player-grade yellow-card`, `red-card`). Chi legge solo
+  `data-value` perde in silenzio 7.884 ammonizioni e 432 espulsioni, che valgono
+  −0,5 e −1.
+- **Il gol su rigore non e' anche in "gol segnati".** Sta solo in "rigori
+  segnati" e vale +3 una volta sola. Sommare le due colonne, come la lettura
+  ingenua di §1.1 delle regole suggerirebbe, conterebbe due volte lo stesso gol.
+- **`player of the match` ha una colonna e non entra nel fantavoto.**
+- **Il `FV` della fonte NON e' il fantavoto della lega.** Il barema di §1.1
+  contiene **+1 di porta inviolata**, che la fonte non applica — e si vede dal
+  fatto che la riconciliazione torna esatta *senza*. Il fantavoto di lega va
+  ricalcolato dai bonus e la porta inviolata **derivata** (`ruolo == "p"` e
+  `gol_subiti == 0`). Un test lo blocca.
+
+**L'errore che questa acquisizione ha commesso, corretto prima di pubblicare i
+numeri e riportato perche' e' istruttivo:** la soglia che riconosce le
+sentinelle di s.v. (`55`, `56`) era applicata **anche al fantavoto**. Un voto sta
+in 0-10 (osservato 3,0-9,5); un fantavoto no — Simeone, 9 con quattro gol, fa
+**21**. Cosi' ~1.000 fantavoti veri diventavano codici inesistenti, e quelle
+righe — diventate nulle — **uscivano dalla riconciliazione senza far rumore**,
+perche' un residuo nullo si filtra da solo. La verifica dichiarava 53.775/53.775
+saltando proprio le righe dei marcatori, cioe' le uniche in cui il barema dei gol
+veniva messo alla prova. Ora il denominatore e' "righe con un voto" e una riga
+col voto e senza fantavoto conta come fuori registro.
+
+**Le trappole di questa fonte** (dettaglio in `acquisition/fantacalcio/pagina.py`):
+
+- **Le venti tabelle sono in ordine alfabetico, non appaiate per partita.**
+  L'avversario si prende dal calendario in cima alla pagina, via
+  `data-teams-id`. Chi assumesse "due tabelle consecutive = una partita"
+  otterrebbe voti giusti e avversari sbagliati per tutte e dieci le partite.
+- **Venti righe per giornata sono allenatori** (`ruolo == "all"`, nessun link,
+  `giocatore_id` nullo) e prendono un voto come i giocatori. Da filtrare da
+  qualunque media, o dentro c'e' il giudizio sul tecnico.
+- **In tabella ci sono solo i giocatori scesi in campo**, non la rosa. La
+  presenza fantacalcistica e' un sottoinsieme ancora piu' piccolo: le righe con
+  un voto **numerico**.
+- **`55` non e' un voto, e' l's.v.**: 15.397 occorrenze, mai su un titolare.
+  `56` esiste, 10 volte, e **mai sulla scala Redazione**. Sono conservati in una
+  colonna a parte. Dove il voto e' `56`, il fantavoto e' reso `0`: quello zero e'
+  l'assenza scritta a numero, non un fantavoto.
+- **`giocatore_id` viene dall'URL del profilo ed e' stabile fra stagioni.** E' la
+  chiave con cui ricucire l'identita' senza passare dai nomi, che la fonte
+  abbrevia e disambigua a mano (`Ivanovic M.`).
+
+**L's.v. osservato sta quasi tutto sui subentrati**: 30-33% di loro contro lo
+0,2% dei titolari, stabile su tutte e cinque le stagioni. Non e' una conferma
+della regola dell'80': la fonte **dichiara che una soglia di minuti non esiste**,
+quindi l's.v. non e' una funzione dei minuti e la regola resta cio' che §1.2 dice
+che sia — un'assunzione di modello, falsificabile solo sulla 2025-26.
+
+**Il confronto fra stagioni e' descrittivo e non chiude la §5 delle regole.**
+Voto medio 6.002 → 5.981, quota s.v. 9,0% → 9,6%: si muove poco. Ma il *livello*
+non e' il *criterio editoriale*, e il test formale di rottura — punto di rottura
+**cercato** e non assunto, potenza dichiarata, come `recording_stability.py` fa
+sui tiri — **non e' stato rifatto sui voti**.
+
+**Un difetto latente trovato di rimbalzo**, in `tests/test_stabilita_rilevazione.py`:
+la guardia "nessuno script delle Fasi 1-6 importa questo modulo" cercava il nome
+del modulo **ovunque nel file**, quindi bastava *nominarlo* in prosa per essere
+dichiarati colpevoli — ed e' successo a `run_voti_fantacalcio.py`, che lo cita
+proprio per dire che non lo usa. Ora cerca una riga di `import`.
+
+**Cosa NON e' stato preso: le quotazioni del listone** (`/quotazioni-fantacalcio`).
+Non erano nella richiesta, e sono la **verifica principale del progetto** (F5,
+D2 del Blocco 0).
+
+---
+
+### Fase 8 — aggancio delle due fonti e regola dell'80' ✅
+
+`reports/aggancio.md`, da `scripts/run_aggancio.py`; moduli `sot/aggancio.py` e
+`sot/presenza.py`, test `tests/test_aggancio.py` (38). E' il prerequisito di
+tutto il resto della Fase 8: il Blocco 0 non poteva farlo perche' aveva un lato
+solo. **Chiude la D6** (la giornata di campionato) e il `[DA MISURARE]` di
+`regole_fantacalcio.md` §1.2. Nessuna richiesta di rete.
+
+**La chiave e' diversa ai due livelli, ed e' il risultato del blocco:**
+
+| livello | chiave | verifica | esito |
+|---|---|---|---|
+| squadra | insieme delle 38 coppie `(data, in casa)` | il nome | 100/100, margine 19-29 su 38 |
+| partita | `(stagione, casa, trasferta)` | la data | **1.888** agganciate |
+| giocatore | il **cognome** dentro la squadra + iniziali | il calendario | **609 su 609**, zero irrisolti |
+
+- **Al livello di squadra il nome non e' una chiave** (`AC Milan` contro `Milan`,
+  `Parma Calcio 1913` contro `Parma`), il calendario si'.
+- **Al livello di giocatore vale l'esatto contrario, e l'ho scoperto
+  sbagliando.** La prima versione agganciava per insieme di presenze, per
+  simmetria. Non funziona, e il motivo e' strutturale: l'insieme delle partite di
+  una *squadra* e' 38 su 380 — sparso — quello di un *giocatore* dentro la sua
+  squadra e' 35 su 38, quasi pieno. Due titolari qualsiasi hanno fra loro
+  Jaccard ~0.85 e il margine scendeva sotto 0.03 su meta' rosa. **Il calendario,
+  li', e' rumore.** Ora e' la verifica: Jaccard medio **0.9999**, minimo 0.944.
+- I 23 casi su 609 che il cognome grezzo sbaglia sono di due specie sole:
+  **lettere che l'ASCII non piega** (`Højlund`, `Østigård`, `Grønbæk` — `ø` non
+  e' una `o` con un segno sopra) e **le iniziali** che la fonte aggiunge solo
+  quando servono (`Martinez L.` contro `Martinez Jo.`). Le iniziali **si usano,
+  non si tolgono**: buttarle via creava l'ambiguita' da risolvere.
+- **Residui, tutti dichiarati**: 12 partite hanno i voti e non gli eventi (le
+  `matchCentreData: null` gia' note); **1 ha gli eventi e non i voti** — lo
+  spareggio Spezia-Verona, l'unica coppia ordinata che si ripete, che senza
+  accorgersene si sarebbe agganciata ai voti della **giornata 25**; 2 partite
+  hanno date discordi e sono le due **interrotte e riprese**.
+- **Il ruolo NON e' la stessa grandezza nelle due fonti**: 133 giocatori su 609
+  discordano. Quello dei voti e' un'etichetta di *lega* (P/D/C/A), quello di
+  WhoScored e' posizionale. **Restano due colonne** (vincolo 7).
+
+**La regola dell'80' misurata** — 11.926 righe della 2025-26:
+
+| | |
+|---|---:|
+| accordo | **97,84%** |
+| baseline «nessun s.v.» | **90,45%** |
+| falsi s.v. | 142 (12,2% dei proiettati s.v.) |
+| s.v. mancati | 116 (1,08%) |
+
+- **Il baseline e' il punto** (vincolo 6): il 97,8% da solo sembra un risultato,
+  ma dire «nessuno prende s.v.» ne fa gia' 90,5. Il guadagno vero e' 7,4 punti.
+- **L'80' cade sul massimo della griglia 60-95**, e non perche' sia stato scelto
+  li': era deciso prima, in `regole_fantacalcio.md` §1.2. Scelto qui sarebbe un
+  iperparametro adattato al campione su cui poi lo si valuta — vincolo 1. Un
+  test blocca la costante e vieta che qualcuno la ricavi da un `argmax`.
+- **Sopra i 30 minuti giocati non c'e' un solo s.v. su 8.552 righe.** La fonte
+  dichiara che nessuna soglia esiste, e formalmente e' vero; la *pratica*
+  editoriale e' quasi deterministica. Riscrivere la regola sui minuti giocati e'
+  stato provato e **non migliora**: 97,83% contro 97,84%, cambia il mix degli
+  errori e non la loro quantita'.
+- **Un verso d'errore strutturale che §1.2 non elencava**: tutti e 18 gli s.v.
+  dei titolari sono usciti prima del 30'. La regola guarda l'**ingresso** e non
+  li vedra' mai.
+- **La fonte dei voti non elenca due giocatori che hanno giocato** (7 e 10
+  minuti). Non da' s.v.: non da' riga. Terzo stato oltre «voto» e «s.v.».
+
+**Limite dichiarato**: l'aggancio dei **giocatori** copre la sola 2025-2026,
+perche' ha bisogno delle presenze partita per partita dal lato WhoScored e
+`player_match.parquet` esiste per la sola stagione pubblicata. Squadre e partite
+coprono tutte e cinque.
+
+---
+
+### Fase 8 — modello per l'asta ✅ (con esito negativo, che e' il risultato)
+
+`reports/modello_asta.md`, da `scripts/run_modello_asta.py`; moduli
+`sot/lega.py`, `sot/quotazioni.py`, `sot/fantapunti.py`, `sot/modello_asta.py`,
+test `tests/test_modello_asta.py` (24). Nessuna richiesta di rete nel modello;
+i cinque listoni sono stati acquisiti a parte.
+
+**Decisioni di lega prese dall'utente il 2026-08-03** e messe in `sot/lega.py`,
+separate dal codice come §6 chiede: `0.1` tre fasce 6.00/6.50/7.00 con
++1/+3/+6, `0.4` malus −1 sotto soglia, `0.2` **`n_difensori` dipende dal
+modulo** (era la contraddizione 2 del Blocco 0: con `n` fisso il test di
+coerenza di §3.2 era insoddisfacibile per costruzione), `0.5` 8 squadre, budget
+1000, rosa 3/8/8/6. **La `0.3` resta aperta** ed e' l'unica: `gestione_sv()`
+solleva `DecisioneMancante` invece di scegliere un default.
+
+**Il fantavoto di lega non e' quello della fonte, e la divergenza e' esatta**:
+1.092 righe su 57.574, **tutte di scarto +1, tutte portieri, tutte con
+`gol_subiti == 0`**. E' la porta inviolata, che il barema della fonte non
+applica. Se divergesse altrove sarebbe un difetto; divergendo solo li', e' la
+conferma.
+
+**Esito del modello: batte l'ignoranza, non batte il mercato.**
+
+| candidato | Spearman | precisione sui primi N |
+|---|---:|---:|
+| **FVM della fonte** | **0.811** | **0.518** |
+| quotazione iniziale QI | 0.606 | 0.162 |
+| persistenza (anno prima) | 0.451 | 0.211 |
+| **modello** | 0.452 | 0.177 |
+| media di ruolo | 0.156 | 0.065 |
+
+- **Il FVM e' un concorrente, non un riferimento**: e' una stima di valore fatta
+  da altri, con informazioni che il modello non ha. Se non lo si batte, comprare
+  al listino e' la scelta razionale — e va scritto, non aggirato.
+- **Il modello non supera nemmeno la persistenza** ("l'anno prossimo come
+  l'anno scorso"). Tutto il macchinario dei tre fattori con shrinkage non
+  aggiunge niente. Con quattro transizioni la differenza non e' distinguibile dal
+  rumore, ma il segno e' contrario al modello.
+- **Sui portieri il modello fa 0 e il FVM 0.667**, e la causa e' identificabile:
+  i punti di un portiere dipendono dalla difesa della sua squadra, e **questo
+  modello non guarda la squadra affatto**.
+
+**Il risultato piu' utile e' dove sta l'errore**: con le presenze note il MAE
+crolla da **61.4 a 5.6** (−91%); con i bonus noti scende solo a 52.5. Il voto
+base e i bonus sono quasi risolti; il problema e' prevedere **quante partite un
+giocatore giochera'**, e quello dipende da cose che nessuna tabella acquisita
+contiene — minutaggio atteso, gerarchia di rosa, mercato, infortuni. **Non e' un
+difetto di stima, e' un'assenza di dati.**
+
+**Un difetto trovato dai test, e non era piccolo**: `precisione_top` scioglieva i
+pari merito nell'ordine della tabella, e il listone arriva ordinato per `QI`
+decrescente. Il baseline "media di ruolo" — costante dentro un ruolo — sceglieva
+cosi' i giocatori piu' cari e otteneva 0.182 invece di 0.065: **il confronto era
+falsato in favore dell'ignoranza**. Ora i pari merito si sciolgono col seme del
+progetto.
+
+**Il listone 2026-27 non esiste ancora** (verificato il 2026-08-03: la pagina
+dichiara "Dati non disponibili"), quindi **la lista d'asta vera non e'
+producibile oggi**. Lo scraper distingue questo caso da un cambio di markup.
+
+> **Trappola per le sessioni future.** Il modello perde contro FVM e persistenza,
+> e questo e' il contenuto informativo del blocco. **Non va "sistemato"**
+> ritoccando lo shrinkage finche' il numero non supera il concorrente: e' lo
+> stesso errore che le Fasi 2 e 3 servivano a escludere. La strada indicata dai
+> dati e' un'altra ed e' scritta sopra: collegare il **modello di squadra** gia'
+> validato (Fasi 2-4) e attaccare le **presenze**, non i bonus.
+
+---
+
+### Fase 8 — modificatore di difesa e lista d'asta provvisoria ✅
+
+`reports/asta_2627.md`, da `scripts/run_asta_2627.py`; modulo
+`sot/modificatore.py`, test dentro `tests/test_modello_asta.py` (38 in tutto).
+`[DECISO 0.3 — 2026-08-03]` **`escludi`**: un difensore senza voto esce dalla
+media e la linea si accorcia.
+
+**Il risultato del blocco e' che la scorciatoia vietata da §2.2 sbaglia davvero,
+e in entrambe le direzioni.** Applicare le fasce alla media di stagione invece di
+simulare per giornata costa:
+
+| linea di riferimento | media attesa | fasce sulla media | simulato | scarto di stagione |
+|---|---:|---:|---:|---:|
+| schierabili (i migliori 8xN) | 6.04 | **+1** | +0.49 | **−20** |
+| mediano di tutti i quotati | 5.93 | **−1** | +0.34 | **+51** |
+
+Lo stesso errore metodologico sbaglia di 20 punti in un verso o di 50 nell'altro
+**a seconda della linea**. §2.2 diceva "il segno puo' andare in entrambe le
+direzioni e va misurato": va in entrambe.
+
+- **La linea di riferimento va dichiarata, e la prima versione l'aveva sbagliata.**
+  Usava il mediano di *tutti* i quotati — che e' un panchinaro, con media
+  difensiva attesa sotto 6,00 — e ogni contributo marginale misurato contro
+  quella linea risultava gonfiato. Ora il default e' `schierabili` e l'altro
+  universo resta disponibile, perche' §2.2 chiede proprio di far vedere che lo
+  stesso giocatore vale diversamente contro linee diverse.
+- **Un contributo esiste per modulo, non in assoluto** (decisione 0.2): lo stesso
+  difensore ha tre valori a 3, 4 e 5 difensori, e non vengono mai schiacciati in
+  una media. Dimarco vale +10.5 punti di stagione a 4 difensori; il portiere
+  mediano vale −2.1.
+- **`escludi` non e' neutro**: su una linea di tre da 7 e uno da 4, se il quarto
+  prende voto la media e' 6,25 (+1), se non lo prende e' 7,0 (+6). **Cinque punti
+  per giornata dal solo fatto che il peggiore non e' stato giudicato.**
+
+**La lista d'asta 2026-27 e' provvisoria e su listone surrogato**, perche' quello
+vero non esiste ancora: l'universo e' quello della 2025-26, cioe' gli stessi nomi
+dell'anno scorso. Mancano **le tre promosse** (~15% del listone vero), ci sono
+**le tre retrocesse** — Cremonese, Verona, Pisa, ricavate dalla classifica e non
+scritte a mano — che sono **marcate in tabella, non tolte**, e `QI`/`FVM` sono
+dell'anno prima: come ordine informativi, come prezzo no.
+
+**Non c'e' nessuna colonna di crediti, ed e' voluto**: convertire punti attesi in
+prezzo d'asta e' un problema di allocazione con budget, non una proporzione
+(§2.2). Una divisione plausibile sarebbe un segnaposto travestito da risultato.
+
+**Limite della simulazione, dichiarato**: i membri della linea sono indipendenti.
+Una difesa che prende tre gol prende voti bassi *insieme*, quindi la variabilita'
+della media di linea e' sottostimata. Con fasce a scalini il segno dell'effetto
+sul bonus atteso non e' ovvio, e non e' stato corretto a occhio.
 
 ---
 

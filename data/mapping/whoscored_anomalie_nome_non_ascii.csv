@@ -1,0 +1,427 @@
+stagione,playerId,nome_modale,n_grafie,n_eventi,n_squadre,teamId_principale,squadra_principale
+2021-2022,317541,Brahim Díaz,1,1303,1,80,AC Milan
+2021-2022,328968,Fodé Ballo-Touré,1,436,1,80,AC Milan
+2021-2022,259102,Ismaël Bennacer,1,1695,1,80,AC Milan
+2021-2022,349207,Rafael Leão,1,1629,1,80,AC Milan
+2021-2022,20769,Simon Kjær,1,698,1,80,AC Milan
+2021-2022,303115,Théo Hernández,1,2592,1,80,AC Milan
+2021-2022,135211,Tiémoué Bakayoko,1,495,1,80,AC Milan
+2021-2022,41073,Duván Zapata,1,969,1,300,Atalanta
+2021-2022,363652,Joakim Mæhle,1,1103,1,300,Atalanta
+2021-2022,125810,José Palomino,1,2448,1,300,Atalanta
+2021-2022,280766,Jérémie Boga,1,1108,2,300,Atalanta
+2021-2022,64075,Rafael Tolói,1,1300,1,300,Atalanta
+2021-2022,334653,Nicolás Domínguez,1,1846,1,71,Bologna
+2021-2022,424585,Niklas Pyyhtiä,1,32,1,71,Bologna
+2021-2022,26059,Diego Godín,1,635,1,78,Cagliari
+2021-2022,289327,Gastón Pereiro,1,654,1,78,Cagliari
+2021-2022,86935,João Pedro,1,1635,1,78,Cagliari
+2021-2022,136294,Keita Baldé,1,634,1,78,Cagliari
+2021-2022,30635,Martín Cáceres,1,662,1,78,Cagliari
+2021-2022,280928,Nahitan Nández,1,1118,1,78,Cagliari
+2021-2022,333136,Paolo Faragò,1,24,1,78,Cagliari
+2021-2022,322094,Jonathan Ikoné,1,489,1,73,Fiorentina
+2021-2022,67206,José Callejón,1,900,1,73,Fiorentina
+2021-2022,329854,Lucas Martínez Quarta,1,1610,1,73,Fiorentina
+2021-2022,345322,Nico González,1,1830,1,73,Fiorentina
+2021-2022,317354,Álvaro Odriozola,1,1429,1,73,Fiorentina
+2021-2022,128880,Abdoulaye Touré,1,304,1,278,Genoa
+2021-2022,425115,Johan Vásquez,1,1955,1,278,Genoa
+2021-2022,369971,Leo Østigård,1,914,1,278,Genoa
+2021-2022,369688,Nicolò Rovella,1,1433,1,278,Genoa
+2021-2022,25244,Alexis Sánchez,1,752,1,75,Inter
+2021-2022,110373,Hakan Çalhanoglu,1,2509,1,75,Inter
+2021-2022,125378,Joaquín Correa,1,654,1,75,Inter
+2021-2022,299344,Lautaro Martínez,1,1189,1,75,Inter
+2021-2022,403803,Martín Satriano,1,26,1,75,Inter
+2021-2022,135625,Matías Vecino,1,348,1,75,Inter
+2021-2022,148684,Nicolò Barella,1,2695,1,75,Inter
+2021-2022,383628,Marley Aké,1,45,1,87,Juventus
+2021-2022,425079,Matías Soulé,1,14,1,87,Juventus
+2021-2022,91213,Álvaro Morata,1,1397,1,87,Juventus
+2021-2022,382237,André Anderson,1,64,1,77,Lazio
+2021-2022,396490,Raúl Moro,1,129,1,77,Lazio
+2021-2022,294193,Fabián Ruiz,1,2605,1,276,Napoli
+2021-2022,106931,Mário Rui,1,3003,1,276,Napoli
+2021-2022,374869,Carles Pérez,1,446,1,84,Roma
+2021-2022,397846,Matías Viña,1,1325,1,84,Roma
+2021-2022,332398,Nicolò Zaniolo,1,1321,1,84,Roma
+2021-2022,341525,Roger Ibañez,1,2791,1,84,Roma
+2021-2022,23089,Rui Patrício,1,1528,1,84,Roma
+2021-2022,70614,Sérgio Oliveira,1,773,1,84,Roma
+2021-2022,9016,Franck Ribéry,1,1102,1,143,Salernitana
+2021-2022,133223,Frédéric Veseli,1,336,1,143,Salernitana
+2021-2022,108117,Norbert Gyömbér,1,1669,1,143,Salernitana
+2021-2022,362556,Éderson Silva,1,761,1,143,Salernitana
+2021-2022,31991,Tomás Rincón,1,1051,2,271,Sampdoria
+2021-2022,359442,Emil Ceïde,1,58,1,2889,Sassuolo
+2021-2022,101767,Grégoire Defrel,1,769,1,2889,Sassuolo
+2021-2022,362551,Hamed Traoré,1,1448,1,2889,Sassuolo
+2021-2022,363661,Mert Müldür,1,1731,1,2889,Sassuolo
+2021-2022,345682,Rogério,1,1580,1,2889,Sassuolo
+2021-2022,428420,Aurélien Nguiamba,1,57,1,1501,Spezia
+2021-2022,416238,Nicolò Bertola,1,31,1,1501,Spezia
+2021-2022,362550,Samuel Mráz,1,30,1,1501,Spezia
+2021-2022,228854,Mërgim Vojvoda,1,1692,1,72,Torino
+2021-2022,61610,Ricardo Rodríguez,1,2039,1,72,Torino
+2021-2022,349178,Nehuén Pérez,1,1246,1,86,Udinese
+2021-2022,141032,Pablo Marí,1,1008,1,86,Udinese
+2021-2022,338507,Rodrigo Becão,1,2280,1,86,Udinese
+2021-2022,337660,Arnór Sigurdsson,1,114,1,85,Venezia
+2021-2022,344198,Michaël Cuisance,1,672,1,85,Venezia
+2021-2022,35565,Niki Mäenpää,1,766,1,85,Venezia
+2021-2022,124721,Adrien Tamèze,1,2167,1,76,Verona
+2021-2022,131042,Antonín Barák,1,1760,1,76,Verona
+2021-2022,116944,Koray Günter,1,2005,1,76,Verona
+2021-2022,142425,Lorenzo Montipò,1,1386,1,76,Verona
+2021-2022,344262,Mert Çetin,1,57,1,76,Verona
+2021-2022,349406,Nicolò Casale,1,1936,1,76,Verona
+2022-2023,317541,Brahim Díaz,1,1344,1,80,AC Milan
+2022-2023,328968,Fodé Ballo-Touré,1,448,1,80,AC Milan
+2022-2023,259102,Ismaël Bennacer,1,2089,1,80,AC Milan
+2022-2023,349207,Rafael Leão,1,1591,1,80,AC Milan
+2022-2023,379205,Sergiño Dest,1,316,1,80,AC Milan
+2022-2023,20769,Simon Kjær,1,896,1,80,AC Milan
+2022-2023,303115,Théo Hernández,1,2538,1,80,AC Milan
+2022-2023,135211,Tiémoué Bakayoko,1,48,1,80,AC Milan
+2022-2023,41073,Duván Zapata,1,767,1,300,Atalanta
+2022-2023,363652,Joakim Mæhle,1,1848,1,300,Atalanta
+2022-2023,125810,José Palomino,1,679,1,300,Atalanta
+2022-2023,280766,Jérémie Boga,1,684,1,300,Atalanta
+2022-2023,64075,Rafael Tolói,1,2283,1,300,Atalanta
+2022-2023,439584,Rasmus Højlund,1,985,1,300,Atalanta
+2022-2023,362556,Éderson Silva,1,1736,1,300,Atalanta
+2022-2023,363653,Jhon Lucumí,1,2685,1,71,Bologna
+2022-2023,454411,Joaquín Sosa,1,576,1,71,Bologna
+2022-2023,334653,Nicolás Domínguez,1,2176,1,71,Bologna
+2022-2023,424585,Niklas Pyyhtiä,1,96,1,71,Bologna
+2022-2023,302287,Jaime Báez,1,79,1,2731,Cremonese
+2022-2023,425115,Johan Vásquez,1,1399,1,2731,Cremonese
+2022-2023,303899,Santiago Ascacíbar,1,718,1,2731,Cremonese
+2022-2023,105161,Soualiho Meïté,1,1572,1,2731,Cremonese
+2022-2023,403803,Martín Satriano,1,930,1,272,Empoli
+2022-2023,373544,Nicolò Cambiaghi,1,898,1,272,Empoli
+2022-2023,131042,Antonín Barák,1,1190,2,73,Fiorentina
+2022-2023,322217,Christian Kouamé,1,1380,1,73,Fiorentina
+2022-2023,317675,Dodô,1,2160,1,73,Fiorentina
+2022-2023,322094,Jonathan Ikoné,1,1263,1,73,Fiorentina
+2022-2023,329854,Lucas Martínez Quarta,1,2265,1,73,Fiorentina
+2022-2023,345322,Nico González,1,1138,1,73,Fiorentina
+2022-2023,260843,André Onana,1,1322,1,75,Inter
+2022-2023,110373,Hakan Çalhanoglu,1,2349,1,75,Inter
+2022-2023,125378,Joaquín Correa,1,553,1,75,Inter
+2022-2023,299344,Lautaro Martínez,1,1528,1,75,Inter
+2022-2023,148684,Nicolò Barella,1,2340,1,75,Inter
+2022-2023,446865,Valentín Carboni,1,46,1,75,Inter
+2022-2023,425079,Matías Soulé,1,334,1,87,Juventus
+2022-2023,369426,Nicolò Fagioli,1,1000,1,87,Juventus
+2022-2023,23110,Ángel Di María,1,1068,1,87,Juventus
+2022-2023,361969,Luís Maximiano,1,8,1,77,Lazio
+2022-2023,383781,Marcos Antônio,1,600,1,77,Lazio
+2022-2023,135625,Matías Vecino,1,1444,1,77,Lazio
+2022-2023,349406,Nicolò Casale,1,2128,1,77,Lazio
+2022-2023,446951,Joan González,1,1541,1,79,Lecce
+2022-2023,344262,Mert Çetin,1,13,1,79,Lecce
+2022-2023,446954,Pablo Rodríguez,1,49,1,79,Lecce
+2022-2023,322421,Rémi Oudin,1,1015,1,79,Lecce
+2022-2023,406063,Thórir Helgason,1,141,1,79,Lecce
+2022-2023,39516,Christian Gytkjær,1,244,1,269,Monza
+2022-2023,293996,José Machín,1,920,1,269,Monza
+2022-2023,369688,Nicolò Rovella,1,1893,2,269,Monza
+2022-2023,141032,Pablo Marí,1,2172,1,269,Monza
+2022-2023,369971,Leo Østigård,1,472,1,276,Napoli
+2022-2023,347178,Mathías Olivera,1,1921,1,276,Napoli
+2022-2023,106931,Mário Rui,1,2101,1,276,Napoli
+2022-2023,321389,Tanguy Ndombélé,1,832,1,276,Napoli
+2022-2023,397846,Matías Viña,1,70,1,84,Roma
+2022-2023,476440,Niccolò Pisilli,1,1,1,84,Roma
+2022-2023,332398,Nicolò Zaniolo,1,526,1,84,Roma
+2022-2023,341525,Roger Ibañez,1,2529,1,84,Roma
+2022-2023,23089,Rui Patrício,1,1242,1,84,Roma
+2022-2023,136481,Zeki Çelik,1,1351,1,84,Roma
+2022-2023,9016,Franck Ribéry,1,34,1,143,Salernitana
+2022-2023,108117,Norbert Gyömbér,1,1243,1,143,Salernitana
+2022-2023,106028,Jesé,1,138,1,271,Sampdoria
+2022-2023,338073,Mehdi Léris,1,1910,1,271,Sampdoria
+2022-2023,344198,Michaël Cuisance,1,427,1,271,Sampdoria
+2022-2023,31991,Tomás Rincón,1,1933,1,271,Sampdoria
+2022-2023,446978,Agustín Álvarez,1,242,1,2889,Sassuolo
+2022-2023,355994,Armand Laurienté,1,1429,1,2889,Sassuolo
+2022-2023,359442,Emil Ceïde,1,309,1,2889,Sassuolo
+2022-2023,101767,Grégoire Defrel,1,510,1,2889,Sassuolo
+2022-2023,362551,Hamed Traoré,1,417,1,2889,Sassuolo
+2022-2023,363661,Mert Müldür,1,6,1,2889,Sassuolo
+2022-2023,345682,Rogério,1,2623,1,2889,Sassuolo
+2022-2023,354087,João Moutinho,1,67,1,1501,Spezia
+2022-2023,228854,Mërgim Vojvoda,1,1562,1,72,Torino
+2022-2023,61610,Ricardo Rodríguez,1,2345,1,72,Torino
+2022-2023,349178,Nehuén Pérez,1,2505,1,86,Udinese
+2022-2023,430895,Nicolò Cocetta,1,21,1,86,Udinese
+2022-2023,338507,Rodrigo Becão,1,2099,1,86,Udinese
+2022-2023,124721,Adrien Tamèze,1,1898,1,76,Verona
+2022-2023,116944,Koray Günter,1,1368,2,76,Verona
+2022-2023,142425,Lorenzo Montipò,1,1812,1,76,Verona
+2023-2024,409261,Chaka Traorè,1,23,1,80,AC Milan
+2023-2024,259102,Ismaël Bennacer,1,1176,1,80,AC Milan
+2023-2024,349207,Rafael Leão,1,1769,1,80,AC Milan
+2023-2024,20769,Simon Kjær,1,1114,1,80,AC Milan
+2023-2024,303115,Théo Hernández,1,2743,1,80,AC Milan
+2023-2024,497295,Álex Jiménez,1,69,1,80,AC Milan
+2023-2024,391527,El Bilal Touré,1,281,1,300,Atalanta
+2023-2024,125810,José Palomino,1,54,1,300,Atalanta
+2023-2024,64075,Rafael Tolói,1,792,1,300,Atalanta
+2023-2024,362556,Éderson Silva,1,2480,1,300,Atalanta
+2023-2024,363653,Jhon Lucumí,1,2370,1,71,Bologna
+2023-2024,334653,Nicolás Domínguez,1,120,1,71,Bologna
+2023-2024,280928,Nahitan Nández,1,1654,1,78,Cagliari
+2023-2024,373544,Nicolò Cambiaghi,1,1445,1,272,Empoli
+2023-2024,131042,Antonín Barák,1,620,1,73,Fiorentina
+2023-2024,322217,Christian Kouamé,1,892,1,73,Fiorentina
+2023-2024,317675,Dodô,1,477,1,73,Fiorentina
+2023-2024,322094,Jonathan Ikoné,1,869,1,73,Fiorentina
+2023-2024,365410,Lucas Beltrán,1,955,1,73,Fiorentina
+2023-2024,329854,Lucas Martínez Quarta,1,2372,1,73,Fiorentina
+2023-2024,345322,Nico González,1,1494,1,73,Fiorentina
+2023-2024,469827,Farès Ghedjemis,1,115,1,2732,Frosinone
+2023-2024,302287,Jaime Báez,1,358,1,2732,Frosinone
+2023-2024,425974,Marvin Çuni,1,341,1,2732,Frosinone
+2023-2024,425079,Matías Soulé,1,2597,1,2732,Frosinone
+2023-2024,323546,Aarón Martín,1,891,1,278,Genoa
+2023-2024,425115,Johan Vásquez,1,2203,1,278,Genoa
+2023-2024,321236,Josep Martínez,1,1975,1,278,Genoa
+2023-2024,407949,Vítinha,1,189,1,278,Genoa
+2023-2024,25244,Alexis Sánchez,1,603,1,75,Inter
+2023-2024,110373,Hakan Çalhanoglu,1,2966,1,75,Inter
+2023-2024,299344,Lautaro Martínez,1,1573,1,75,Inter
+2023-2024,388505,Lucien Agoumé,1,8,1,75,Inter
+2023-2024,148684,Nicolò Barella,1,2842,1,75,Inter
+2023-2024,369426,Nicolò Fagioli,1,321,1,87,Juventus
+2023-2024,367181,Tiago Djaló,1,21,1,87,Juventus
+2023-2024,328983,Mattéo Guendouzi,1,1649,1,77,Lazio
+2023-2024,135625,Matías Vecino,1,1163,1,77,Lazio
+2023-2024,349406,Nicolò Casale,1,1357,1,77,Lazio
+2023-2024,369688,Nicolò Rovella,1,1416,1,77,Lazio
+2023-2024,361406,Valentín Castellanos,1,1052,1,77,Lazio
+2023-2024,446951,Joan González,1,885,1,79,Lecce
+2023-2024,322421,Rémi Oudin,1,1235,1,79,Lecce
+2023-2024,293996,José Machín,1,222,1,269,Monza
+2023-2024,141032,Pablo Marí,1,2301,1,269,Monza
+2023-2024,22546,Papu Gómez,1,31,1,269,Monza
+2023-2024,446865,Valentín Carboni,1,906,1,269,Monza
+2023-2024,362551,Hamed Traoré,1,313,1,276,Napoli
+2023-2024,403646,Jesper Lindstrøm,1,396,1,276,Napoli
+2023-2024,369971,Leo Østigård,1,1725,1,276,Napoli
+2023-2024,347178,Mathías Olivera,1,1674,1,276,Napoli
+2023-2024,106931,Mário Rui,1,1394,1,276,Napoli
+2023-2024,255089,Angeliño,1,996,1,84,Roma
+2023-2024,504418,João Costa,1,17,1,84,Roma
+2023-2024,476440,Niccolò Pisilli,1,9,1,84,Roma
+2023-2024,23089,Rui Patrício,1,847,1,84,Roma
+2023-2024,136481,Zeki Çelik,1,544,1,84,Roma
+2023-2024,414268,Agustín Martegani,1,519,1,143,Salernitana
+2023-2024,29586,Benoît Costil,1,587,1,143,Salernitana
+2023-2024,23589,Jérôme Boateng,1,206,1,143,Salernitana
+2023-2024,447533,Niccolò Pierozzi,1,619,1,143,Salernitana
+2023-2024,108117,Norbert Gyömbér,1,1270,1,143,Salernitana
+2023-2024,355994,Armand Laurienté,1,1799,1,2889,Sassuolo
+2023-2024,359442,Emil Ceïde,1,132,1,2889,Sassuolo
+2023-2024,101767,Grégoire Defrel,1,435,1,2889,Sassuolo
+2023-2024,397846,Matías Viña,1,854,1,2889,Sassuolo
+2023-2024,124721,Adrien Tamèze,1,1839,1,72,Torino
+2023-2024,41073,Duván Zapata,1,1951,2,72,Torino
+2023-2024,228854,Mërgim Vojvoda,1,1237,1,72,Torino
+2023-2024,61610,Ricardo Rodríguez,1,2194,1,72,Torino
+2023-2024,380681,João Ferreira,1,1448,1,86,Udinese
+2023-2024,383628,Marley Aké,1,4,1,86,Udinese
+2023-2024,349535,Martín Payero,1,1177,1,86,Udinese
+2023-2024,349178,Nehuén Pérez,1,2444,1,86,Udinese
+2023-2024,475622,Alphadjo Cissè,1,3,1,76,Verona
+2023-2024,142425,Lorenzo Montipò,1,1765,1,76,Verona
+2023-2024,342863,Rúben Vinagre,1,220,1,76,Verona
+2023-2024,391047,Tomás Suslov,1,1214,1,76,Verona
+2024-2025,259102,Ismaël Bennacer,1,311,1,80,AC Milan
+2024-2025,362431,João Félix,1,549,1,80,AC Milan
+2024-2025,349207,Rafael Leão,1,1489,1,80,AC Milan
+2024-2025,445061,Santiago Giménez,1,276,1,80,AC Milan
+2024-2025,303115,Théo Hernández,1,2310,1,80,AC Milan
+2024-2025,497295,Álex Jiménez,1,963,1,80,AC Milan
+2024-2025,91213,Álvaro Morata,1,557,1,80,AC Milan
+2024-2025,332398,Nicolò Zaniolo,1,460,2,300,Atalanta
+2024-2025,64075,Rafael Tolói,1,425,1,300,Atalanta
+2024-2025,23089,Rui Patrício,1,145,1,300,Atalanta
+2024-2025,362556,Éderson Silva,1,2802,1,300,Atalanta
+2024-2025,428633,Benja Domínguez,1,792,1,71,Bologna
+2024-2025,363653,Jhon Lucumí,1,2695,1,71,Bologna
+2024-2025,373544,Nicolò Cambiaghi,1,472,1,71,Bologna
+2024-2025,349406,Nicolò Casale,1,924,2,71,Bologna
+2024-2025,125810,José Palomino,1,845,1,78,Cagliari
+2024-2025,322094,Jonathan Ikoné,1,555,2,1290,Como
+2024-2025,428075,Matthias Braunöder,1,223,1,1290,Como
+2024-2025,433972,Máximo Perrone,1,1754,1,1290,Como
+2024-2025,454341,Álex Valle,1,963,1,1290,Como
+2024-2025,445732,Devis Vásquez,1,1551,1,272,Empoli
+2024-2025,538460,Ismael Konaté,1,93,1,272,Empoli
+2024-2025,131042,Antonín Barák,1,34,1,73,Fiorentina
+2024-2025,322217,Christian Kouamé,1,784,2,73,Fiorentina
+2024-2025,317675,Dodô,1,2580,1,73,Fiorentina
+2024-2025,365410,Lucas Beltrán,1,1128,1,73,Fiorentina
+2024-2025,329854,Lucas Martínez Quarta,1,383,1,73,Fiorentina
+2024-2025,482951,Matías Moreno,1,126,1,73,Fiorentina
+2024-2025,369426,Nicolò Fagioli,1,1410,2,73,Fiorentina
+2024-2025,323546,Aarón Martín,1,2360,1,278,Genoa
+2024-2025,289327,Gastón Pereiro,1,23,1,278,Genoa
+2024-2025,425115,Johan Vásquez,1,2642,1,278,Genoa
+2024-2025,407949,Vítinha,1,876,1,278,Genoa
+2024-2025,110373,Hakan Çalhanoglu,1,2154,1,75,Inter
+2024-2025,125378,Joaquín Correa,1,562,1,75,Inter
+2024-2025,321236,Josep Martínez,1,288,1,75,Inter
+2024-2025,299344,Lautaro Martínez,1,1356,1,75,Inter
+2024-2025,148684,Nicolò Barella,1,2506,1,75,Inter
+2024-2025,409221,Francisco Conceição,1,999,1,87,Juventus
+2024-2025,366379,Khéphren Thuram,1,2008,1,87,Juventus
+2024-2025,538049,Lorenzo Anghelè,1,9,1,87,Juventus
+2024-2025,345322,Nico González,1,1228,1,87,Juventus
+2024-2025,450289,Nicolò Savona,1,1427,1,87,Juventus
+2024-2025,328983,Mattéo Guendouzi,1,2835,1,77,Lazio
+2024-2025,135625,Matías Vecino,1,650,1,77,Lazio
+2024-2025,369688,Nicolò Rovella,1,2757,1,77,Lazio
+2024-2025,361406,Valentín Castellanos,1,1220,1,77,Lazio
+2024-2025,260493,Frédéric Guilbert,1,1958,1,79,Lecce
+2024-2025,399852,Konan N’Dri,1,178,1,79,Lecce
+2024-2025,322421,Rémi Oudin,1,216,1,79,Lecce
+2024-2025,406063,Thórir Helgason,1,655,1,79,Lecce
+2024-2025,136294,Keita Baldé,1,384,1,269,Monza
+2024-2025,141032,Pablo Marí,1,2424,2,269,Monza
+2024-2025,434262,Tomás Palacios,1,519,2,269,Monza
+2024-2025,347178,Mathías Olivera,1,2213,1,276,Napoli
+2024-2025,430301,Rafa Marín,1,151,1,276,Napoli
+2024-2025,363978,Adrián Bernabé,1,1358,1,24341,Parma Calcio 1913
+2024-2025,422224,Mathias Løvik,1,92,1,24341,Parma Calcio 1913
+2024-2025,362683,Nahuel Estévez,1,490,1,24341,Parma Calcio 1913
+2024-2025,255089,Angeliño,1,2598,1,84,Roma
+2024-2025,398393,Enzo Le Fée,1,362,1,84,Roma
+2024-2025,369570,Manu Koné,1,2001,1,84,Roma
+2024-2025,425079,Matías Soulé,1,1593,1,84,Roma
+2024-2025,476440,Niccolò Pisilli,1,906,1,84,Roma
+2024-2025,136481,Zeki Çelik,1,1907,1,84,Roma
+2024-2025,124721,Adrien Tamèze,1,478,1,72,Torino
+2024-2025,469927,Ali Dembélé,1,303,1,72,Torino
+2024-2025,256419,Ché Adams,1,1141,1,72,Torino
+2024-2025,41073,Duván Zapata,1,295,1,72,Torino
+2024-2025,121417,Guillermo Maripán,1,1966,1,72,Torino
+2024-2025,228854,Mërgim Vojvoda,1,1627,2,72,Torino
+2024-2025,431167,Saúl Coco,1,2266,1,72,Torino
+2024-2025,25244,Alexis Sánchez,1,300,1,86,Udinese
+2024-2025,445774,Damián Pizarro,1,6,1,86,Udinese
+2024-2025,444816,Isaak Touré,1,679,1,86,Udinese
+2024-2025,320585,Jesper Karlström,1,2270,1,86,Udinese
+2024-2025,349535,Martín Payero,1,941,1,86,Udinese
+2024-2025,349178,Nehuén Pérez,1,95,1,86,Udinese
+2024-2025,444036,Cheick Condé,1,142,1,85,Venezia
+2024-2025,39516,Christian Gytkjær,1,399,1,85,Venezia
+2024-2025,373033,Fali Candé,1,1393,1,85,Venezia
+2024-2025,445367,Joël Schingtienne,1,747,1,85,Venezia
+2024-2025,395579,Kike Pérez,1,1039,1,85,Venezia
+2024-2025,475622,Alphadjo Cissè,1,15,1,76,Verona
+2024-2025,142425,Lorenzo Montipò,1,1560,1,76,Verona
+2024-2025,414212,Nicolás Valentini,1,839,1,76,Verona
+2024-2025,391047,Tomás Suslov,1,1227,1,76,Verona
+2025-2026,104058,Niclas Füllkrug,1,384,1,80,AC Milan
+2025-2026,298694,Pervis Estupiñán,1,898,1,80,AC Milan
+2025-2026,349207,Rafael Leão,1,1094,1,80,AC Milan
+2025-2026,445061,Santiago Giménez,1,349,1,80,AC Milan
+2025-2026,497295,Álex Jiménez,1,40,1,80,AC Milan
+2025-2026,362556,Éderson Silva,1,2010,1,300,Atalanta
+2025-2026,428633,Benja Domínguez,1,346,1,71,Bologna
+2025-2026,363653,Jhon Lucumí,1,2224,1,71,Bologna
+2025-2026,395173,João Mário,1,880,2,71,Bologna
+2025-2026,404249,Martin Vitík,1,1112,1,71,Bologna
+2025-2026,373544,Nicolò Cambiaghi,1,942,1,71,Bologna
+2025-2026,349406,Nicolò Casale,1,588,1,71,Bologna
+2025-2026,364336,Torbjørn Heggem,1,1722,1,71,Bologna
+2025-2026,607067,Agustín Albarracín,1,27,1,78,Cagliari
+2025-2026,478378,Juan Rodríguez,1,1020,1,78,Cagliari
+2025-2026,423589,Nicolò Cavuoti,1,39,1,78,Cagliari
+2025-2026,530975,Othniël Raterink,1,8,1,78,Cagliari
+2025-2026,457171,Semih Kiliçsoy,1,522,1,78,Cagliari
+2025-2026,450142,Zé Pedro,1,1476,1,78,Cagliari
+2025-2026,573387,Andréa Le Borgne,1,3,1,1290,Como
+2025-2026,516374,Jacobo Ramón,1,2923,1,1290,Como
+2025-2026,539559,Jesús Rodríguez,1,1083,1,1290,Como
+2025-2026,433972,Máximo Perrone,1,2750,1,1290,Como
+2025-2026,228854,Mërgim Vojvoda,1,1251,1,1290,Como
+2025-2026,420245,Nicolas Kühn,1,413,1,1290,Como
+2025-2026,454341,Álex Valle,1,1716,1,1290,Como
+2025-2026,91213,Álvaro Morata,1,518,1,1290,Como
+2025-2026,102439,Franco Vázquez,1,421,1,2731,Cremonese
+2025-2026,349535,Martín Payero,1,997,1,2731,Cremonese
+2025-2026,322217,Christian Kouamé,1,28,1,73,Fiorentina
+2025-2026,317675,Dodô,1,2568,1,73,Fiorentina
+2025-2026,538841,Luís Balbo,1,163,1,73,Fiorentina
+2025-2026,526625,Niccolò Fortini,1,480,1,73,Fiorentina
+2025-2026,369426,Nicolò Fagioli,1,2356,1,73,Fiorentina
+2025-2026,141032,Pablo Marí,1,673,1,73,Fiorentina
+2025-2026,323546,Aarón Martín,1,1593,1,278,Genoa
+2025-2026,424809,Albert Grønbæk,1,57,1,278,Genoa
+2025-2026,523963,Gaël Lafont,1,16,1,278,Genoa
+2025-2026,425115,Johan Vásquez,1,2903,1,278,Genoa
+2025-2026,369971,Leo Østigård,1,2444,1,278,Genoa
+2025-2026,611222,Mamedi Doucouré,1,11,1,278,Genoa
+2025-2026,531064,Nils Zätterström,1,145,1,278,Genoa
+2025-2026,446865,Valentín Carboni,1,313,1,278,Genoa
+2025-2026,407949,Vítinha,1,1427,1,278,Genoa
+2025-2026,110373,Hakan Çalhanoglu,1,1909,1,75,Inter
+2025-2026,321236,Josep Martínez,1,272,1,75,Inter
+2025-2026,299344,Lautaro Martínez,1,1256,1,75,Inter
+2025-2026,148684,Nicolò Barella,1,2519,1,75,Inter
+2025-2026,409221,Francisco Conceição,1,1603,1,87,Juventus
+2025-2026,280766,Jérémie Boga,1,436,1,87,Juventus
+2025-2026,366379,Khéphren Thuram,1,2165,1,87,Juventus
+2025-2026,363618,Loïs Openda,1,369,1,87,Juventus
+2025-2026,345322,Nico González,1,24,1,87,Juventus
+2025-2026,328983,Mattéo Guendouzi,1,1031,1,77,Lazio
+2025-2026,135625,Matías Vecino,1,540,1,77,Lazio
+2025-2026,369688,Nicolò Rovella,1,655,1,77,Lazio
+2025-2026,361406,Valentín Castellanos,1,327,1,77,Lazio
+2025-2026,399852,Konan N’Dri,1,434,1,79,Lecce
+2025-2026,570993,Matías Pérez,1,30,1,79,Lecce
+2025-2026,406063,Thórir Helgason,1,98,1,79,Lecce
+2025-2026,444247,Álex Sala,1,152,1,79,Lecce
+2025-2026,347178,Mathías Olivera,1,1518,1,276,Napoli
+2025-2026,395788,Miguel Gutiérrez,1,1353,1,276,Napoli
+2025-2026,439584,Rasmus Højlund,1,1147,1,276,Napoli
+2025-2026,363978,Adrián Bernabé,1,1953,1,24341,Parma Calcio 1913
+2025-2026,469660,Benjamín Cremaschi,1,109,1,24341,Parma Calcio 1913
+2025-2026,444691,Christian Ordóñez,1,583,1,24341,Parma Calcio 1913
+2025-2026,422224,Mathias Løvik,1,294,1,24341,Parma Calcio 1913
+2025-2026,362683,Nahuel Estévez,1,897,1,24341,Parma Calcio 1913
+2025-2026,407076,Oliver Sørensen,1,948,1,24341,Parma Calcio 1913
+2025-2026,330505,Idrissa Touré,1,1686,1,777,Pisa
+2025-2026,449021,Malthe Højholt,1,442,1,777,Pisa
+2025-2026,357956,Mattéo Tramoni,1,854,1,777,Pisa
+2025-2026,338073,Mehdi Léris,1,1408,1,777,Pisa
+2025-2026,106967,Nícolas,1,313,1,777,Pisa
+2025-2026,12575,Raúl Albiol,1,409,1,777,Pisa
+2025-2026,395409,Tomás Esteves,1,9,1,777,Pisa
+2025-2026,255089,Angeliño,1,369,1,84,Roma
+2025-2026,566741,Jan Ziólkowski,1,457,1,84,Roma
+2025-2026,369570,Manu Koné,1,2057,1,84,Roma
+2025-2026,425079,Matías Soulé,1,1786,1,84,Roma
+2025-2026,476440,Niccolò Pisilli,1,1240,1,84,Roma
+2025-2026,136481,Zeki Çelik,1,2307,1,84,Roma
+2025-2026,355994,Armand Laurienté,1,1662,1,2889,Sassuolo
+2025-2026,373033,Fali Candé,1,383,1,2889,Sassuolo
+2025-2026,422851,Ismaël Koné,1,1729,1,2889,Sassuolo
+2025-2026,124721,Adrien Tamèze,1,834,1,72,Torino
+2025-2026,469927,Ali Dembélé,1,19,1,72,Torino
+2025-2026,256419,Ché Adams,1,1013,1,72,Torino
+2025-2026,41073,Duván Zapata,1,615,1,72,Torino
+2025-2026,121417,Guillermo Maripán,1,1634,1,72,Torino
+2025-2026,431167,Saúl Coco,1,2341,1,72,Torino
+2025-2026,320585,Jesper Karlström,1,2080,1,86,Udinese
+2025-2026,416238,Nicolò Bertola,1,1362,1,86,Udinese
+2025-2026,332398,Nicolò Zaniolo,1,1541,1,86,Udinese
+2025-2026,142425,Lorenzo Montipò,1,1490,1,76,Verona
+2025-2026,414212,Nicolás Valentini,1,988,1,76,Verona
+2025-2026,391047,Tomás Suslov,1,279,1,76,Verona
+2025-2026,344200,Unai Núñez,1,979,1,76,Verona

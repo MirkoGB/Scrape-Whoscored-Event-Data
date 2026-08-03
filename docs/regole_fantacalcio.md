@@ -12,18 +12,27 @@ default, non si prosegue con un segnaposto.
 
 ## 0. Decisioni ancora aperte
 
-Sono bloccanti. Nessun blocco della Fase 8 che le tocchi può partire prima.
-
-| # | decisione | blocca |
+| # | decisione | stato |
 |---|---|---|
-| 0.1 | soglie esatte delle fasce del modificatore, e se le fasce sono cinque o tre | 8D, modificatore |
-| 0.2 | numero di difensori che concorrono al modificatore | 8D, modificatore |
-| 0.3 | trattamento dell's.v. dentro la linea difensiva | 8D, modificatore |
-| 0.4 | comportamento sotto la soglia minima (media difensiva < 6.00) | 8D, modificatore |
-| 0.5 | formato della lega: rosa per ruolo, titolari schierati, budget d'asta | 8D, confronto con la quotazione |
+| 0.1 | soglie delle fasce del modificatore | **`[DECISO 2026-08-03]`** — tre fasce, 6.00 / 6.50 / 7.00, bonus +1 / +3 / +6 |
+| 0.2 | numero di difensori che concorrono al modificatore | **`[DECISO 2026-08-03]`** — **dipende dal modulo schierato** |
+| 0.3 | trattamento dell's.v. dentro la linea difensiva | **`[DECISO 2026-08-03]`** — **`escludi`**: esce dalla media e la linea si accorcia |
+| 0.4 | comportamento sotto la soglia minima | **`[DECISO]`** — malus −1 |
+| 0.5 | formato della lega | **`[DECISO 2026-08-03]`** — 8 squadre, budget 1000, rosa 3/8/8/6, i sette moduli di §3.2 |
 
-Le voci 0.1–0.4 riguardano tutte lo stesso oggetto e conviene chiuderle insieme
-(sezione 2). La 0.5 è indipendente (sezione 3.2).
+Le decisioni prese vivono in **`sot/lega.py`**, separate dal codice come §6
+richiede, con i loro invarianti verificati da `tests/test_modello_asta.py`.
+
+**Tutte e cinque sono chiuse.** `sot/lega.gestione_sv()` continua a sollevare
+`DecisioneMancante` se la costante torna a `None`: il meccanismo resta in piedi
+per la prossima voce `[DA DECIDERE]`, e un test lo verifica.
+
+`escludi` **non è neutro**, e va saputo leggendo i numeri: la media si ricalcola
+su meno elementi, quindi diventa più variabile. Su una linea di tre da 7 e uno da
+4, se il quarto prende voto la media è 6,25 (fascia +1); se non lo prende è 7,0
+(fascia +6). **Cinque punti di differenza per giornata dal solo fatto che il
+peggiore non è stato giudicato** — ed è il motivo per cui il modificatore si
+simula per giornata e non si applica alle medie di stagione.
 
 ---
 
@@ -57,12 +66,15 @@ tardi riceve **s.v.** (senza voto) e in quella giornata non contribuisce, né in
 positivo né in negativo.
 
 Ne segue una distinzione che il modello deve tenere separata, perché sono due
-grandezze diverse e il repository oggi calcola solo la seconda:
+grandezze diverse:
 
-| grandezza | definizione | dove sta oggi |
+| grandezza | definizione | dove sta |
 | --- | --- | --- |
-| **presenza fantacalcistica** | giornate in cui il giocatore riceve un voto numerico | **non esiste nel repository** |
+| **presenza fantacalcistica** | giornate in cui il giocatore riceve un voto numerico | `sot/presenza.py`, dal 2026-08-03 |
 | minuti giocati | minuti effettivi in campo | `sot/minutes.py` |
+
+Le due stanno sulla stessa riga solo per la 2025/26, l'unica stagione con
+entrambe le fonti: `data/processed/ITA-serie-a/presenza_2025-2026.parquet`.
 
 **Il bersaglio del modello A è la presenza fantacalcistica**, non i minuti. I
 minuti restano un predittore della presenza, non un sostituto.
@@ -92,12 +104,33 @@ minuto **≥ 80'**, su `expandedMinute` come tutto il repository — quindi cont
 una partita che dura 94-99', non 90 — e la regola è **la stessa su tutte e
 cinque le stagioni**, senza varianti per stagione.
 
-`[DA MISURARE]` la regola è falsificabile esattamente su **una** stagione, la
-2025/26, l'unica in cui coesistono i minuti WhoScored e l's.v. osservato.
-Va misurato il tasso d'errore **nei due versi** — chi entra dopo l'80' e un
-voto invece lo prende, chi entra prima e non lo prende — e riportato accanto a
-ogni numero che poggi sulla regola, come vuole il vincolo 5 del progetto.
-Nessuna correzione automatica: la regola resta quella dell'utente, misurata.
+`[MISURATO — 2026-08-03]` esito in `reports/aggancio.md` §4, da
+`scripts/run_aggancio.py`. Su **11.926 righe giocatore-partita** della 2025/26,
+l'unica stagione in cui coesistono i minuti WhoScored e l's.v. osservato:
+
+| | |
+|---|---:|
+| accordo della regola dell'80' | **97,84%** |
+| accordo del baseline «nessun s.v.» | 90,45% |
+| **falsi s.v.** (entra ≥ 80' e il voto lo prende) | **142** = 12,2% dei proiettati s.v. |
+| **s.v. mancati** (entra prima e il voto non lo prende) | **116** = 1,08% dei proiettati a voto |
+
+Tre cose che la misura ha aggiunto e che vanno lette insieme al numero:
+
+1. **L'80' cade sul massimo della griglia 60-95**, e non perché sia stato scelto
+   lì: era deciso prima. A 75' l'accordo scende a 95,3%, a 85' a 95,4%.
+2. **La regola non può vedere il titolare che esce presto.** Tutti e 18 gli s.v.
+   dei titolari sono usciti prima del 30'; nessun titolare oltre il 20' ha mai
+   preso s.v. È un verso d'errore **strutturale**, non fra i due che questa
+   sezione chiedeva.
+3. **Sopra i 30 minuti giocati non esiste un solo s.v. su 8.552 righe.** La
+   regola formale non c'è — la fonte lo dichiara — ma la pratica editoriale è
+   quasi deterministica. Riscrivere la regola sui *minuti giocati* invece che
+   sul minuto d'ingresso è stato provato e **non migliora**: 97,83% contro
+   97,84%. Cambia il mix degli errori, non la loro quantità.
+
+Nessuna correzione automatica: **la regola resta quella dell'utente**, ora con
+il suo tasso d'errore accanto.
 
 ---
 
@@ -124,9 +157,11 @@ implementabili.** Vanno risolti prima di scrivere codice:
 3. **Fasce duplicate**: le cinque fasce dichiarate danno bonus +1, +1, +3, +3,
    +6, cioè sono **tre fasce effettive**. O è voluto, o due valori sono errati.
 
-`[DA DECIDERE 0.1]` — le fasce sono 3
+`[DECISO 0.1 — 2026-08-03]` tre fasce, soglie **6.00 / 6.50 / 7.00**, bonus
+**+1 / +3 / +6**. `[DECISO 0.4]` sotto 6.00 il malus è **−1**.
 
-`[DA DECIDERE 0.4]` — malus di -1
+Implementate in `sot/lega.FASCE` con intervalli semiaperti, e un test verifica
+su tutta la retta reale che ogni media cada in **una e una sola** fascia.
 
 Forma da usare, con **intervalli semiaperti** `[min, max)`: nessuna
 sovrapposizione possibile, nessun buco possibile.
@@ -135,16 +170,17 @@ sovrapposizione possibile, nessun buco possibile.
 modificatore_difesa:
   attivo: true
 
-  # [DA DECIDERE 0.2] quanti difensori concorrono, oltre al portiere
-  n_difensori: 4           # tipicamente 3 o 4
+  # [DECISO 0.2 — 2026-08-03] concorrono TUTTI i difensori schierati, quindi
+  # n dipende dal modulo: 3 nel 3-5-2, 4 nel 4-4-2, 5 nel 5-3-2.
+  n_difensori: dal_modulo
 
-  # [DA DECIDERE 0.3] difensore senza voto dentro la linea
+  # [DECISO 0.3 — 2026-08-03] difensore senza voto dentro la linea
   gestione_sv: escludi           # "escludi" | "sostituisci_con_panchina" | "annulla_modificatore"
 
-  # [DA DECIDERE 0.4] media difensiva sotto la soglia minima
+  # [DECISO 0.4] media difensiva sotto la soglia minima
   sotto_soglia_minima: -1   # bonus 0, oppure un malus
 
-  # [DA DECIDERE 0.1] soglie e bonus effettivi — intervalli [min, max)
+  # [DECISO 0.1] soglie e bonus — intervalli [min, max)
   fasce:
     - {min: 6.00, max: 6.50, bonus: 1}
     - {min: 6.50, max: 7.00, bonus: 3}
@@ -210,9 +246,8 @@ La formazione settimanale resta un prodotto separato, successivo.
 
 ### 3.2 Formato della lega
 
-`[DA DECIDERE 0.5]` — serve tutto il blocco, e il budget in particolare: senza
-budget il confronto fra valore stimato e quotazione non è definibile, ed è la
-verifica principale del progetto.
+`[DECISO 0.5 — 2026-08-03]` i valori qui sotto sono quelli **veri** della lega,
+non segnaposto. Vivono in `sot/lega.LEGA`.
 
 ```yaml
 lega:
@@ -293,12 +328,17 @@ Non si progettano aggiramenti: si elencano le fonti alternative.
 
 ### 4.2 Requisiti dell'acquisizione, se praticabile
 
-- frequenza limitata e dichiarata, `User-Agent` identificabile;
-- cache locale, nessuna pagina scaricata due volte;
-- manifest con URL, data di acquisizione e hash;
-- dati grezzi separati dagli elaborati, e il grezzo non si trasforma mai;
-- rilevazione dei cambiamenti di struttura HTML, segnalati e non assorbiti;
-- ogni voto conserva stagione, giornata e **provider**.
+`[SODDISFATTI — 2026-08-03]`, uno per uno e con il posto in cui vivono:
+
+| requisito | dove |
+| --- | --- |
+| frequenza limitata e dichiarata | `scrape_voti.py --sleep`, default 3 s |
+| `User-Agent` identificabile | `target.USER_AGENT`, e **non finge di essere un browser** |
+| cache locale, nessuna pagina scaricata due volte | `scarica_giornata`, `is_file()` **prima** del `get` |
+| manifest con URL, data di acquisizione e hash | `manifest.registra_fantacalcio`, **due** hash: del `.gz` e dell'HTML servito |
+| grezzo separato dagli elaborati, mai trasformato | `data/raw/fantacalcio/...`, gzip senza perdita |
+| cambiamenti di struttura segnalati, non assorbiti | `pagina.MarkupInatteso`, e la pagina non entra in `raw/` |
+| ogni voto conserva stagione, giornata e provider | colonne della tabella; tutte e tre le scale affiancate |
 
 ---
 
@@ -427,8 +467,32 @@ successivi:**
    riportato qui perché un'autorizzazione riguarda un soggetto: se quella
    ottenuta copre WhoScored ma non il mirror, il dominio va cambiato.
 
-`[NON DECISO]` da quale delle due vie si acquisisce — export Excel da sessione
-autenticata, oppure vista HTML pubblica. Le colonne dell'Excel restano
-`[non verificato]`: serve un download manuale da loggato per saperlo.
+~~`[NON DECISO]` da quale delle due vie si acquisisce~~
+`[DECISO dall'utente — 2026-08-03]` **vista HTML pubblica.** L'export Excel
+resta inutilizzabile senza credenziali (401) e le sue colonne restano
+`[non verificato]`: nessun download manuale da loggato e' stato fatto, e la
+domanda "l'Excel contiene i minuti?" resta aperta — ma non e' piu' bloccante,
+perche' i minuti vengono da WhoScored in ogni scenario (decisione 2).
 
-Decisioni ancora aperte: vedi sezione 0.
+Esito in `reports/voti_fantacalcio.md`. **190 pagine, cinque stagioni, tutte e
+tre le scale**; il codice sta in `acquisition/fantacalcio/`.
+
+Tre fatti nuovi sulla fonte, emersi acquisendo e non leggendo:
+
+1. **Il `FV` della fonte NON e' il fantavoto di questa lega.** Il barema della
+   fonte e' stato ricavato per differenza e verificato riga per riga: torna
+   esatto **senza** il +1 di porta inviolata di §1.1. Quindi la porta inviolata
+   la fonte non la applica, il fantavoto di lega va **ricalcolato dai bonus**, e
+   la porta inviolata va **derivata** (`ruolo == "p"` e `gol_subiti == 0`), mai
+   letta. Leggere `FV` e chiamarlo fantavoto costerebbe un punto per ogni
+   clean sheet.
+2. **I cartellini non sono una colonna.** Ammonizione ed espulsione non stanno
+   fra le otto voci di bonus della fonte: stanno come **classe CSS sullo span
+   del voto**. Chi legge solo i bonus li perde in silenzio, e valgono −0,5 e −1.
+3. **Il gol su rigore non e' anche in "gol segnati"**: sta solo in "rigori
+   segnati" e vale +3 una volta sola. Sommare le due colonne, come la lettura
+   ingenua di §1.1 suggerirebbe, conterebbe due volte lo stesso gol.
+
+Decisioni ancora aperte: vedi sezione 0. **Le quotazioni del listone non sono
+state acquisite** (pagina diversa, `/quotazioni-fantacalcio`): la D2 del
+Blocco 0 resta aperta ed e' la verifica principale del progetto.

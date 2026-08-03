@@ -53,6 +53,46 @@ DEFINIZIONI = {
             "non www.whoscored.com"
         ),
     },
+    "fantacalcio": {
+        "fornitore": (
+            "Fantacalcio S.r.l., vista HTML pubblica /voti-fantacalcio-serie-a. "
+            "Tre scale affiancate nella stessa riga: Redazione Fantacalcio "
+            "(pagellisti interni), Voto Statistico (algoritmo Alvin482), "
+            "Voto Italia (sintesi di piu' testate). Il progetto usa la Redazione "
+            "(regole_fantacalcio.md §7.1, decisione 5); le altre due sono "
+            "conservate perche' arrivano nella stessa richiesta"
+        ),
+        "granularita": "giocatore x partita, solo per chi e' sceso in campo",
+        "voto": (
+            "giudizio editoriale su scala 0-10 a passi di 0,5. NON e' una "
+            "grandezza oggettiva e non e' confrontabile con niente di WhoScored: "
+            "e' l'opinione di un pagellista. L's.v. e' discrezionale e la fonte "
+            "dichiara esplicitamente che nessuna soglia di minuti esiste"
+        ),
+        "fantavoto": (
+            "voto piu' i bonus/malus del barema DELLA FONTE, verificato per "
+            "differenza: gol +3, gol subito -1, autorete -2, rigore segnato +3 "
+            "(e il gol su rigore NON e' anche in `gol segnati`), rigore "
+            "sbagliato -3, rigore parato +3, assist +1, ammonizione -0,5, "
+            "espulsione -1. `player of the match` NON entra. La porta inviolata "
+            "NON entra, quindi il fantavoto della lega dell'utente "
+            "(regole_fantacalcio.md §1.1) e' una grandezza DIVERSA e va "
+            "ricalcolata dai bonus, mai letta da questa colonna"
+        ),
+        "minuti": (
+            "assenti. Non e' l'interfaccia che li nasconde: non sono nel dato. "
+            "L'unico segnale di tempo di gioco e' binario (subentrato/sostituito), "
+            "senza minuto. I minuti vengono da WhoScored (§7.1, decisione 2)"
+        ),
+        "note": (
+            "acquisizione su autorizzazione dichiarata dall'utente ed estesa "
+            "esplicitamente allo scraping dei voti (regole_fantacalcio.md §7.1, "
+            "decisione 1), che soddisfa l'art. 3.3(a) dei Termini di Utilizzo. "
+            "Il repository registra la dichiarazione, non conserva il documento. "
+            "Il grezzo e' HTML compresso con gzip mtime=0: senza perdita, quindi "
+            "resta grezzo, e deterministico, quindi l'hash significa qualcosa"
+        ),
+    },
 }
 
 
@@ -153,6 +193,89 @@ def registra_whoscored(league=None, seasons=None, verbose=True) -> dict:
     return riepilogo
 
 
+def registra_fantacalcio(league=None, seasons=None, verbose=True) -> dict:
+    """Registra le pagine dei voti gia' scaricate. Non scarica niente.
+
+    Due hash e non uno, ed e' il punto che distingue questa fonte da WhoScored:
+
+    - `sha256` e' del file su disco, cioe' del `.gz`. Serve a dire che il file
+      non e' stato toccato;
+    - `sha256_html` e' dell'**HTML decompresso**, cioe' di cio' che la fonte ha
+      davvero servito. Serve a dire che *la fonte* non ha cambiato i dati sotto
+      di noi, ed e' l'unico dei due che sopravvive a un cambio della nostra
+      politica di compressione.
+
+    Con `mtime=0` in scrittura i due sono in corrispondenza uno a uno oggi. Se
+    un domani divergessero — stesso HTML, `.gz` diverso — la causa sarebbe
+    nostra e non della fonte, e i due hash lo direbbero.
+    """
+    from acquisition.fantacalcio import pagina as P
+    from acquisition.fantacalcio import target as T
+
+    league = config.LEAGUE if league is None else league
+    seasons = seasons or config.SEASONS_STORICHE
+    man = carica()
+    ora = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    riepilogo = {"nuovi": 0, "invariati": 0, "modificati": []}
+
+    for target in T.targets(league, seasons):
+        presenti = 0
+        # Il listone e' una risorsa diversa con un'altra granularita' — una
+        # pagina per stagione, non per giornata — ma la provenienza e' la stessa
+        # cosa e va nello stesso posto: `giornata` resta nulla, ed e' proprio
+        # quello a distinguerlo.
+        pagine = [(g, target.percorso(g)) for g in range(1, T.N_GIORNATE + 1)]
+        pagine.append((None, T.TargetQuote(league, target.season).percorso))
+
+        for giornata, percorso in pagine:
+            if not percorso.is_file():
+                continue
+            presenti += 1
+            chiave = str(percorso.relative_to(config.ROOT)).replace("\\", "/")
+            digest = sha256(percorso)
+            vecchio = man["file"].get(chiave)
+
+            if vecchio and vecchio["sha256"] == digest:
+                riepilogo["invariati"] += 1
+                continue
+            if vecchio:
+                riepilogo["modificati"].append(chiave)
+                vecchio.setdefault("revisioni_precedenti", []).append(
+                    {"sha256": vecchio["sha256"], "scaricato": vecchio["scaricato"]}
+                )
+
+            man["file"][chiave] = {
+                "fonte": T.FONTE,
+                "campionato": league,
+                "stagione": target.season,
+                "risorsa": "voti" if giornata is not None else "quotazioni",
+                "giornata": giornata,
+                "url": (target.url(giornata) if giornata is not None
+                        else T.TargetQuote(league, target.season).url),
+                "scaricato": datetime.fromtimestamp(
+                    percorso.stat().st_mtime, timezone.utc).isoformat(timespec="seconds"),
+                "registrato": ora,
+                "byte": percorso.stat().st_size,
+                "byte_html": len(P.leggi(percorso)),
+                "sha256": digest,
+                "sha256_html": hashlib.sha256(P.leggi(percorso)).hexdigest(),
+                **({"revisioni_precedenti": vecchio["revisioni_precedenti"]}
+                   if vecchio and "revisioni_precedenti" in vecchio else {}),
+            }
+            riepilogo["nuovi"] += 0 if vecchio else 1
+
+        if verbose:
+            print(f"  {target.season}: {presenti}/{T.N_GIORNATE + 1} pagine "
+                  "(38 giornate + listone)")
+
+    man["definizioni"] = DEFINIZIONI
+    man["aggiornato"] = ora
+    config.MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    config.MANIFEST.write_text(
+        json.dumps(man, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    return riepilogo
+
+
 def registra_assenti(voci: list[dict]) -> int:
     """Registra le partite che **esistono nel calendario ma non hanno dati**.
 
@@ -174,9 +297,16 @@ def registra_assenti(voci: list[dict]) -> int:
 
 
 if __name__ == "__main__":
-    r = registra_whoscored()
-    print(f"\nnuovi {r['nuovi']} | invariati {r['invariati']} | "
-          f"MODIFICATI {len(r['modificati'])}")
-    for k in r["modificati"]:
+    totale = {"nuovi": 0, "invariati": 0, "modificati": []}
+    for nome, funzione in (("whoscored", registra_whoscored),
+                           ("fantacalcio", registra_fantacalcio)):
+        print(f"\n{nome}:")
+        r = funzione()
+        for k in ("nuovi", "invariati"):
+            totale[k] += r[k]
+        totale["modificati"] += r["modificati"]
+    print(f"\nnuovi {totale['nuovi']} | invariati {totale['invariati']} | "
+          f"MODIFICATI {len(totale['modificati'])}")
+    for k in totale["modificati"]:
         print(f"  !! contenuto cambiato: {k}")
     print(f"-> {config.MANIFEST}")

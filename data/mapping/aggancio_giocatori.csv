@@ -1,0 +1,610 @@
+stagione,teamId_ws,giocatore_id_fc,nome_fc,ruolo_fc,presenze_fc,playerId_ws,nome_ws,ruolo_ws,presenze_ws,risolto_da,jaccard
+2025-2026,71,133,Skorupski,p,19,77397,Lukasz Skorupski,GK,19,cognome,1.0
+2025-2026,71,184,Bernardeschi,c,29,122402,Federico Bernardeschi,MID,29,cognome,1.0
+2025-2026,71,487,De Silvestri,d,12,19580,Lorenzo De Silvestri,DEF,12,cognome,1.0
+2025-2026,71,785,Immobile,a,6,70141,Ciro Immobile,FWD,6,cognome,1.0
+2025-2026,71,788,Freuler,c,29,302691,Remo Freuler,MID,29,cognome,1.0
+2025-2026,71,2167,Orsolini,c,35,286828,Riccardo Orsolini,MID,35,cognome,1.0
+2025-2026,71,2653,Lykogiannis,d,10,120218,Charalampos Lykogiannis,DEF,10,cognome,1.0
+2025-2026,71,2722,Ravaglia F.,p,17,326482,Federico Ravaglia,GK,17,cognome,1.0
+2025-2026,71,2765,Odgaard,c,26,362553,Jens Odgaard,MID,26,cognome,1.0
+2025-2026,71,4433,Zortea,d,32,423508,Nadir Zortea,DEF,32,cognome,1.0
+2025-2026,71,4436,Cambiaghi,a,28,373544,Nicolò Cambiaghi,MID,28,cognome,1.0
+2025-2026,71,4734,Miranda J.,d,32,361993,Juan Miranda,DEF,32,cognome,1.0
+2025-2026,71,5298,Pobega,c,26,402123,Tommaso Pobega,MID,26,cognome,1.0
+2025-2026,71,5319,Sohm,c,12,367177,Simon Sohm,MID,12,cognome,1.0
+2025-2026,71,5498,Casale,d,12,349406,Nicolò Casale,DEF,12,cognome,1.0
+2025-2026,71,5678,Holm,d,11,418579,Emil Holm,DEF,11,cognome,1.0
+2025-2026,71,5858,Ferguson,c,27,396971,Lewis Ferguson,MID,27,cognome,1.0
+2025-2026,71,6024,Sulemana I.,c,3,446991,Ibrahim Sulemana,MID,3,cognome,1.0
+2025-2026,71,6042,Lucumì,d,29,363653,Jhon Lucumí,DEF,29,cognome,1.0
+2025-2026,71,6054,Moro N.,c,30,331383,Nikola Moro,MID,30,cognome,1.0
+2025-2026,71,6206,Fabbian,c,14,447528,Giovanni Fabbian,MID,14,cognome,1.0
+2025-2026,71,6572,Castro S.,a,35,421081,Santiago Castro,FWD,35,cognome,1.0
+2025-2026,71,6643,Dallinga,a,23,379687,Thijs Dallinga,FWD,23,cognome,1.0
+2025-2026,71,6844,Rowe,c,28,429723,Jonathan Rowe,MID,28,cognome,1.0
+2025-2026,71,6895,Dominguez B.,a,15,428633,Benja Domínguez,MID,15,cognome,1.0
+2025-2026,71,7068,Vitik,d,19,404249,Martin Vitík,DEF,19,cognome,1.0
+2025-2026,71,7172,Pessina Mas.,p,4,536480,Massimo Pessina,GK,4,cognome,1.0
+2025-2026,71,7175,Joao Mario,d,10,395173,João Mário,DEF,10,cognome,1.0
+2025-2026,71,7212,Heggem,d,27,364336,Torbjørn Heggem,DEF,27,cognome,1.0
+2025-2026,71,7326,Helland,d,6,486906,Eivind Helland,DEF,6,cognome,1.0
+2025-2026,72,49,Masina,d,5,137512,Adam Masina,DEF,5,cognome,1.0
+2025-2026,72,252,Biraghi,d,14,93935,Cristiano Biraghi,MID,14,cognome,1.0
+2025-2026,72,608,Zapata D.,a,28,41073,Duván Zapata,FWD,28,cognome,1.0
+2025-2026,72,2061,Simeone,a,32,133839,Giovanni Simeone,FWD,32,cognome,1.0
+2025-2026,72,4385,Lazaro,d,31,114323,Valentino Lazaro,MID,31,cognome,1.0
+2025-2026,72,4665,Maripan,d,27,121417,Guillermo Maripán,DEF,27,cognome,1.0
+2025-2026,72,4890,Tameze,c,24,124721,Adrien Tamèze,DEF,24,cognome,1.0
+2025-2026,72,5007,Ilic,c,8,401042,Ivan Ilic,MID,8,cognome,1.0
+2025-2026,72,5010,Ismajli,d,25,366671,Ardian Ismajli,DEF,25,cognome,1.0
+2025-2026,72,5156,Nkounkou,d,11,386262,Niels Nkounkou,MID,11,cognome,1.0
+2025-2026,72,5320,Paleari,p,29,122599,Alberto Paleari,GK,29,cognome,1.0
+2025-2026,72,5687,Vlasic,c,37,343975,Nikola Vlasic,FWD,37,cognome,1.0
+2025-2026,72,5719,Asllani,c,15,423450,Kristjan Asllani,MID,15,cognome,1.0
+2025-2026,72,5888,Casadei,c,33,433219,Cesare Casadei,MID,33,cognome,1.0
+2025-2026,72,5994,Ebosse,d,13,320243,Enzo Ebosse,DEF,13,cognome,1.0
+2025-2026,72,6005,Ilkhan,c,19,430900,Emirhan Ilkhan,MID,19,cognome,1.0
+2025-2026,72,6145,Ngonge,a,20,367742,Cyril Ngonge,FWD,20,cognome,1.0
+2025-2026,72,6170,Gineitis,c,29,435108,Gvidas Gineitis,MID,29,cognome,1.0
+2025-2026,72,6424,Prati,c,13,447544,Matteo Prati,MID,13,cognome,1.0
+2025-2026,72,6426,Pedersen,d,29,357133,Marcus Pedersen,MID,29,cognome,1.0
+2025-2026,72,6642,Coco,d,35,431167,Saúl Coco,DEF,35,cognome,1.0
+2025-2026,72,6646,Adams C.,a,33,256419,Ché Adams,FWD,33,cognome,1.0
+2025-2026,72,6809,Marianucci,d,10,497110,Luca Marianucci,DEF,10,cognome,1.0
+2025-2026,72,6826,Dembelè A.,d,2,469927,Ali Dembélé,DEF,2,cognome,1.0
+2025-2026,72,6827,Njie,a,15,497217,Alieu Njie,FWD,15,cognome,1.0
+2025-2026,72,6889,Anjorin,c,15,384133,Tino Anjorin,MID,15,cognome,1.0
+2025-2026,72,7179,Israel,p,9,406957,Franco Israel,GK,9,cognome,1.0
+2025-2026,72,7183,Aboukhlal,a,15,373340,Zakaria Aboukhlal,MID,15,cognome,1.0
+2025-2026,72,7329,Obrador,d,16,396188,Rafa Obrador,MID,16,cognome,1.0
+2025-2026,72,7349,Kulenovic,a,13,377308,Sandro Kulenovic,FWD,13,cognome,1.0
+2025-2026,73,158,Lezzerini,p,1,106427,Luca Lezzerini,DEF,1,cognome,1.0
+2025-2026,73,294,Rugani,d,6,116207,Daniele Rugani,DEF,6,cognome,1.0
+2025-2026,73,647,Dzeko,a,11,24845,Edin Dzeko,FWD,11,cognome,1.0
+2025-2026,73,1933,Mandragora,c,34,241020,Rolando Mandragora,MID,34,cognome,1.0
+2025-2026,73,2097,Kean,a,26,328990,Moise Kean,FWD,26,cognome,1.0
+2025-2026,73,2160,Gosens,d,26,141726,Robin Gosens,DEF,26,cognome,1.0
+2025-2026,73,2521,De Gea,p,37,79554,David de Gea,GK,37,cognome,1.0
+2025-2026,73,2762,Kouamè,a,2,322217,Christian Kouamé,MID,2,cognome,1.0
+2025-2026,73,4349,Nicolussi Caviglia,c,11,371257,Hans Nicolussi Caviglia,MID,11,cognome,1.0
+2025-2026,73,4359,Piccoli,a,32,369414,Roberto Piccoli,FWD,32,cognome,1.0
+2025-2026,73,4378,Ranieri L.,d,34,355869,Luca Ranieri,DEF,34,cognome,1.0
+2025-2026,73,4465,Fagioli,c,33,369426,Nicolò Fagioli,MID,33,cognome,1.0
+2025-2026,73,4904,Marì,d,11,141032,Pablo Marí,DEF,11,calendario,1.0
+2025-2026,73,4947,Brescianini,c,17,367260,Marco Brescianini,MID,17,cognome,1.0
+2025-2026,73,5319,Sohm,c,16,367177,Simon Sohm,MID,16,cognome,1.0
+2025-2026,73,5449,Parisi,d,23,423918,Fabiano Parisi,MID,23,cognome,1.0
+2025-2026,73,5603,Pongracic,d,35,336048,Marin Pongracic,DEF,35,cognome,1.0
+2025-2026,73,5651,Harrison,c,15,317896,Jack Harrison,FWD,15,cognome,1.0
+2025-2026,73,5718,Viti,d,10,423451,Mattia Viti,DEF,10,cognome,1.0
+2025-2026,73,5788,Sabiri,c,1,333255,Abdelhamid Sabiri,MID,1,cognome,1.0
+2025-2026,73,5800,Gudmundsson A.,c,33,289252,Albert Gudmundsson,FWD,33,cognome,1.0
+2025-2026,73,5885,Dodò,d,36,317675,Dodô,DEF,36,cognome,1.0
+2025-2026,73,6010,Fazzini,c,20,431359,Jacopo Fazzini,FWD,20,cognome,1.0
+2025-2026,73,6206,Fabbian,c,15,447528,Giovanni Fabbian,MID,15,cognome,1.0
+2025-2026,73,6294,Ndour,c,33,476109,Cher Ndour,MID,33,cognome,1.0
+2025-2026,73,6351,Lamptey,d,2,386979,Tariq Lamptey,MID,2,cognome,1.0
+2025-2026,73,6380,Solomon,a,16,345022,Manor Solomon,FWD,16,cognome,1.0
+2025-2026,73,6403,Christensen O.,p,1,403641,Oliver Christensen,GK,1,cognome,1.0
+2025-2026,73,6495,Comuzzo,d,27,495757,Pietro Comuzzo,DEF,27,cognome,1.0
+2025-2026,73,6804,Richardson,c,2,455515,Amir Richardson,MID,2,cognome,1.0
+2025-2026,73,7069,Fortini,d,16,526625,Niccolò Fortini,MID,16,cognome,1.0
+2025-2026,73,7238,Kouadio,d,3,538533,Eddy Kouadio,DEF,3,cognome,1.0
+2025-2026,73,7239,Braschi,a,2,575400,Riccardo Braschi,FWD,2,cognome,1.0
+2025-2026,73,7377,Balbo,d,6,538841,Luís Balbo,DEF,6,cognome,1.0
+2025-2026,75,152,Zielinski,c,34,118169,Piotr Zielinski,MID,34,cognome,1.0
+2025-2026,75,254,Dimarco,d,35,255929,Federico Dimarco,MID,35,cognome,1.0
+2025-2026,75,322,De Vrij,d,11,82399,Stefan de Vrij,DEF,11,cognome,1.0
+2025-2026,75,513,Acerbi,d,18,54968,Francesco Acerbi,DEF,18,cognome,1.0
+2025-2026,75,1870,Barella,c,34,148684,Nicolò Barella,MID,34,cognome,1.0
+2025-2026,75,1926,Di Gennaro,p,1,122963,Raffaele Di Gennaro,DEF,1,cognome,1.0
+2025-2026,75,2120,Bastoni,d,28,329665,Alessandro Bastoni,DEF,28,cognome,1.0
+2025-2026,75,2194,Calhanoglu,c,22,110373,Hakan Çalhanoglu,MID,22,cognome,1.0
+2025-2026,75,2428,Sommer,p,33,35758,Yann Sommer,GK,33,cognome,1.0
+2025-2026,75,2525,Darmian,d,6,23220,Matteo Darmian,MID,6,cognome,1.0
+2025-2026,75,2529,Mkhitaryan,c,30,28421,Henrikh Mkhitaryan,MID,30,cognome,1.0
+2025-2026,75,2764,Martinez L.,a,30,299344,Lautaro Martínez,FWD,30,cognome + iniziali,1.0
+2025-2026,75,2848,Frattesi,c,22,331425,Davide Frattesi,MID,22,cognome,1.0
+2025-2026,75,4159,Akanji,d,33,297390,Manuel Akanji,DEF,33,cognome,1.0
+2025-2026,75,4177,Pavard,d,1,259648,Benjamin Pavard,DEF,1,cognome,1.0
+2025-2026,75,4871,Thuram,a,29,296322,Marcus Thuram,FWD,29,cognome,1.0
+2025-2026,75,5116,Martinez Jo.,p,5,321236,Josep Martínez,GK,5,cognome + iniziali,1.0
+2025-2026,75,5301,Luis Henrique,c,30,388567,Luis Henrique,MID,30,cognome,1.0
+2025-2026,75,5513,Dumfries,d,20,322153,Denzel Dumfries,MID,20,cognome,1.0
+2025-2026,75,5877,Carlos Augusto,d,34,357897,Carlos Augusto,DEF,34,cognome,1.0
+2025-2026,75,6217,Bisseck,d,23,349126,Yann Bisseck,DEF,23,cognome,1.0
+2025-2026,75,6274,Diouf,c,19,415415,Andy Diouf,MID,19,cognome,1.0
+2025-2026,75,6669,Bonny,a,33,447489,Ange-Yoan Bonny,FWD,33,cognome,1.0
+2025-2026,75,7062,Topalovic,c,1,533885,Luka Topalovic,FWD,1,cognome,1.0
+2025-2026,75,7070,Sucic P.,c,34,439534,Petar Sucic,MID,34,cognome,1.0
+2025-2026,75,7071,Esposito F.P.,a,35,497222,Francesco Pio Esposito,FWD,35,cognome,1.0
+2025-2026,75,7307,Lavelli,a,1,557454,Matteo Lavelli,FWD,1,cognome,1.0
+2025-2026,75,7375,Cocchi,d,1,533880,Matteo Cocchi,DEF,1,cognome,1.0
+2025-2026,75,7388,Mosconi,a,2,577538,Mattia Mosconi,MID,2,cognome,1.0
+2025-2026,76,511,Perilli,p,3,118539,Simone Perilli,GK,3,cognome,1.0
+2025-2026,76,801,Gagliardini,c,29,136279,Roberto Gagliardini,MID,29,cognome,1.0
+2025-2026,76,2006,Lirola,d,6,323240,Pol Lirola,MID,6,cognome,1.0
+2025-2026,76,2117,Kastanos,c,6,275831,Grigoris Kastanos,MID,6,cognome,1.0
+2025-2026,76,4957,Montipò,p,35,142425,Lorenzo Montipò,GK,35,cognome,1.0
+2025-2026,76,5286,Akpa Akpro,c,22,105347,Jean-Daniel Akpa Akpro,MID,22,cognome,1.0
+2025-2026,76,5532,Bradaric,d,29,377311,Domagoj Bradaric,MID,29,cognome,1.0
+2025-2026,76,5540,Niasse,c,20,380711,Cheikh Niasse,MID,20,cognome,1.0
+2025-2026,76,5688,Harroui,c,23,349895,Abdou Harroui,MID,23,cognome,1.0
+2025-2026,76,5850,Lovric,c,8,384577,Sandi Lovric,MID,8,cognome,1.0
+2025-2026,76,5994,Ebosse,d,4,320243,Enzo Ebosse,DEF,4,cognome,1.0
+2025-2026,76,6159,Sarr A.,a,34,401593,Amin Sarr,FWD,34,cognome,1.0
+2025-2026,76,6458,Serdar,c,20,296119,Suat Serdar,MID,20,cognome,1.0
+2025-2026,76,6486,Suslov,c,11,391047,Tomás Suslov,FWD,11,cognome,1.0
+2025-2026,76,6552,Orban G.,a,28,472995,Gift Orban,FWD,28,cognome,1.0
+2025-2026,76,6630,Mosquera,a,22,532226,Daniel Mosquera,FWD,22,cognome,1.0
+2025-2026,76,6639,Frese,d,31,532910,Martin Frese,MID,31,cognome,1.0
+2025-2026,76,6894,Unai Nunez,d,17,344200,Unai Núñez,DEF,17,cognome,1.0
+2025-2026,76,6957,Valentini N.,d,21,414212,Nicolás Valentini,DEF,21,cognome,1.0
+2025-2026,76,6992,Oyegoke,d,15,427132,Daniel Oyegoke,MID,15,cognome,1.0
+2025-2026,76,6997,Ajayi,a,1,527718,Junior Ajayi,FWD,1,cognome,1.0
+2025-2026,76,7010,Al-Musrati,c,18,381792,Al Musrati,MID,18,cognome,1.0
+2025-2026,76,7011,Slotsager,d,8,546354,Tobias Slotsager,DEF,8,cognome,1.0
+2025-2026,76,7018,Nelsson,d,38,376805,Victor Nelsson,DEF,38,cognome,1.0
+2025-2026,76,7028,Bernede,c,32,346744,Antoine Bernede,MID,32,cognome,1.0
+2025-2026,76,7162,Giovane,a,21,436627,Giovane,FWD,21,cognome,1.0
+2025-2026,76,7177,Santiago,c,2,437259,Yellu Santiago,MID,2,cognome,1.0
+2025-2026,76,7220,Belghali,d,26,486753,Rafik Belghali,MID,26,cognome,1.0
+2025-2026,76,7222,Cham,d,6,578610,Fallou Cham,MID,6,cognome,1.0
+2025-2026,76,7253,Bella-Kotchap,d,19,369970,Armel Bella-Kotchap,DEF,19,cognome,1.0
+2025-2026,76,7309,Isaac,a,3,475168,Isaac,FWD,3,cognome,1.0
+2025-2026,76,7347,Bowie,a,14,444558,Kieron Bowie,FWD,14,cognome,1.0
+2025-2026,76,7352,Edmundsson,d,15,426226,Andrias Edmundsson,DEF,15,cognome,1.0
+2025-2026,76,7368,Vermesan,a,6,582066,Ioan Vermesan,FWD,6,cognome,1.0
+2025-2026,77,140,Hysaj,d,5,108345,Elseid Hysaj,DEF,5,cognome,1.0
+2025-2026,77,181,Vecino,c,13,135625,Matías Vecino,MID,13,cognome,1.0
+2025-2026,77,327,Patric,d,14,140261,Patric,MID,14,cognome,1.0
+2025-2026,77,333,Cataldi,c,27,118147,Danilo Cataldi,MID,27,cognome,1.0
+2025-2026,77,460,Romagnoli,d,32,118158,Alessio Romagnoli,DEF,32,cognome,1.0
+2025-2026,77,632,Zaccagni,c,26,149029,Mattia Zaccagni,FWD,26,cognome,1.0
+2025-2026,77,2188,Marusic,d,33,275698,Adam Marusic,DEF,33,cognome,1.0
+2025-2026,77,2263,Lazzari,d,23,287086,Manuel Lazzari,DEF,23,cognome,1.0
+2025-2026,77,2489,Pedro,a,29,44055,Pedro,FWD,29,cognome,1.0
+2025-2026,77,2728,Pellegrini Lu.,d,24,332268,Luca Pellegrini,DEF,24,cognome,1.0
+2025-2026,77,2814,Provedel,p,27,118667,Ivan Provedel,GK,27,cognome,1.0
+2025-2026,77,4186,Guendouzi,c,16,328983,Mattéo Guendouzi,MID,16,cognome,1.0
+2025-2026,77,4459,Rovella,c,11,369688,Nicolò Rovella,MID,11,cognome,1.0
+2025-2026,77,4896,Maldini,c,12,388493,Daniel Maldini,FWD,12,cognome,1.0
+2025-2026,77,5500,Cancellieri,a,30,404497,Matteo Cancellieri,FWD,30,cognome,1.0
+2025-2026,77,5620,Tavares N.,d,23,379790,Nuno Tavares,DEF,23,cognome,1.0
+2025-2026,77,5672,Dia,a,27,365122,Boulaye Dia,FWD,27,cognome,1.0
+2025-2026,77,5674,Basic,c,23,343982,Toma Basic,MID,23,cognome,1.0
+2025-2026,77,5833,Gila,d,31,437646,Mario Gila,DEF,31,cognome,1.0
+2025-2026,77,6191,Belahyane,c,13,454985,Reda Belahyane,MID,13,cognome,1.0
+2025-2026,77,6226,Castellanos,a,11,361406,Valentín Castellanos,FWD,11,cognome,1.0
+2025-2026,77,6398,Isaksen,c,30,403648,Gustav Isaksen,FWD,30,cognome,1.0
+2025-2026,77,6417,Furlanetto,p,2,374601,Alessio Furlanetto,GK,2,cognome,1.0
+2025-2026,77,6556,Noslin,a,29,423863,Tijjani Noslin,FWD,29,cognome,1.0
+2025-2026,77,6629,Dele-Bashiru,c,24,399426,Fisayo Dele-Bashiru,MID,24,cognome,1.0
+2025-2026,77,7012,Provstgaard,d,26,484491,Oliver Provstgaard,DEF,26,cognome,1.0
+2025-2026,77,7313,Ratkov,a,8,476789,Petar Ratkov,FWD,8,cognome,1.0
+2025-2026,77,7314,Taylor K.,c,17,401122,Kenneth Taylor,MID,17,cognome,1.0
+2025-2026,77,7337,Motta,p,9,495990,Edoardo Motta,GK,9,cognome,1.0
+2025-2026,77,7345,Przyborek,c,1,586700,Adrian Przyborek,DEF,1,cognome,1.0
+2025-2026,78,247,Pavoletti,a,13,95822,Leonardo Pavoletti,FWD,13,cognome,1.0
+2025-2026,78,393,Luperto,d,19,255292,Sebastiano Luperto,DEF,19,cognome,1.0
+2025-2026,78,441,Belotti,a,8,112272,Andrea Belotti,FWD,8,cognome,1.0
+2025-2026,78,1871,Deiola,c,20,130368,Alessandro Deiola,MID,20,cognome,1.0
+2025-2026,78,1976,Mazzitelli,c,18,141269,Luca Mazzitelli,MID,18,cognome,1.0
+2025-2026,78,4210,Mina,d,26,318432,Yerry Mina,DEF,26,cognome,1.0
+2025-2026,78,4360,Caprile,p,38,362780,Elia Caprile,GK,38,cognome,1.0
+2025-2026,78,4364,Gaetano,c,33,369883,Gianluca Gaetano,MID,33,cognome,1.0
+2025-2026,78,4461,Zappa,d,31,371396,Gabriele Zappa,DEF,31,cognome,1.0
+2025-2026,78,4463,Esposito Se.,a,36,371397,Sebastiano Esposito,FWD,36,cognome,1.0
+2025-2026,78,4870,Adopo,c,38,356176,Michel Adopo,MID,38,cognome,1.0
+2025-2026,78,5297,Luvumbo,a,12,432157,Zito Luvumbo,FWD,12,cognome,1.0
+2025-2026,78,5406,Di Pardo,d,3,406702,Alessandro Di Pardo,DEF,3,cognome,1.0
+2025-2026,78,5701,Obert,d,35,424534,Adam Obert,DEF,35,cognome,1.0
+2025-2026,78,6024,Sulemana I.,c,16,446991,Ibrahim Sulemana,MID,16,cognome,1.0
+2025-2026,78,6230,Dossena,d,12,343496,Alberto Dossena,DEF,12,cognome,1.0
+2025-2026,78,6243,Borrelli,a,27,447445,Gennaro Borrelli,FWD,27,cognome,1.0
+2025-2026,78,6252,Folorunsho,c,27,333294,Michael Folorunsho,MID,27,cognome,1.0
+2025-2026,78,6424,Prati,c,20,447544,Matteo Prati,MID,20,cognome,1.0
+2025-2026,78,6640,Felici,c,12,452020,Mattia Felici,MID,12,cognome,1.0
+2025-2026,78,6832,Palestra,d,37,481154,Marco Palestra,MID,37,cognome,1.0
+2025-2026,78,7125,Idrissi R.,d,23,532542,Riyad Idrissi,MID,23,cognome,1.0
+2025-2026,78,7165,Liteta,c,4,572003,Joseph Liteta,MID,4,cognome,1.0
+2025-2026,78,7199,Kilicsoy,a,22,457171,Semih Kiliçsoy,FWD,22,cognome,1.0
+2025-2026,78,7225,Cavuoti,c,4,423589,Nicolò Cavuoti,MID,4,cognome,1.0
+2025-2026,78,7268,Rodriguez Ju.,d,17,478378,Juan Rodríguez,DEF,17,cognome,1.0
+2025-2026,78,7274,Zè Pedro,d,23,450142,Zé Pedro,DEF,23,cognome,1.0
+2025-2026,78,7317,Trepy,a,8,572005,Yael Trepy,FWD,8,cognome,1.0
+2025-2026,78,7338,Albarracin,a,2,607067,Agustín Albarracín,FWD,2,cognome,1.0
+2025-2026,78,7346,Raterink,d,1,530975,Othniël Raterink,DEF,1,cognome,1.0
+2025-2026,78,7374,Mendy P.,a,9,608421,Paul Mendy,FWD,9,cognome,1.0
+2025-2026,79,2134,Falcone,p,38,118163,Wladimiro Falcone,GK,38,cognome,1.0
+2025-2026,79,2839,Sottil,c,21,355391,Riccardo Sottil,MID,21,cognome,1.0
+2025-2026,79,4502,Gallo,d,37,382637,Antonino Gallo,DEF,37,cognome,1.0
+2025-2026,79,5457,Maleh,c,9,323678,Youssef Maleh,MID,9,cognome,1.0
+2025-2026,79,5504,Coulibaly L.,c,33,288894,Lassana Coulibaly,MID,33,cognome,1.0
+2025-2026,79,5872,Helgason,c,8,406063,Thórir Helgason,MID,8,cognome,1.0
+2025-2026,79,6001,Banda,a,32,378482,Lameck Banda,MID,32,cognome,1.0
+2025-2026,79,6015,Berisha M.,c,13,439607,Medon Berisha,MID,13,cognome,1.0
+2025-2026,79,6394,Ramadani,c,37,319034,Ylber Ramadani,MID,37,cognome,1.0
+2025-2026,79,6410,Kaba,c,15,467452,Mohamed Kaba,MID,15,cognome,1.0
+2025-2026,79,6439,Cheddira,a,17,447146,Walid Cheddira,FWD,17,cognome,1.0
+2025-2026,79,6519,Camarda,a,21,510527,Francesco Camarda,FWD,21,cognome,1.0
+2025-2026,79,6549,Pierotti,c,37,381913,Santiago Pierotti,MID,37,cognome,1.0
+2025-2026,79,6632,Gaspar K.,d,23,463347,Kialonda Gaspar,DEF,23,cognome,1.0
+2025-2026,79,6633,Pierret,c,3,390734,Balthazar Pierret,MID,3,cognome,1.0
+2025-2026,79,6634,Tete Morente,c,16,402087,Tete Morente,FWD,16,cognome,1.0
+2025-2026,79,6883,Jean,d,7,467083,Gaby Jean,DEF,7,cognome,1.0
+2025-2026,79,6989,Tiago Gabriel,d,37,515580,Tiago Gabriel,DEF,37,cognome,1.0
+2025-2026,79,6990,Veiga D.,d,36,444938,Danilo Veiga,DEF,36,cognome,1.0
+2025-2026,79,7001,N'Dri,a,27,399852,Konan N’Dri,MID,27,cognome,1.0
+2025-2026,79,7136,Kouassi,d,4,547543,Owen Kouassi,DEF,4,cognome,1.0
+2025-2026,79,7164,Perez M.,d,1,570993,Matías Pérez,DEF,1,cognome,1.0
+2025-2026,79,7182,Ndaba,d,14,373022,Corrie Ndaba,DEF,14,cognome,1.0
+2025-2026,79,7240,Siebert,d,21,400816,Jamil Siebert,DEF,21,cognome,1.0
+2025-2026,79,7246,Sala A.,c,9,444247,Álex Sala,MID,9,cognome,1.0
+2025-2026,79,7248,Gorter,c,2,577174,Olaf Gorter,MID,2,cognome,1.0
+2025-2026,79,7252,Stulic,a,34,452107,Nikola Stulic,FWD,34,cognome,1.0
+2025-2026,79,7318,Gandelman,c,19,424280,Omri Gandelman,MID,19,cognome,1.0
+2025-2026,79,7319,Fofana Sa.,c,5,430765,Sadik Fofana,MID,5,cognome,1.0
+2025-2026,79,7322,Ngom,c,15,467299,Oumar Ngom,MID,15,cognome,1.0
+2025-2026,80,2379,Rabiot,c,29,116609,Adrien Rabiot,MID,29,cognome,1.0
+2025-2026,80,2423,Pulisic,c,30,302692,Christian Pulisic,FWD,30,cognome,1.0
+2025-2026,80,2606,Modric,c,34,20874,Luka Modric,MID,34,cognome,1.0
+2025-2026,80,2678,Fullkrug,a,20,104058,Niclas Füllkrug,FWD,20,cognome,1.0
+2025-2026,80,2815,Terracciano,p,2,106277,Pietro Terracciano,GK,2,cognome,1.0
+2025-2026,80,4199,Loftus-Cheek,c,28,255777,Ruben Loftus-Cheek,MID,28,cognome,1.0
+2025-2026,80,4312,Maignan,p,37,141646,Mike Maignan,GK,37,cognome,1.0
+2025-2026,80,4401,Gabbia,d,30,337443,Matteo Gabbia,DEF,30,cognome,1.0
+2025-2026,80,4510,Leao,a,29,349207,Rafael Leão,FWD,29,cognome,1.0
+2025-2026,80,4686,Fofana Y.,c,33,362470,Youssouf Fofana,MID,33,cognome,1.0
+2025-2026,80,4728,Nkunku,a,32,300945,Christopher Nkunku,FWD,32,cognome,1.0
+2025-2026,80,4751,Tomori,d,33,317507,Fikayo Tomori,DEF,33,cognome,1.0
+2025-2026,80,4856,Chukwueze,c,1,363665,Samuel Chukwueze,FWD,1,cognome,1.0
+2025-2026,80,4892,Saelemaekers,c,35,365308,Alexis Saelemaekers,MID,35,cognome,1.0
+2025-2026,80,5022,Pavlovic,d,34,383864,Strahinja Pavlovic,DEF,34,cognome,1.0
+2025-2026,80,5273,Estupinan,d,19,298694,Pervis Estupiñán,MID,19,cognome,1.0
+2025-2026,80,5295,Musah,c,1,400357,Yunus Musah,MID,1,cognome,1.0
+2025-2026,80,5453,Ricci S.,c,31,372509,Samuele Ricci,MID,31,cognome,1.0
+2025-2026,80,5739,De Winter,d,26,404623,Koni De Winter,DEF,26,cognome,1.0
+2025-2026,80,6496,Bartesaghi,d,31,454356,Davide Bartesaghi,MID,31,cognome,1.0
+2025-2026,80,6531,Jimenez A.,d,1,497295,Álex Jiménez,FWD,1,cognome,1.0
+2025-2026,80,7008,Gimenez,a,16,445061,Santiago Giménez,FWD,16,cognome,1.0
+2025-2026,80,7203,Jashari,c,14,435100,Ardon Jashari,MID,14,cognome,1.0
+2025-2026,80,7211,Athekame,d,27,499996,Zachary Athekame,MID,27,cognome,1.0
+2025-2026,80,7262,Balentien,a,2,581723,Cheveyo Balentien,FWD,2,cognome,1.0
+2025-2026,80,7271,Odogu,d,2,480781,David Odogu,MID,2,cognome,1.0
+2025-2026,84,309,Dybala,a,22,114863,Paulo Dybala,FWD,22,cognome,1.0
+2025-2026,84,530,Pellegrini Lo.,c,24,148546,Lorenzo Pellegrini,FWD,24,cognome,1.0
+2025-2026,84,779,Cristante,c,37,109149,Bryan Cristante,MID,37,cognome,1.0
+2025-2026,84,795,El Shaarawy,c,20,70087,Stephan El Shaarawy,FWD,20,cognome,1.0
+2025-2026,84,2296,Mancini,d,36,244804,Gianluca Mancini,DEF,36,cognome,1.0
+2025-2026,84,2670,Bailey,c,7,327682,Leon Bailey,FWD,7,cognome,1.0
+2025-2026,84,4317,N'Dicka,d,31,323450,Evan Ndicka,DEF,31,cognome,1.0
+2025-2026,84,4657,Celik,d,34,136481,Zeki Çelik,MID,34,cognome,1.0
+2025-2026,84,4772,Angelino,d,7,255089,Angeliño,MID,7,cognome,1.0
+2025-2026,84,4807,Hermoso,d,27,344156,Mario Hermoso,DEF,27,cognome,1.0
+2025-2026,84,5168,Tsimikas,d,18,301455,Kostas Tsimikas,MID,18,cognome,1.0
+2025-2026,84,5585,Malen,a,18,351354,Donyell Malen,FWD,18,cognome,1.0
+2025-2026,84,5589,Konè M.,c,29,369570,Manu Koné,MID,29,cognome,1.0
+2025-2026,84,5734,Soulè,a,33,425079,Matías Soulé,FWD,33,cognome,1.0
+2025-2026,84,5823,Baldanzi,c,10,425056,Tommaso Baldanzi,FWD,10,cognome,1.0
+2025-2026,84,5841,Svilar,p,38,331422,Mile Svilar,GK,38,cognome,1.0
+2025-2026,84,6190,Pisilli,c,25,476440,Niccolò Pisilli,MID,25,cognome,1.0
+2025-2026,84,6271,El Aynaoui,c,25,486734,Neil El Aynaoui,MID,25,cognome,1.0
+2025-2026,84,6365,Ferguson E.,a,16,423720,Evan Ferguson,FWD,16,cognome,1.0
+2025-2026,84,6575,Zaragoza,c,4,429273,Bryan Zaragoza,FWD,4,cognome,1.0
+2025-2026,84,6631,Ghilardi,d,23,486744,Daniele Ghilardi,DEF,23,cognome,1.0
+2025-2026,84,6675,Dovbyk,a,14,296975,Artem Dovbyk,FWD,14,cognome,1.0
+2025-2026,84,6980,Venturino,c,10,537023,Lorenzo Venturino,FWD,10,cognome,1.0
+2025-2026,84,6981,Vaz,a,12,511691,Robinio Vaz,FWD,12,cognome,1.0
+2025-2026,84,6986,Rensch,d,24,400165,Devyne Rensch,MID,24,cognome,1.0
+2025-2026,84,7181,Wesley,d,30,429481,Wesley,MID,30,cognome,1.0
+2025-2026,84,7260,Ziolkowski,d,18,566741,Jan Ziólkowski,DEF,18,cognome,1.0
+2025-2026,84,7277,Arena A.,a,2,581694,Antonio Arena,FWD,2,cognome,1.0
+2025-2026,84,7311,Romano,c,2,550174,Alessandro Romano,MID,2,cognome,1.0
+2025-2026,86,543,Padelli,p,2,10372,Daniele Padelli,GK,2,cognome,1.0
+2025-2026,86,2766,Zaniolo,c,32,332398,Nicolò Zaniolo,FWD,32,cognome,1.0
+2025-2026,86,4263,Kabasele,d,30,68393,Christian Kabasele,DEF,30,cognome,1.0
+2025-2026,86,5527,Zanoli,d,19,423515,Alessandro Zanoli,MID,19,cognome,1.0
+2025-2026,86,5555,Kamara H.,d,26,239881,Hassane Kamara,MID,26,cognome,1.0
+2025-2026,86,5637,Davis K.,a,30,303107,Keinan Davis,FWD,30,cognome,1.0
+2025-2026,86,5820,Bertola,d,28,416238,Nicolò Bertola,DEF,28,cognome,1.0
+2025-2026,86,5850,Lovric,c,6,384577,Sandi Lovric,MID,6,cognome,1.0
+2025-2026,86,6047,Ehizibue,d,32,244583,Kingsley Ehizibue,MID,32,cognome,1.0
+2025-2026,86,6211,Zemura,d,17,400609,Jordan Zemura,MID,17,cognome,1.0
+2025-2026,86,6212,Zarraga,c,24,399989,Oier Zarraga,MID,24,cognome,1.0
+2025-2026,86,6462,Okoye,p,30,392339,Maduka Okoye,GK,30,cognome,1.0
+2025-2026,86,6485,Kristensen T.,d,28,440029,Thomas Kristensen,DEF,28,cognome,1.0
+2025-2026,86,6537,Goglichidze,d,8,498982,Saba Goglichidze,DEF,8,cognome,1.0
+2025-2026,86,6653,Bravo,a,8,427262,Iker Bravo,FWD,8,cognome,1.0
+2025-2026,86,6680,Karlstrom,c,36,320585,Jesper Karlström,MID,36,cognome,1.0
+2025-2026,86,6684,Ekkelenkamp,c,31,355963,Jurgen Ekkelenkamp,MID,31,cognome,1.0
+2025-2026,86,6842,Sava,p,7,391998,Razvan Sava,GK,7,cognome,1.0
+2025-2026,86,6900,Rui Modesto,d,3,484640,Rui Modesto,FWD,3,cognome,1.0
+2025-2026,86,6908,Atta,c,32,469507,Arthur Atta,MID,32,cognome,1.0
+2025-2026,86,6925,Palma,d,5,527638,Matteo Palma,DEF,5,cognome,1.0
+2025-2026,86,6956,Solet,d,35,354072,Oumar Solet,DEF,35,cognome,1.0
+2025-2026,86,7161,Bayo V.,a,15,383814,Vakoun Bayo,FWD,15,cognome,1.0
+2025-2026,86,7198,Piotrowski,c,33,363654,Jakub Piotrowski,MID,33,cognome,1.0
+2025-2026,86,7208,Miller L.,c,24,454901,Lennon Miller,MID,24,cognome,1.0
+2025-2026,86,7249,Buksa,a,25,339502,Adam Buksa,FWD,25,cognome,1.0
+2025-2026,86,7272,Gueye,a,19,499786,Idrissa Gueye,FWD,19,cognome,1.0
+2025-2026,86,7312,Arizala,d,10,476469,Juan Arizala,MID,10,cognome,1.0
+2025-2026,86,7356,Mlacic,d,7,582892,Branimir Mlacic,DEF,7,cognome,1.0
+2025-2026,86,7392,Camara A.,c,1,554199,Abdoulaye Camara,FWD,1,cognome,1.0
+2025-2026,87,218,Perin,p,9,78880,Mattia Perin,GK,9,cognome,1.0
+2025-2026,87,294,Rugani,d,6,116207,Daniele Rugani,DEF,6,cognome,1.0
+2025-2026,87,827,Locatelli,c,36,273539,Manuel Locatelli,MID,36,cognome,1.0
+2025-2026,87,2012,Milik,a,2,104257,Arkadiusz Milik,FWD,2,cognome,1.0
+2025-2026,87,2788,Bremer,d,26,339875,Bremer,DEF,26,cognome,1.0
+2025-2026,87,2832,Boga,a,15,280766,Jérémie Boga,FWD,15,cognome,1.0
+2025-2026,87,2841,Vlahovic,a,19,315369,Dusan Vlahovic,FWD,19,cognome,1.0
+2025-2026,87,4179,Gonzalez N.,a,2,345322,Nico González,MID,2,cognome,1.0
+2025-2026,87,4711,Kostic,c,18,105995,Filip Kostic,MID,18,cognome,1.0
+2025-2026,87,4973,McKennie,c,36,338275,Weston McKennie,MID,36,cognome,1.0
+2025-2026,87,4976,Kalulu,d,37,391836,Pierre Kalulu,DEF,37,cognome,1.0
+2025-2026,87,5520,Cambiaso,d,36,423440,Andrea Cambiaso,MID,36,cognome,1.0
+2025-2026,87,5544,David,a,35,383855,Jonathan David,FWD,35,cognome,1.0
+2025-2026,87,5562,Thuram K.,c,35,366379,Khéphren Thuram,MID,35,cognome,1.0
+2025-2026,87,5678,Holm,d,7,418579,Emil Holm,DEF,7,cognome,1.0
+2025-2026,87,5685,Koopmeiners,c,33,343308,Teun Koopmeiners,DEF,33,cognome,1.0
+2025-2026,87,5761,Zhegrova,c,19,363181,Edon Zhegrova,FWD,19,cognome,1.0
+2025-2026,87,5813,Miretti,c,23,425080,Fabio Miretti,MID,23,cognome,1.0
+2025-2026,87,5831,Gatti,d,21,439909,Federico Gatti,DEF,21,cognome,1.0
+2025-2026,87,5876,Di Gregorio,p,30,319696,Michele Di Gregorio,GK,30,cognome,1.0
+2025-2026,87,6039,Cabal,d,12,445322,Juan Cabal,MID,12,cognome,1.0
+2025-2026,87,6314,Openda,a,24,363618,Loïs Openda,FWD,24,cognome,1.0
+2025-2026,87,6434,Yildiz,a,36,494525,Kenan Yildiz,FWD,36,cognome,1.0
+2025-2026,87,6677,Adzic,c,10,484428,Vasilije Adzic,FWD,10,cognome,1.0
+2025-2026,87,6766,Kelly L.,d,35,332419,Lloyd Kelly,DEF,35,cognome,1.0
+2025-2026,87,6884,Conceicao,c,31,409221,Francisco Conceição,FWD,31,cognome,1.0
+2025-2026,87,7175,Joao Mario,d,10,395173,João Mário,DEF,10,cognome,1.0
+2025-2026,276,256,Juan Jesus,d,24,84603,Juan Jesus,DEF,24,cognome,1.0
+2025-2026,276,536,Politano,c,34,122683,Matteo Politano,MID,34,cognome,1.0
+2025-2026,276,572,Meret,p,11,241022,Alex Meret,GK,11,cognome,1.0
+2025-2026,276,1852,Spinazzola,d,32,92329,Leonardo Spinazzola,MID,32,cognome,1.0
+2025-2026,276,2170,Milinkovic-Savic V.,p,27,149474,Vanja Milinkovic-Savic,GK,27,cognome,1.0
+2025-2026,276,2517,De Bruyne,c,18,73084,Kevin De Bruyne,MID,18,cognome,1.0
+2025-2026,276,2531,Lukaku,a,5,78498,Romelu Lukaku,FWD,5,cognome,1.0
+2025-2026,276,2724,Buongiorno,d,33,333373,Alessandro Buongiorno,DEF,33,cognome,1.0
+2025-2026,276,2816,Di Lorenzo,d,26,122469,Giovanni Di Lorenzo,DEF,26,cognome,1.0
+2025-2026,276,2845,Contini,p,1,141525,Nikita Contini,DEF,1,cognome,1.0
+2025-2026,276,4220,Zambo Anguissa,c,18,349561,Frank Anguissa,MID,18,cognome parziale,1.0
+2025-2026,276,4287,Lobotka,c,32,111892,Stanislav Lobotka,MID,32,cognome,1.0
+2025-2026,276,4409,Rrahmani,d,21,295358,Amir Rrahmani,DEF,21,cognome,1.0
+2025-2026,276,4479,Elmas,c,33,339579,Eljif Elmas,FWD,33,cognome,1.0
+2025-2026,276,4777,McTominay,c,33,336915,Scott McTominay,MID,33,cognome,1.0
+2025-2026,276,5131,Gilmour,c,17,381255,Billy Gilmour,MID,17,cognome,1.0
+2025-2026,276,5427,Gutierrez,d,28,395788,Miguel Gutiérrez,MID,28,cognome,1.0
+2025-2026,276,5481,Mazzocchi,d,16,423857,Pasquale Mazzocchi,MID,16,cognome,1.0
+2025-2026,276,5840,Olivera,d,25,347178,Mathías Olivera,DEF,25,cognome,1.0
+2025-2026,276,6052,Hojlund,a,33,439584,Rasmus Højlund,FWD,33,cognome,1.0
+2025-2026,276,6202,Beukema,d,24,422739,Sam Beukema,DEF,24,cognome,1.0
+2025-2026,276,6215,Lucca,a,16,424819,Lorenzo Lucca,FWD,16,cognome,1.0
+2025-2026,276,6809,Marianucci,d,2,497110,Luca Marianucci,DEF,2,cognome,1.0
+2025-2026,276,6831,Neres,c,16,326505,David Neres,FWD,16,cognome,1.0
+2025-2026,276,7120,Lang,a,18,354283,Noa Lang,FWD,18,cognome,1.0
+2025-2026,276,7162,Giovane,a,12,436627,Giovane,FWD,12,cognome,1.0
+2025-2026,276,7223,Vergara,c,12,429529,Antonio Vergara,FWD,12,cognome,1.0
+2025-2026,276,7264,Ambrosino,a,3,428653,Giuseppe Ambrosino,FWD,3,cognome,1.0
+2025-2026,276,7351,Santos A.,c,14,557549,Alisson Santos,FWD,14,cognome,1.0
+2025-2026,278,188,Leali,p,22,91169,Nicola Leali,GK,22,cognome,1.0
+2025-2026,278,219,Sommariva,p,2,241021,Daniele Sommariva,GK,2,cognome,1.0
+2025-2026,278,791,Sabelli,d,16,283348,Stefano Sabelli,MID,16,cognome,1.0
+2025-2026,278,2593,Martin,d,33,323546,Aarón Martín,MID,33,cognome,1.0
+2025-2026,278,4404,Thorsby,c,13,128839,Morten Thorsby,MID,13,cognome,1.0
+2025-2026,278,4427,Malinovskyi,c,34,295456,Ruslan Malinovskyi,MID,34,cognome,1.0
+2025-2026,278,4677,Cornet,c,8,125004,Maxwel Cornet,MID,8,cognome,1.0
+2025-2026,278,4923,Colombo,a,38,395219,Lorenzo Colombo,FWD,38,cognome,1.0
+2025-2026,278,4970,Messias,c,20,401098,Junior Messias,FWD,20,cognome,1.0
+2025-2026,278,5506,Ekuban,a,31,124209,Caleb Ekuban,FWD,31,cognome,1.0
+2025-2026,278,5514,Vasquez,d,36,425115,Johan Vásquez,DEF,36,cognome,1.0
+2025-2026,278,5750,Ostigard,d,30,369971,Leo Østigård,DEF,30,cognome,1.0
+2025-2026,278,5791,Frendrup,c,36,424806,Morten Frendrup,MID,36,cognome,1.0
+2025-2026,278,5823,Baldanzi,c,8,425056,Tommaso Baldanzi,FWD,8,cognome,1.0
+2025-2026,278,6020,Ellertsson,c,36,424834,Mikael Ellertsson,MID,36,cognome,1.0
+2025-2026,278,6106,Carboni V.,c,12,446865,Valentín Carboni,MID,12,cognome,1.0
+2025-2026,278,6164,Vitinha O.,a,35,407949,Vítinha,FWD,35,cognome,1.0
+2025-2026,278,6506,Fini,c,1,449840,Seydou Fini,FWD,1,cognome,1.0
+2025-2026,278,6538,Onana J.,c,3,392388,Jean Onana,MID,3,cognome,1.0
+2025-2026,278,6660,Marcandalli,d,32,494398,Alessandro Marcandalli,DEF,32,cognome,1.0
+2025-2026,278,6722,Gronbaek,c,4,424809,Albert Grønbæk,MID,4,cognome,1.0
+2025-2026,278,6814,Norton-Cuffy,d,27,431573,Brooke Norton-Cuffy,MID,27,cognome,1.0
+2025-2026,278,6822,Ekhator,a,30,535736,Jeff Ekhator,FWD,30,cognome,1.0
+2025-2026,278,6853,Lafont G.,c,1,523963,Gaël Lafont,MID,1,cognome,1.0
+2025-2026,278,6917,Masini,c,28,447452,Patrizio Masini,MID,28,cognome,1.0
+2025-2026,278,6977,Otoa,d,13,505567,Sebastian Otoa,DEF,13,cognome,1.0
+2025-2026,278,6980,Venturino,c,2,537023,Lorenzo Venturino,FWD,2,cognome,1.0
+2025-2026,278,7135,Stanciu,c,4,111891,Nicolae Stanciu,MID,4,cognome,1.0
+2025-2026,278,7328,Nuredini,a,1,555394,Joi Nuredini,UNK,1,cognome,1.0
+2025-2026,278,7332,Bijlow,p,16,302709,Justin Bijlow,GK,16,cognome,1.0
+2025-2026,278,7335,Zatterstrom,d,3,531064,Nils Zätterström,DEF,3,cognome,1.0
+2025-2026,278,7341,Amorim,c,11,472895,Alex Amorim,MID,11,cognome,1.0
+2025-2026,278,7389,Ouedraogo L.,d,2,618134,Wedtoin Ouedraogo,MID,2,cognome,1.0
+2025-2026,278,7390,Doucouré M.,d,1,611222,Mamedi Doucouré,MID,1,cognome,1.0
+2025-2026,278,7398,Grossi J.,c,1,618133,Jacopo Grossi,FWD,1,cognome,1.0
+2025-2026,278,7399,Carbone F.,c,1,555393,Filippo Carbone,DEF,1,cognome,1.0
+2025-2026,300,4,Sportiello,p,1,95504,Marco Sportiello,GK,1,cognome,1.0
+2025-2026,300,22,De Roon,c,34,85070,Marten de Roon,MID,34,cognome,1.0
+2025-2026,300,554,Zappacosta,d,35,141312,Davide Zappacosta,MID,35,cognome,1.0
+2025-2026,300,787,Djimsiti,d,34,100962,Berat Djimsiti,DEF,34,cognome,1.0
+2025-2026,300,2077,Pasalic,c,33,129903,Mario Pasalic,MID,33,cognome,1.0
+2025-2026,300,2137,Scamacca,a,24,302650,Gianluca Scamacca,FWD,24,cognome,1.0
+2025-2026,300,2640,Kolasinac,d,19,110260,Sead Kolasinac,DEF,19,cognome,1.0
+2025-2026,300,4371,Raspadori,a,13,371497,Giacomo Raspadori,FWD,13,cognome,1.0
+2025-2026,300,4431,Carnesecchi,p,37,383278,Marco Carnesecchi,GK,37,cognome,1.0
+2025-2026,300,4730,Lookman,a,12,299451,Ademola Lookman,FWD,12,cognome,1.0
+2025-2026,300,4887,Bellanova,d,24,349184,Raoul Bellanova,MID,24,cognome,1.0
+2025-2026,300,4896,Maldini,c,9,388493,Daniel Maldini,FWD,9,cognome,1.0
+2025-2026,300,4947,Brescianini,c,9,367260,Marco Brescianini,MID,9,cognome,1.0
+2025-2026,300,5067,Bakker,d,1,352830,Mitchel Bakker,FWD,1,cognome,1.0
+2025-2026,300,5119,Samardzic,c,26,393039,Lazar Samardzic,FWD,26,cognome,1.0
+2025-2026,300,5295,Musah,c,19,400357,Yunus Musah,MID,19,cognome,1.0
+2025-2026,300,5422,Zalewski,c,33,403913,Nicola Zalewski,FWD,33,cognome,1.0
+2025-2026,300,5526,Scalvini,d,24,405133,Giorgio Scalvini,DEF,24,cognome,1.0
+2025-2026,300,5578,Kossounou,d,19,384516,Odilon Kossounou,DEF,19,cognome,1.0
+2025-2026,300,5792,Ederson D.S.,c,30,362556,Éderson Silva,MID,30,cognome,1.0
+2025-2026,300,5918,Sulemana K.,a,25,422135,Kamaldeen Sulemana,FWD,25,cognome,1.0
+2025-2026,300,5995,De Ketelaere,a,31,386390,Charles De Ketelaere,FWD,31,cognome,1.0
+2025-2026,300,6046,Hien,d,28,454908,Isak Hien,DEF,28,cognome,1.0
+2025-2026,300,6435,Krstovic,a,33,404252,Nikola Krstovic,FWD,33,cognome,1.0
+2025-2026,300,6916,Ahanor,d,22,535735,Honest Ahanor,DEF,22,cognome,1.0
+2025-2026,300,7219,Bernasconi,d,23,480033,Lorenzo Bernasconi,MID,23,cognome,1.0
+2025-2026,300,7394,Vavassori,a,1,536238,Dominic Vavassori,DEF,1,cognome,1.0
+2025-2026,777,388,Albiol,d,8,12575,Raúl Albiol,DEF,8,cognome,1.0
+2025-2026,777,574,Scuffet,p,7,123923,Simone Scuffet,GK,7,cognome,1.0
+2025-2026,777,697,Cuadrado,d,19,44868,Juan Cuadrado,FWD,19,cognome,1.0
+2025-2026,777,2271,Nicolas,p,6,106967,Nícolas,GK,6,cognome,1.0
+2025-2026,777,2273,Caracciolo A.,d,35,83719,Antonio Caracciolo,DEF,35,cognome,1.0
+2025-2026,777,2334,Leris,c,34,338073,Mehdi Léris,MID,34,cognome,1.0
+2025-2026,777,2745,Calabresi,d,26,243919,Arturo Calabresi,DEF,26,cognome,1.0
+2025-2026,777,2861,Semper,p,25,326640,Adrian Semper,GK,25,cognome,1.0
+2025-2026,777,5318,Tramoni M.,c,27,357956,Mattéo Tramoni,FWD,27,cognome,1.0
+2025-2026,777,5336,Nzola,a,16,343368,M'Bala Nzola,FWD,16,cognome,1.0
+2025-2026,777,5455,Moreo,a,37,141729,Stefano Moreo,FWD,37,cognome,1.0
+2025-2026,777,5561,Stengs,c,4,328987,Calvin Stengs,MID,4,cognome,1.0
+2025-2026,777,5784,Aebischer,c,35,327702,Michel Aebischer,MID,35,cognome,1.0
+2025-2026,777,6112,Iling Junior,c,5,438894,Samuel Iling-Junior,FWD,5,cognome,1.0
+2025-2026,777,6411,Mateus Lusuardi,d,3,498183,Mateus Lusuardi,DEF,3,cognome,1.0
+2025-2026,777,6444,Bonfanti,d,9,432552,Giovanni Bonfanti,DEF,9,cognome,1.0
+2025-2026,777,6593,Akinsanmiro,c,24,482453,Ebenezer Akinsanmiro,MID,24,cognome,1.0
+2025-2026,777,6836,Meister,a,28,495906,Henrik Meister,FWD,28,cognome,1.0
+2025-2026,777,7139,Canestrelli,d,37,423449,Simone Canestrelli,DEF,37,cognome,1.0
+2025-2026,777,7140,Coppola F.,d,7,482321,Francesco Coppola,DEF,7,cognome,1.0
+2025-2026,777,7142,Esteves T.,d,1,395409,Tomás Esteves,MID,1,cognome,1.0
+2025-2026,777,7143,Angori,d,35,431666,Samuele Angori,MID,35,cognome,1.0
+2025-2026,777,7145,Piccinini G.,c,25,447510,Gabriele Piccinini,MID,25,cognome,1.0
+2025-2026,777,7146,Tourè I.,c,32,330505,Idrissa Touré,MID,32,cognome,1.0
+2025-2026,777,7147,Hojholt,c,17,449021,Malthe Højholt,MID,17,cognome,1.0
+2025-2026,777,7149,Marin M.,c,23,330629,Marius Marin,MID,23,cognome,1.0
+2025-2026,777,7150,Vural,c,15,444094,Isak Vural,MID,15,cognome,1.0
+2025-2026,777,7171,Buffon L.,a,4,553371,Louis Buffon,FWD,4,cognome,1.0
+2025-2026,777,7196,Denoon,d,2,572173,Daniel Denoon,DEF,2,cognome,1.0
+2025-2026,777,7254,Lorran,c,9,471043,Lorran,MID,9,cognome,1.0
+2025-2026,777,7316,Durosinmi,a,12,472299,Rafiu Durosinmi,FWD,12,cognome,1.0
+2025-2026,777,7325,Bozhinov,d,9,520491,Rosen Bozhinov,DEF,9,cognome,1.0
+2025-2026,777,7331,Loyola,c,11,499667,Felipe Loyola,MID,11,cognome,1.0
+2025-2026,777,7344,Stojilkovic,a,13,412298,Filip Stojilkovic,FWD,13,cognome,1.0
+2025-2026,777,7395,Bettazzi,c,1,584682,Brando Bettazzi,MID,1,cognome,1.0
+2025-2026,1290,313,Morata,a,26,91213,Álvaro Morata,FWD,26,cognome,1.0
+2025-2026,1290,418,Goldaniga,d,2,118148,Edoardo Goldaniga,DEF,2,cognome,1.0
+2025-2026,1290,4137,Diego Carlos,d,27,134984,Diego Carlos,DEF,27,cognome,1.0
+2025-2026,1290,4284,Sergi Roberto,c,20,90782,Sergi Roberto,MID,20,cognome,1.0
+2025-2026,1290,4994,Vojvoda,d,30,228854,Mërgim Vojvoda,MID,30,cognome,1.0
+2025-2026,1290,5036,Caqueret,c,30,368272,Maxence Caqueret,MID,30,cognome,1.0
+2025-2026,1290,5435,Moreno Alb.,d,19,113275,Alberto Moreno,DEF,19,cognome,1.0
+2025-2026,1290,5559,Da Cunha,c,36,379615,Lucas da Cunha,MID,36,cognome,1.0
+2025-2026,1290,6066,Posch,d,14,333741,Stefan Posch,DEF,14,cognome,1.0
+2025-2026,1290,6151,Perrone,c,36,433972,Máximo Perrone,MID,36,cognome,1.0
+2025-2026,1290,6867,Valle,d,28,454341,Álex Valle,DEF,28,cognome,1.0
+2025-2026,1290,6869,Ramon,d,32,516374,Jacobo Ramón,DEF,32,cognome,1.0
+2025-2026,1290,6875,Paz N.,c,35,448659,Nico Paz,MID,35,cognome,1.0
+2025-2026,1290,6893,Kempf,d,34,116465,Marc Oliver Kempf,DEF,34,cognome,1.0
+2025-2026,1290,6896,Van Der Brempt,d,20,402849,Ignace Van der Brempt,DEF,20,cognome,1.0
+2025-2026,1290,6966,Butez,p,38,256536,Jean Butez,GK,38,cognome,1.0
+2025-2026,1290,6967,Diao,a,17,502427,Assane Diao,MID,17,cognome,1.0
+2025-2026,1290,7014,Smolcic I.,d,28,531127,Ivan Smolcic,DEF,28,cognome,1.0
+2025-2026,1290,7017,Douvikas,a,38,422873,Tasos Douvikas,FWD,38,cognome,1.0
+2025-2026,1290,7126,Baturina,c,29,407944,Martin Baturina,MID,29,cognome,1.0
+2025-2026,1290,7127,Addai,a,12,510581,Jayden Addai,MID,12,cognome,1.0
+2025-2026,1290,7128,Kuhn,a,23,420245,Nicolas Kühn,MID,23,cognome,1.0
+2025-2026,1290,7129,Rodriguez Je.,a,31,539559,Jesús Rodríguez,MID,31,cognome,1.0
+2025-2026,1290,7299,Le Borgne,c,1,573387,Andréa Le Borgne,DEF,1,cognome,1.0
+2025-2026,2731,27,Grassi,c,30,240989,Alberto Grassi,MID,30,cognome,1.0
+2025-2026,2731,393,Luperto,d,15,255292,Sebastiano Luperto,DEF,15,cognome,1.0
+2025-2026,2731,449,Vazquez,c,15,102439,Franco Vázquez,FWD,15,cognome,1.0
+2025-2026,2731,479,Sanabria,a,25,135057,Antonio Sanabria,FWD,25,cognome,1.0
+2025-2026,2731,505,Bonazzoli,a,35,149543,Federico Bonazzoli,FWD,35,cognome,1.0
+2025-2026,2731,612,Bianchetti,d,27,105249,Matteo Bianchetti,DEF,27,cognome,1.0
+2025-2026,2731,761,Audero,p,34,254692,Emil Audero,GK,34,cognome,1.0
+2025-2026,2731,770,Pezzella Giu.,d,31,298515,Giuseppe Pezzella,MID,31,cognome,1.0
+2025-2026,2731,1891,Ceccherini,d,9,97203,Federico Ceccherini,DEF,9,cognome,1.0
+2025-2026,2731,2211,Silvestri,p,4,81109,Marco Silvestri,GK,4,cognome,1.0
+2025-2026,2731,2499,Vardy,a,29,106981,Jamie Vardy,FWD,29,cognome,1.0
+2025-2026,2731,4404,Thorsby,c,11,128839,Morten Thorsby,MID,11,cognome,1.0
+2025-2026,2731,5457,Maleh,c,14,323678,Youssef Maleh,MID,14,cognome,1.0
+2025-2026,2731,5471,Djuric,a,11,33649,Milan Djuric,FWD,11,cognome,1.0
+2025-2026,2731,5496,Johnsen,a,11,333251,Dennis Johnsen,MID,11,cognome,1.0
+2025-2026,2731,5512,De Luca,a,2,326497,Manuel De Luca,FWD,2,cognome,1.0
+2025-2026,2731,5515,Okereke,a,10,315538,David Okereke,FWD,10,cognome,1.0
+2025-2026,2731,5812,Terracciano F.,d,36,395782,Filippo Terracciano,DEF,36,cognome,1.0
+2025-2026,2731,5835,Baschirotto,d,29,446953,Federico Baschirotto,DEF,29,cognome,1.0
+2025-2026,2731,5992,Bondo,c,27,446958,Warren Bondo,MID,27,cognome,1.0
+2025-2026,2731,5998,Zerbin,c,32,338762,Alessio Zerbin,MID,32,cognome,1.0
+2025-2026,2731,6013,Barbieri,d,29,446940,Tommaso Barbieri,MID,29,cognome,1.0
+2025-2026,2731,6481,Payero,c,25,349535,Martín Payero,MID,25,cognome,1.0
+2025-2026,2731,6528,Sarmiento J.,c,7,425603,Jeremy Sarmiento,FWD,7,cognome,1.0
+2025-2026,2731,6555,Moumbagna,a,5,395595,Faris Moumbagna,FWD,5,cognome,1.0
+2025-2026,2731,6870,Faye,d,8,494519,Mikayil Faye,MID,8,cognome,1.0
+2025-2026,2731,7130,Folino,d,17,532504,Francesco Folino,DEF,18,cognome,0.9444
+2025-2026,2731,7131,Floriani Mussolini,d,28,426905,Romano Floriani Mussolini,MID,28,cognome,1.0
+2025-2026,2731,7132,Collocolo,c,8,447009,Michele Collocolo,MID,8,cognome,1.0
+2025-2026,2731,7133,Vandeputte,c,32,132779,Jari Vandeputte,MID,32,cognome,1.0
+2025-2026,2731,7241,Lordkipanidze D.,c,1,535602,Dachi Lordkipanidze,MID,1,cognome,1.0
+2025-2026,2731,7400,Lottici Tessadri,c,1,619506,Simone Lottici Tessadri,FWD,1,cognome,1.0
+2025-2026,2889,531,Berardi,a,26,118542,Domenico Berardi,FWD,26,cognome,1.0
+2025-2026,2889,1842,Pierini,a,11,302574,Nicholas Pierini,FWD,11,cognome,1.0
+2025-2026,2889,2038,Pinamonti,a,36,317544,Andrea Pinamonti,FWD,36,cognome,1.0
+2025-2026,2889,2279,Romagna,d,5,143991,Filippo Romagna,DEF,5,cognome,1.0
+2025-2026,2889,2528,Matic,c,34,38128,Nemanja Matic,MID,34,cognome,1.0
+2025-2026,2889,4236,Muric,p,32,362426,Arijanet Muric,GK,32,cognome,1.0
+2025-2026,2889,4374,Walukiewicz,d,34,383585,Sebastian Walukiewicz,DEF,34,cognome,1.0
+2025-2026,2889,4867,Turati,p,6,386211,Stefano Turati,GK,6,cognome,1.0
+2025-2026,2889,4930,Ghion,c,1,375461,Andrea Ghion,MID,1,cognome,1.0
+2025-2026,2889,5336,Nzola,a,14,343368,M'Bala Nzola,FWD,14,cognome,1.0
+2025-2026,2889,5610,Vranckx,c,16,399957,Aster Vranckx,MID,16,cognome,1.0
+2025-2026,2889,5735,Volpato,c,24,427130,Cristian Volpato,FWD,24,cognome,1.0
+2025-2026,2889,5844,Thorstvedt,c,32,372407,Kristian Thorstvedt,MID,32,cognome,1.0
+2025-2026,2889,5851,Doig,d,30,397024,Josh Doig,DEF,30,cognome,1.0
+2025-2026,2889,6018,Zacchi,p,1,430284,Gioele Zacchi,DEF,1,cognome,1.0
+2025-2026,2889,6060,Laurientè,a,38,355994,Armand Laurienté,FWD,38,cognome,1.0
+2025-2026,2889,6219,Boloca,c,2,447447,Daniel Boloca,MID,2,cognome,1.0
+2025-2026,2889,6246,Lipani,c,24,449839,Luca Lipani,MID,24,cognome,1.0
+2025-2026,2889,6439,Cheddira,a,16,447146,Walid Cheddira,FWD,16,cognome,1.0
+2025-2026,2889,6550,Garcia U.,d,13,149348,Ulisses Garcia,DEF,13,cognome,1.0
+2025-2026,2889,6665,Coulibaly W.,d,20,447492,Woyo Coulibaly,DEF,20,cognome,1.0
+2025-2026,2889,6672,Idzes,d,35,422637,Jay Idzes,DEF,35,cognome,1.0
+2025-2026,2889,6717,Konè I.,c,35,422851,Ismaël Koné,MID,35,cognome,1.0
+2025-2026,2889,6815,Fadera,c,28,421983,Alieu Fadera,FWD,28,cognome,1.0
+2025-2026,2889,6985,Candè,d,12,373033,Fali Candé,DEF,12,cognome,1.0
+2025-2026,2889,7036,Bakola,c,6,525813,Darryl Bakola,MID,6,cognome,1.0
+2025-2026,2889,7154,Odenthal,d,1,422803,Cas Odenthal,MID,1,cognome,1.0
+2025-2026,2889,7155,Muharemovic,d,32,439533,Tarik Muharemovic,DEF,32,cognome,1.0
+2025-2026,2889,7157,Iannoni,c,15,447496,Edoardo Iannoni,MID,15,cognome,1.0
+2025-2026,2889,7158,Moro L.,a,14,447444,Luca Moro,FWD,14,cognome,1.0
+2025-2026,2889,7159,Skjellerup,a,1,551011,Laurs Skjellerup,FWD,1,cognome,1.0
+2025-2026,2889,7353,Pedro Felipe,d,3,478316,Pedro Felipe,DEF,3,cognome,1.0
+2025-2026,2889,7393,Frangella,c,1,602168,Christian Frangella,MID,1,cognome,1.0
+2025-2026,2889,7396,Macchioni,d,1,602167,Tommaso Macchioni,DEF,1,cognome,1.0
+2025-2026,24341,2155,Cutrone,a,15,329681,Patrick Cutrone,FWD,15,cognome,1.0
+2025-2026,24341,4349,Nicolussi Caviglia,c,15,371257,Hans Nicolussi Caviglia,MID,15,cognome,1.0
+2025-2026,24341,4423,Hernani,c,4,101958,Hernani,MID,4,cognome,1.0
+2025-2026,24341,4486,Strefezza,c,14,335576,Gabriel Strefezza,FWD,14,cognome,1.0
+2025-2026,24341,5290,Estevez,c,31,362683,Nahuel Estévez,MID,32,cognome,0.9688
+2025-2026,24341,5307,Valenti,d,27,364337,Lautaro Valenti,DEF,27,cognome,1.0
+2025-2026,24341,5338,Rinaldi,p,1,403888,Filippo Rinaldi,GK,1,cognome,1.0
+2025-2026,24341,5471,Djuric,a,12,33649,Milan Djuric,FWD,12,cognome,1.0
+2025-2026,24341,5862,Valeri,d,34,343512,Emanuele Valeri,MID,34,cognome,1.0
+2025-2026,24341,6149,Carboni F.,d,7,404353,Franco Carboni,MID,7,cognome,1.0
+2025-2026,24341,6207,Almqvist,a,13,345600,Pontus Almqvist,FWD,13,cognome,1.0
+2025-2026,24341,6218,Oristanio,c,20,439736,Gaetano Oristanio,FWD,20,cognome,1.0
+2025-2026,24341,6641,Suzuki,p,20,447570,Zion Suzuki,GK,20,cognome,1.0
+2025-2026,24341,6662,Corvi,p,17,391521,Edoardo Corvi,GK,17,cognome,1.0
+2025-2026,24341,6663,Circati,d,31,447486,Alessandro Circati,DEF,31,cognome,1.0
+2025-2026,24341,6664,Delprato,d,35,355856,Enrico Delprato,DEF,35,cognome,1.0
+2025-2026,24341,6666,Bernabè,c,32,363978,Adrián Bernabé,MID,32,cognome,1.0
+2025-2026,24341,6667,Benedyczak,a,14,424468,Adrian Benedyczak,FWD,14,cognome,1.0
+2025-2026,24341,6898,Keita M.,c,37,411939,Mandela Keita,MID,37,cognome,1.0
+2025-2026,24341,6965,Lovik,d,9,422224,Mathias Løvik,MID,9,cognome,1.0
+2025-2026,24341,6984,Ondrejka,c,16,435530,Jacob Ondrejka,FWD,16,cognome,1.0
+2025-2026,24341,7023,Pellegrino M.,a,37,409250,Mateo Pellegrino,FWD,37,cognome,1.0
+2025-2026,24341,7138,Ordonez C.,c,28,444691,Christian Ordóñez,MID,28,cognome,1.0
+2025-2026,24341,7202,Ndiaye,d,11,412864,Abdoulaye Ndiaye,DEF,11,cognome,1.0
+2025-2026,24341,7209,Sorensen O.,c,34,407076,Oliver Sørensen,MID,34,cognome,1.0
+2025-2026,24341,7216,Begic,c,1,424316,Tjas Begic,FWD,1,cognome,1.0
+2025-2026,24341,7235,Troilo,d,21,494664,Mariano Troilo,DEF,21,cognome,1.0
+2025-2026,24341,7255,Britschgi,d,29,581362,Sascha Britschgi,MID,29,cognome,1.0
+2025-2026,24341,7276,Cremaschi,c,8,469660,Benjamín Cremaschi,MID,8,cognome,1.0
+2025-2026,24341,7342,Elphege,a,9,479328,Nesta Elphege,FWD,9,cognome,1.0
+2025-2026,24341,7381,Mikolajewski,a,3,533140,Daniel Mikolajewski,FWD,3,cognome,1.0
+2025-2026,24341,7397,Cardinali,a,1,584400,Alessandro Cardinali,FWD,1,cognome,1.0
