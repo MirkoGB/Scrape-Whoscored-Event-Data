@@ -18,8 +18,9 @@ Il lavoro procede per fasi. **Alla fine di ogni fase ci si ferma e si riferisce
 all'utente prima di proseguire.** Non passare alla fase successiva di propria
 iniziativa.
 
-Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), e il
-blocco 7A.** Dettaglio ed esiti nella sezione "Le fasi e i risultati
+Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
+7A, l'acquisizione WhoScored 2021-2026 e la verifica di stabilita' del criterio
+di rilevazione.** Dettaglio ed esiti nella sezione "Le fasi e i risultati
 raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e' descritta in
 `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`; il seguito del
 lavoro e' il piano dati prodotto da 6F (`reports/phase6_piano_dati.md`), che
@@ -32,7 +33,7 @@ prendere. Il blocco successivo da fare e' **7B**.
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 206 test, ~8 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 306 test, ~20 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -44,6 +45,10 @@ prendere. Il blocco successivo da fare e' **7B**.
 ./.venv/Scripts/python.exe scripts/run_phase6d.py   # predittori acerbi (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase6e.py   # calendario 26-27 (~1 min)
 ./.venv/Scripts/python.exe scripts/run_phase6f.py   # piano dati (~1 min)
+
+# stabilita' del criterio di rilevazione fra le cinque stagioni (~3 min; con
+# --force rilegge i 1.889 CSV, ~90 s in piu'). Non tocca la rete.
+./.venv/Scripts/python.exe scripts/run_phase7_stabilita.py
 
 # acquisizione WhoScored — parametrizzata su campionato e stagione
 ./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py --dry-run
@@ -135,6 +140,10 @@ sot/
                    scenari sulle promosse, limite della congestione
   data_plan.py     inventario delle domande aperte, granularita' minime,
                    simulazione sui nuovi arrivi, righe di eventi per il 6D
+  recording_stability.py  categorie di tiro come partizione, quasi-verosimiglianza
+                   con phi, scansione del punto di rottura col nullo simulato,
+                   MDE, frequenze dei qualifier. **Multi-stagione**: e' l'unico
+                   modulo che legge tutte e cinque le stagioni
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -142,8 +151,9 @@ acquisition/       cio' che porta dati dentro il repository (Fase 7A)
     target.py      l'eccezione: risoluzione campionato+stagione, percorsi e CLI.
                    NON importa selenium, ed e' percio' l'unica parte
                    dell'acquisizione verificabile dai test senza browser
-scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py, tiri_in_porta.py
-tests/    conftest + 15 moduli
+scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
+          run_phase7_stabilita.py, tiri_in_porta.py
+tests/    conftest + 17 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -156,6 +166,9 @@ data/
     manifest.json  provenienza di ogni file acquisito. E' l'UNICA cosa sotto
                    data/ che sta in git.
   processed/ITA-serie-a/2025-2026/*.parquet    rigenerabile
+  processed/ITA-serie-a/phase7_*.parquet       cache che ATTRAVERSA le stagioni
+                   (`config.processed_league_dir`): non sta dentro nessuna
+                   cartella di stagione perche' non appartiene a nessuna
   external/quote/                              fornito a mano, provenienza da
                                                accertare (blocco 7F)
 ```
@@ -206,6 +219,21 @@ cancellati dalla Fase 7A**. Erano trappole di lettura, non dati.
 - **Niente xG nei dati.** Quello che usiamo e' stimato in casa
   (`sot/xg.py`), cross-fitted a 5 fold **raggruppati per partita**. Va sempre
   chiamato "xG interno", mai xG del fornitore.
+
+Trappole che compaiono solo guardando **piu' stagioni insieme** (verifica di
+stabilita' del criterio, sezione piu' sotto):
+
+- **Esistono squadre-partita con zero tiri** (Pisa-Cremonese del 2026-05-10, e
+  una nel 2021-22). Ricostruire l'universo squadra-partita dai soli tiri le fa
+  sparire dal denominatore: si prende dalle due squadre di ogni file.
+- **Gli ingressi dell'xG si muovono fra stagioni**: `shotCounter` raddoppia
+  (3.4% → 7.7% dei tentativi), `shotOpenPlay` scende di 7.5 punti. **Non
+  stimare l'xG interno su piu' stagioni insieme** senza un effetto di stagione.
+- **Un qualifier puo' sparire senza che nulla se ne accorga**: `StandingSave`
+  c'e' su ~81% dei tiri nelle prime quattro stagioni e su ~2% nel 2025-26, a
+  schema, conteggio colonne e numero di eventi invariati.
+- **`isOwnGoal` e' l'unica colonna non sempre presente**, e lo e' in tutte e
+  cinque le stagioni allo stesso modo: la trappola nota, non una divergenza.
 
 ## Definizione di tiro in porta
 
@@ -973,6 +1001,71 @@ chiudono il vincolo 8: fonte, URL, `matchId`, data di download reale (dal
 `mtime`, non dall'istante di registrazione), byte, SHA-256, piu' la definizione
 della metrica *nella fonte*. Non scarica, non tocca `raw/`, e un hash cambiato
 lo segnala conservando la revisione precedente invece di assorbirla.
+
+---
+
+### Stabilita' del criterio di rilevazione fra stagioni ✅
+
+`reports/phase7_stabilita_rilevazione.md`, da `scripts/run_phase7_stabilita.py`;
+modulo `sot/recording_stability.py`, test `tests/test_stabilita_rilevazione.py`
+(36). **Chiude il limite dichiarato dall'acquisizione** ed e' il prerequisito di
+7B: se il criterio si fosse spostato, `rho` stimato su cinque stagioni
+misurerebbe anche lo spostamento. **Non e' stato scaricato niente** e **nessun
+numero e' cambiato**, verificato rieseguendo: `run_phase1.py` ridà
+4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi, `run_phase5.py` ridà Como 4.34
+e 5.03 / 191 / [151, 240].
+
+**Esito: la definizione di tiro in porta e' stabile, il contesto del tiro no.**
+
+- **Identita' esatta con il flag Opta nativo in tutte e cinque le stagioni**:
+  zero discordanze in entrambe le direzioni su 47.530 tentativi. E' il
+  risultato piu' forte del blocco perche' non passa da nessun modello. La
+  Fase 0 lo aveva verificato sul solo 2025-26.
+- **Le quattro categorie sono una partizione** (in porta + respinto + palo +
+  fuori = tentativi, verificato riga per riga) e **le loro quote non si
+  muovono**: `q_in_porta` fra 0.3250 e 0.3408, nessuno `z` binomiale sopra 2.3,
+  e col `phi` osservato (1.101) il gradino di stagione non batte il baseline
+  costante (F = 1.75, p = 0.135). **Il livello invece si muove**: tentativi per
+  squadra-partita da 13.03 a 12.12, tiri in porta da 4.441 a 4.033 (-9.2%).
+  Totale che scende a ripartizione ferma = si tira di meno, non si conta
+  diversamente.
+- **Gli ingressi dell'xG interno non sono stabili, ed e' il risultato che il
+  blocco non cercava.** `shotCounter` 3.4% → 7.7% dei tentativi, `shotOpenPlay`
+  69.3% → 61.8%, `bigChanceMissed` 8.1% → 10.3%; sono le colonne di
+  `sot/xg.py`. La deriva continua batte il gradino di stagione sulla QAIC (e'
+  graduale, non un salto), ma il singolo confine peggiore cade a **2024-08** per
+  tre flag su quattro. **Un xG stimato su piu' stagioni insieme mescola due
+  definizioni**: o si stima per stagione o la stagione entra come effetto
+  esplicito. `bigChanceScored` resta fermo, ed e' il controllo interno.
+- **`StandingSave` sparisce, e sparisce per pagina intera**: su ~81% dei
+  tentativi in ogni partita delle prime quattro stagioni (1.507 su 1.509), su 11
+  partite su 380 nel 2025-26 e **zero esatto** nelle altre. Non tocca niente di
+  cio' che il modello usa. Due spiegazioni compatibili — archivio della fonte
+  oppure momento del prelievo — e **i dati in casa non le separano**:
+  l'esperimento e' un solo GET su una partita gia' scaricata, da fare al primo
+  blocco che tocca la rete.
+- **Il risultato negativo ha la sua potenza dichiarata** (lezione della 6D): un
+  gradino sotto **0.20 tiri in porta per squadra-partita** non verrebbe visto,
+  cioe' il 19% dell'eccesso del Como. Che la macchina sia sensibile non e'
+  assunto: **la stessa procedura vede la deriva di `shotCounter` con F = 215**.
+- Il punto di rottura non e' assunto a luglio, e' **cercato**: massimo su tutti
+  i confini di mese, con la distribuzione del massimo simulata sotto il nullo
+  (beta-binomiale con il `phi` vero, 2.000 repliche). Cercando ovunque
+  p = 0.23; cercando solo sui quattro confini di stagione — ipotesi dichiarata
+  in anticipo, quindi piu' potente — p = 0.065, che con Bonferroni sulle
+  quattro categorie vale 0.26 e non passa. E cade al passaggio
+  2021-22 → 2022-23, cioe' l'uscita dalla stagione **gia' dichiarata non
+  confrontabile** per il ritorno del pubblico.
+- Nessuna colonna compare o sparisce fra stagioni: l'unica non sempre presente
+  e' `isOwnGoal`, che e' la trappola nota (6-10% dei file, cioe' la frequenza
+  degli autogol). `situation` nulla passa dal 5.5% al 12.3% — campo che il
+  progetto non usa, ma e' un altro pezzo dello strato descrittivo che si muove.
+
+> **Per 7D**: `rho` si puo' stimare sui tiri in porta delle cinque stagioni, ma
+> sugli **eccessi relativi** alla media di campionato della stagione, non sugli
+> scarti assoluti — la media di campionato si e' mossa del 10.1% per ragioni di
+> gioco, e +1 tiro di eccesso non significa la stessa cosa nel 2021-22 e nel
+> 2025-26.
 
 ---
 

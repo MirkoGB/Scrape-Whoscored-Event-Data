@@ -120,19 +120,38 @@ def processed_dir(league: str = None, season: str = None) -> Path:
     return DATA / "processed" / league / season
 
 
+def processed_league_dir(league: str = None) -> Path:
+    """Cartella degli elaborati che **attraversano** le stagioni.
+
+    Serve a cio' che confronta stagione con stagione — il primo caso e' la
+    verifica di stabilita' del criterio di rilevazione. Metterlo dentro una
+    delle cinque cartelle di stagione direbbe una cosa falsa: quel Parquet non
+    appartiene a nessuna delle cinque.
+    """
+    league = _check_league(LEAGUE if league is None else league)
+    return DATA / "processed" / league
+
+
 # I NOMI di queste costanti non cambiano dalla Fase 0: cambia solo il loro
 # valore. E' cio' che rende la riorganizzazione della Fase 7A invisibile a
 # valle — nessun modulo fuori da questo file costruisce percorsi a mano.
 RAW_MATCH_DIR = raw_dir("whoscored") / "events"
 MATCHES_JSON = raw_dir("whoscored") / "matches.json"
 PROCESSED = processed_dir()
+PROCESSED_LEAGUE = processed_league_dir()
 
 EVENTS_SLIM = PROCESSED / "events_slim.parquet"
 SHOTS_PARQUET = PROCESSED / "shots.parquet"
 TEAM_MATCH = PROCESSED / "team_match.parquet"
 PLAYER_MATCH = PROCESSED / "player_match.parquet"
 
-for _d in (PROCESSED, REPORTS, FIGURES):
+# Cache multi-stagione: i tiri delle cinque stagioni storiche e la presenza
+# delle colonne file per file. Non appartiene a nessuna stagione, quindi non
+# sta sotto PROCESSED.
+SHOTS_ALL_SEASONS = PROCESSED_LEAGUE / "phase7_tiri_multistagione.parquet"
+FILES_ALL_SEASONS = PROCESSED_LEAGUE / "phase7_colonne_multistagione.parquet"
+
+for _d in (PROCESSED, PROCESSED_LEAGUE, REPORTS, FIGURES):
     _d.mkdir(parents=True, exist_ok=True)
 
 # --------------------------------------------------------------------------
