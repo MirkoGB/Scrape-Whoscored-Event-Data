@@ -41,6 +41,15 @@ class TeamModel:
     half_life: float = config.HALF_LIFE_DAYS
     extra: tuple[str, ...] = ()
 
+    #: La colonna bersaglio. Il default e' `sot` e **non va cambiato qui**: tutto
+    #: cio' che le Fasi 1-6 hanno pubblicato lo assume, e un test verifica che la
+    #: previsione con il default sia identica bit per bit a quella di prima che il
+    #: parametro esistesse. Lo usa il blocco E3 con `gol_fatti`, dove la stessa
+    #: specificazione va **rivalidata per conto suo**: che il modello sia calibrato
+    #: sui tiri in porta non dice niente sui gol, ed ereditare quella validazione
+    #: sarebbe leggere male il vincolo 7.
+    target: str = "sot"
+
     teams_: list = field(default_factory=list, init=False)
     beta_: np.ndarray = field(default=None, init=False)
     mu_: float = field(default=None, init=False)
@@ -99,7 +108,7 @@ class TeamModel:
             as_of = df["date"].max()
 
         X = self._design(df)
-        y = df["sot"].to_numpy(dtype=float)
+        y = df[self.target].to_numpy(dtype=float)
         w = self._weights(df, as_of)
         pen = self._penalty_mask()
 

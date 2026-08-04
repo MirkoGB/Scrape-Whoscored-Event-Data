@@ -35,20 +35,29 @@ LINES = (2.5, 3.5, 4.5, 5.5)
 def walkforward_predict(df: pd.DataFrame, extra: tuple[str, ...] = (),
                         alphas: tuple[float, ...] = ALPHA_GRID,
                         half_life: float = config.HALF_LIFE_DAYS,
-                        burn_in: int = config.BURN_IN_ROUND) -> pd.DataFrame:
-    """Previsioni fuori campione per ogni riga, con alpha scelto in corsa."""
+                        burn_in: int = config.BURN_IN_ROUND,
+                        target: str = bl.TARGET) -> pd.DataFrame:
+    """Previsioni fuori campione per ogni riga, con alpha scelto in corsa.
+
+    `target` esiste per il blocco E3 e vale `sot` di default: le Fasi 1-6 non
+    passano il parametro e ottengono quello che ottenevano prima, con un test che
+    lo verifica. La colonna del bersaglio esce **sempre col proprio nome**, mai
+    rinominata in `sot`, cosi' che due tabelle con bersagli diversi non possano
+    essere confuse a valle.
+    """
     teams = sorted(set(df["team"]))
     parts = []
 
     for as_of, train, test in wf.date_splits(df):
         lam = {}
         for a in alphas:
-            m = model_team.TeamModel(alpha=a, half_life=half_life, extra=extra)
+            m = model_team.TeamModel(alpha=a, half_life=half_life, extra=extra,
+                                     target=target)
             m.fit(train, as_of=as_of, teams=teams)
             lam[a] = m.predict(test)
 
         block = test[["matchId", "date", "team", "opponent", "is_home",
-                      "team_match_idx", "sot"]].copy()
+                      "team_match_idx", target]].copy()
         for a in alphas:
             block[f"lam_{a}"] = lam[a]
         parts.append(block)
@@ -57,7 +66,7 @@ def walkforward_predict(df: pd.DataFrame, extra: tuple[str, ...] = (),
     out["eligible"] = wf.eligible(out, burn_in)
 
     # --- scelta di alpha: cumulativa e solo sul passato ---
-    ll = {a: dispersion.nb2_loglik(out["sot"].to_numpy(),
+    ll = {a: dispersion.nb2_loglik(out[target].to_numpy(),
                                    out[f"lam_{a}"].to_numpy(),
                                    dispersion.R_MAX) for a in alphas}
     ll = pd.DataFrame(ll)
@@ -78,13 +87,14 @@ def walkforward_predict(df: pd.DataFrame, extra: tuple[str, ...] = (),
 
 
 def walkforward_baselines(df: pd.DataFrame,
-                          burn_in: int = config.BURN_IN_ROUND) -> pd.DataFrame:
+                          burn_in: int = config.BURN_IN_ROUND,
+                          target: str = bl.TARGET) -> pd.DataFrame:
     """Stessi split, stesse regole, per ogni baseline."""
     parts = []
     for _, train, test in wf.date_splits(df):
-        block = test[["matchId", "date", "team", "team_match_idx", "sot"]].copy()
+        block = test[["matchId", "date", "team", "team_match_idx", target]].copy()
         for name, fn in bl.BASELINES.items():
-            block[name] = fn(train, test)
+            block[name] = fn(train, test, target=target)
         parts.append(block)
     out = pd.concat(parts, ignore_index=True)
     out["eligible"] = wf.eligible(out, burn_in)

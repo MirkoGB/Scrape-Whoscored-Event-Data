@@ -132,24 +132,86 @@ def processed_league_dir(league: str = None) -> Path:
     return DATA / "processed" / league
 
 
+# --------------------------------------------------------------------------
+# I quattro elaborati di Fase 1, per stagione.
+#
+# Fino alla Fase 9 esistevano **solo** come costanti legate a `SEASON`, e la
+# catena di Fase 1 le leggeva da li'. Non era una svista: con una stagione sola
+# la costante e il parametro coincidono. Con cinque no, e il blocco E0 ha
+# bisogno di chiedere una stagione per nome.
+#
+# Le costanti restano, con lo stesso nome e lo stesso valore di prima — sono
+# `funzione(SEASON)` per costruzione, e un test lo verifica. Chi vuole una
+# stagione diversa chiama la funzione.
+# --------------------------------------------------------------------------
+
+def match_dir(league: str = None, season: str = None) -> Path:
+    """Cartella dei CSV per-partita di WhoScored."""
+    return raw_dir("whoscored", league, season) / "events"
+
+
+def matches_json(league: str = None, season: str = None) -> Path:
+    """Calendario di WhoScored: e' l'unico posto in cui esistono i NOMI."""
+    return raw_dir("whoscored", league, season) / "matches.json"
+
+
+def _processed_file(nome: str, league: str = None, season: str = None) -> Path:
+    d = processed_dir(league, season)
+    d.mkdir(parents=True, exist_ok=True)
+    return d / nome
+
+
+def events_slim(league: str = None, season: str = None) -> Path:
+    return _processed_file("events_slim.parquet", league, season)
+
+
+def lineup_events(league: str = None, season: str = None) -> Path:
+    return _processed_file("lineup_events.parquet", league, season)
+
+
+def shots_parquet(league: str = None, season: str = None) -> Path:
+    return _processed_file("shots.parquet", league, season)
+
+
+def team_match(league: str = None, season: str = None) -> Path:
+    return _processed_file("team_match.parquet", league, season)
+
+
+def player_match(league: str = None, season: str = None) -> Path:
+    return _processed_file("player_match.parquet", league, season)
+
+
 # I NOMI di queste costanti non cambiano dalla Fase 0: cambia solo il loro
 # valore. E' cio' che rende la riorganizzazione della Fase 7A invisibile a
 # valle — nessun modulo fuori da questo file costruisce percorsi a mano.
-RAW_MATCH_DIR = raw_dir("whoscored") / "events"
-MATCHES_JSON = raw_dir("whoscored") / "matches.json"
+RAW_MATCH_DIR = match_dir()
+MATCHES_JSON = matches_json()
 PROCESSED = processed_dir()
 PROCESSED_LEAGUE = processed_league_dir()
 
-EVENTS_SLIM = PROCESSED / "events_slim.parquet"
-SHOTS_PARQUET = PROCESSED / "shots.parquet"
-TEAM_MATCH = PROCESSED / "team_match.parquet"
-PLAYER_MATCH = PROCESSED / "player_match.parquet"
+EVENTS_SLIM = events_slim()
+SHOTS_PARQUET = shots_parquet()
+TEAM_MATCH = team_match()
+PLAYER_MATCH = player_match()
 
 # Cache multi-stagione: i tiri delle cinque stagioni storiche e la presenza
 # delle colonne file per file. Non appartiene a nessuna stagione, quindi non
 # sta sotto PROCESSED.
 SHOTS_ALL_SEASONS = PROCESSED_LEAGUE / "phase7_tiri_multistagione.parquet"
 FILES_ALL_SEASONS = PROCESSED_LEAGUE / "phase7_colonne_multistagione.parquet"
+
+# Fase 9 / E0. Anche queste attraversano le stagioni, e per la stessa ragione:
+# una media di campionato per stagione non appartiene a nessuna delle cinque
+# cartelle — appartiene al confronto fra loro.
+MEDIE_STAGIONE = PROCESSED_LEAGUE / "fase9_medie_campionato.parquet"
+XG_DIAGNOSTICA = PROCESSED_LEAGUE / "fase9_xg_diagnostica.parquet"
+
+# Fase 9 / E1 — lo strato feature. `FEATURE_RIFERIMENTI` ha lo STESSO schema di
+# MEDIE_STAGIONE ed e' un file separato per una ragione operativa, non
+# concettuale: `run_fase9_e0.py` riscrive il proprio Parquet per intero, quindi
+# righe di E1 appese li' sparirebbero al primo rilancio di E0.
+FEATURE_GIOCATORE = PROCESSED_LEAGUE / "fase9_feature_giocatore.parquet"
+FEATURE_RIFERIMENTI = PROCESSED_LEAGUE / "fase9_feature_riferimenti.parquet"
 
 for _d in (PROCESSED, PROCESSED_LEAGUE, REPORTS, FIGURES):
     _d.mkdir(parents=True, exist_ok=True)

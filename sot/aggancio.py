@@ -84,16 +84,31 @@ SQUADRE_CSV = MAPPING_DIR / "aggancio_squadre.csv"
 PARTITE_CSV = MAPPING_DIR / "aggancio_partite.csv"
 GIOCATORI_CSV = MAPPING_DIR / "aggancio_giocatori.csv"
 IRRISOLTI_CSV = MAPPING_DIR / "aggancio_giocatori_irrisolti.csv"
+# Il residuo nell'ALTRO verso: chi ha giocato e che la fonte dei voti non
+# elenca. Non e' il complemento degli irrisolti ed e' un file a se' perche' la
+# sua riga e' una coppia (squadra, giocatore) di WhoScored, non un giocatore
+# dei voti. Scritto dalla coda di E0 (`multistagione.residuo_whoscored`).
+RESIDUO_WS_CSV = MAPPING_DIR / "aggancio_ws_non_agganciati.csv"
 
 FILE_WS = config.processed_league_dir() / "blocco0_file.parquet"
 SQUADRE_WS = MAPPING_DIR / "whoscored_squadre.csv"
 
-# La sola stagione in cui coesistono minuti WhoScored e voti (cfr.
-# `docs/regole_fantacalcio.md` §7.1, seconda conseguenza) — ed **e'
-# `config.SEASON` per costruzione**, non per coincidenza: i voti coprono tutte e
-# cinque le stagioni, i minuti solo quella per cui la Fase 1 ha costruito
-# `player_match.parquet`, che e' la stagione pubblicata. Scriverla a mano qui
-# creerebbe un secondo posto in cui una stagione ha un nome.
+# Le stagioni in cui coesistono minuti WhoScored e voti.
+#
+# **Fino al blocco E0 della Fase 9 era una sola**, e questa costante valeva
+# `config.SEASON`: i voti coprivano tutte e cinque le stagioni, i minuti solo
+# quella per cui la Fase 1 aveva costruito `player_match.parquet`. Ora la Fase 1
+# gira su tutte e cinque e il vincolo e' caduto — quindi la costante non e' piu'
+# "la stagione pubblicata" ma **l'elenco delle stagioni storiche**, che e' dove
+# quel nome viveva gia' (`config.SEASONS_STORICHE`).
+#
+# Resta vero che la 2025-26 e' l'unica stagione su cui la **regola dell'80'** e'
+# falsificabile, ma quella e' una proprieta' di `sot/presenza.py`, non
+# dell'aggancio: e' li' che va letta.
+STAGIONI_CON_ENTRAMBE = config.SEASONS_STORICHE
+
+# Nome precedente, tenuto perche' `sot/presenza.py` e i test lo usano per dire
+# "la stagione su cui si misura". Non e' piu' "l'unica che si puo' agganciare".
 STAGIONE_CON_ENTRAMBE = config.SEASON
 
 
@@ -338,6 +353,11 @@ def mappa_giocatori(stagione: str = STAGIONE_CON_ENTRAMBE) -> dict:
     `player_match` tiene anche i panchinari non utilizzati (5.846 righe a zero
     minuti). Includerli non aggiungerebbe nessun aggancio giusto — i voti quei
     giocatori non li elencano — e in compenso creerebbe omonimie evitabili.
+
+    **La stagione e' un parametro vero dal blocco E0 della Fase 9.** Prima lo
+    era solo nella firma: il lato WhoScored leggeva `config.PLAYER_MATCH`, cioe'
+    sempre la stagione pubblicata, qualunque stagione gli si chiedesse. Con una
+    stagione sola i due coincidevano e il difetto era invisibile.
     """
     part = mappa_partite(stagioni=[stagione])["partite"]
     da_fc = part.set_index("partita_id")["matchId"].to_dict()
@@ -345,7 +365,7 @@ def mappa_giocatori(stagione: str = STAGIONE_CON_ENTRAMBE) -> dict:
     fc = V.carica()
     fc = fc[(fc["stagione"] == stagione) & (~fc["allenatore"])].copy()
     fc["matchId"] = fc["partita_id"].map(da_fc)
-    ws = pd.read_parquet(config.PLAYER_MATCH)
+    ws = pd.read_parquet(config.player_match(season=stagione))
     ws = ws[ws["minutes"] > 0]
 
     squadre = mappa_squadre([stagione])

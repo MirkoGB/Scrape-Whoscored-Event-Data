@@ -254,17 +254,19 @@ la decido io. **La regola resta quella di §1.2.**
 |---|---|
 | `data/mapping/aggancio_squadre.csv` | 100 righe, 20 per stagione |
 | `data/mapping/aggancio_partite.csv` | 1.888 righe, con giornata e `matchId` |
-| `data/mapping/aggancio_giocatori.csv` | 609 righe, 2025-26 |
+| `data/mapping/aggancio_giocatori.csv` | 3.081 righe, **cinque stagioni** |
 | `data/processed/ITA-serie-a/presenza_2025-2026.parquet` | voti **e** minuti sulla stessa riga |
 | `reports/presenza_*.csv` | le quattro tavole di questa sezione |
 
 ## Limiti dichiarati
 
-1. **L'aggancio dei giocatori copre solo la 2025-2026.** Ha bisogno delle
-   presenze partita per partita dal lato WhoScored, che oggi esistono solo per la
-   stagione pubblicata (`player_match.parquet`). Estenderlo alle altre quattro
-   vuol dire far girare l'aggregazione della Fase 1 su 1.509 CSV in piu': e'
-   fattibile e non e' stato fatto qui.
+1. ~~**L'aggancio dei giocatori copre solo la 2025-2026.**~~ **Chiuso dal blocco
+   E0 della Fase 9**, che ha fatto girare l'aggregazione della Fase 1 sui 1.509
+   CSV mancanti: `player_match` esiste ora per tutte e cinque le stagioni e la
+   mappa dei giocatori le copre tutte
+   (`reports/fase9_e0_player_match_5_stagioni.md`). Questo report resta sulla
+   2025-26 per §3 e §4 perche' e' la stagione su cui la regola dell'80' e'
+   falsificabile — non perche' le altre non si possano agganciare.
 2. **La regola dell'80' e' misurata su una stagione e non puo' esserlo su
    altre.** 11.926 righe sono tante, ma sono un anno solo di una redazione sola.
    Se il criterio editoriale cambiasse, questo numero non se ne accorgerebbe.

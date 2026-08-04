@@ -1,0 +1,9 @@
+stagione,teamId_ws,giocatore_id_fc,nome_fc,ruolo_fc,presenze_fc,candidati,nomi_candidati,motivo,playerId_ws,nome_ws,ruolo_ws,presenze_ws,risolto_da,jaccard
+2021-2022,86,2315,Stryger Larsen,d,11,0.0,,nessun candidato,,,,,,
+2021-2022,271,5796,Supryaga,a,1,0.0,,nessun candidato,,,,,,
+2022-2023,269,261,Ranocchia,d,1,2.0,Andrea Ranocchia; Filippo Ranocchia,cognome ambiguo,,,,,,
+2023-2024,75,6593,Akinsamiro,c,1,0.0,,nessun candidato,,,,,,
+2023-2024,73,4285,Arthur Melo,c,33,,,due giocatori dei voti sullo stesso WhoScored,288883.0,Maxime Lopez,MID,19.0,cognome parziale,0.4054
+2023-2024,73,4681,Lopez M.,c,19,,,due giocatori dei voti sullo stesso WhoScored,288883.0,Maxime Lopez,MID,19.0,cognome,1.0
+2024-2025,78,5701,Obert,d,21,2.0,Roberto Piccoli; Adam Obert,cognome ambiguo,,,,,,
+2024-2025,278,6922,Kasa,c,8,0.0,,nessun candidato,,,,,,

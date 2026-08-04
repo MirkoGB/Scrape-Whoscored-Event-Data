@@ -20,14 +20,40 @@ iniziativa.
 
 Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
-di rilevazione, il Blocco 0 della Fase 8 (ricognizione) e l'acquisizione dei
-voti fantacalcio 2021-2026.** Dettaglio ed esiti nella sezione "Le fasi e i
+di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
+voti fantacalcio 2021-2026 e i blocchi E0, E1, E2 (con la sua coda) ed E3 della
+Fase 9.** Dettaglio ed esiti nella sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
-descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`; il
-seguito del lavoro e' il piano dati prodotto da 6F
-(`reports/phase6_piano_dati.md`), che **richiede dati non presenti nel
-repository** ed e' cio' che la Fase 7 va a prendere. Il blocco successivo da
-fare e' **7B**.
+descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
+Fase 9 in `docs/prompt_fase9.md` (che contiene anche la specifica di E2, dall'utente
+il 2026-08-04); il seguito del lavoro e' il piano dati
+prodotto da 6F (`reports/phase6_piano_dati.md`), che **richiede dati non
+presenti nel repository** ed e' cio' che la Fase 7 va a prendere.
+
+### Due rami aperti, non una coda
+
+Decisione dell'utente del 2026-08-03: il lavoro **non e' una fila**. Ci sono due
+rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
+
+| ramo | bersaglio | prossimo blocco | fonte |
+|---|---|---|---|
+| **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
+| **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **E4** (E0 ✅, E1 ✅, E2 ✅, E3 ✅) | WhoScored + voti + listoni, **gia' in casa** |
+
+**Nessuno dei due produce ingressi dell'altro**, ed e' il motivo per cui sono
+paralleli: 7B porta una colonna SoT a granularita' squadra-partita con una
+definizione **non Opta**, che il vincolo 7 obbliga a tenere separata; la Fase 9
+lavora su player-match Opta, gia' verificati identici al flag nativo su tutte e
+cinque le stagioni. Tirare la fonte tabellare dentro il ramo giocatore
+aprirebbe l'obbligo di riconciliazione di 7C senza aggiungere capacita'.
+
+Le tre direzioni **G1-G3** in fondo a `docs/prompt_fase9.md` (risultato, altri
+campionati, scouting) **non sono aperte**: vanno rimesse in fila e se ne sceglie
+una, non prima che la Fase 9 abbia dei blocchi chiusi. **Erano quattro**: la
+direzione su `rho` e l'ancora 4.90 e' stata tolta dalla Fase 9 il 2026-08-03
+perche' **e' la Fase 7**, e tenerla in due posti sarebbe stato un modo di fare
+la stessa domanda due volte — con la differenza che di qua i dati per
+rispondere non ci sono.
 
 **Della Fase 8 sono chiusi**: i voti (D1), le quotazioni (D2), la giornata di
 campionato (D6), l'aggancio fra le due fonti, la regola dell'80' misurata, il
@@ -44,7 +70,7 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 436 test, ~16 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 570 test, ~142 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -80,6 +106,31 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # Lista d'asta 2026-27 su listone SURROGATO (il vero non esiste ancora) +
 # modificatore simulato per giornata e per modulo (~2 min). NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_asta_2627.py
+
+# Fase 9 / Blocco E0: shots + team_match + player_match per TUTTE E CINQUE le
+# stagioni, medie di campionato, diagnostica dei cinque fit di xG e aggancio
+# giocatori esteso (~1 min da cache; con --force rilegge i 1.889 CSV, ~4 min).
+# NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase9_e0.py
+
+# Fase 9 / Blocco E1: lo strato feature del giocatore, la deriva di ogni
+# candidata prima e dopo la standardizzazione, il gate sui qualifier (~5 s da
+# cache; con --force ricalcola dagli eventi, ~30 s). NON tocca la rete e NON
+# stima niente.
+./.venv/Scripts/python.exe scripts/run_fase9_e1.py
+
+# Fase 9 / Blocco E2: le squalifiche (che non si stimano), lo strato distinta
+# (maglia, capitano, ruolo come serie), il modello d'impiego valutato sulle
+# stesse quattro transizioni del modello d'asta e la coda sul cartellino come
+# predittore (~3 min). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase9_e2.py
+
+# Fase 9 / Blocco E3: il modello di squadra sui GOL (rivalidato per conto suo),
+# la porta inviolata come probabilita', il voto della linea condizionato alla
+# forza difensiva, la correlazione dentro la linea e la verifica sui portieri
+# (~1 min da cache; con --force rifa' il walk-forward dei gol, ~25 s in piu').
+# NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase9_e3.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -207,6 +258,49 @@ sot/
   modificatore.py  il modificatore di difesa, SIMULATO per giornata e per modulo.
                    Mai applicato alle medie di stagione: la scorciatoia sbaglia
                    di -20 o +50 punti a seconda della linea di riferimento
+  multistagione.py Fase 9 / E0. Le tabelle di Fase 1 sulle CINQUE stagioni, le
+                   medie di campionato come tabella `stagione x grandezza`, la
+                   diagnostica dei cinque fit di xG e l'aggancio esteso con la
+                   coerenza incrociata. Non normalizza niente: la deriva resta
+                   nel derivato, la standardizzazione e' dello strato feature (E1)
+  features_giocatore.py  Fase 9 / E1. **LO STRATO FEATURE, e la regola che lo
+                   governa.** Non stima niente. Ogni candidata e' un rapporto
+                   `num/den` dichiarato — e' cio' che rende il riferimento di
+                   campionato la STESSA grandezza del valore del singolo — e
+                   ognuna esce in due colonne, grezza e `_rel = x/m_s - 1`.
+                   Contiene le tre guardie: `verifica_standardizzazione` (che
+                   MISURA, non guarda il suffisso), `verifica_qualifier` (il
+                   nome di un qualifier non e' un identificatore) e
+                   `colonne_mai_valorizzate` (le 72, col criterio "ne' nullo
+                   ne' False")
+  squalifiche.py   Fase 9 / E2. **NON STIMA NIENTE**: una regola di conteggio sui
+                   cartellini, con tre assunzioni dichiarate. Il taglio sui
+                   destinatari **non e' quello dei minuti** — un espulso dalla
+                   panchina e' squalificato lo stesso, quindi il numero e' 68 e
+                   non 65. Contiene `verifica()`, che e' falsificabile e non passa
+                   da nessun modello, e `confronto_fonti()`, che mette i
+                   cartellini di WhoScored contro quelli dei voti (vincolo 7)
+  distinta.py      Fase 9 / E2. Maglia, capitano e ruolo **come serie** dai
+                   qualifier gia' in `lineup_events`. Costa 0,3 s, non una
+                   rilettura dei CSV. Le fasce della maglia sono dichiarate
+                   PRIMA e non vengono ridefinite quando si scopre che sono
+                   eterogenee: l'eterogeneita' e' il risultato
+  difesa.py        Fase 9 / E3. I gol ricomposti col punteggio VERO (gli autogol,
+                   che `shots_mask` esclude), il modello di squadra sui gol
+                   **rivalidato per conto suo**, la porta inviolata come
+                   probabilita', la pendenza del voto sulla forza difensiva e la
+                   correlazione dentro la linea. `verifica_punteggio()` e'
+                   falsificabile contro `matches.json` e non passa da nessun
+                   modello. **La verifica finale sui portieri e' negativa** ed e'
+                   il risultato: vedi la sezione di E3
+  impiego.py       Fase 9 / E2. Il modello d'impiego e la sua valutazione sulle
+                   stesse quattro transizioni del modello d'asta. Il pavimento di
+                   esposizione e' **zero** ed e' un parametro di E2, non
+                   un'eredita' di E1: qui i pochi minuti sono il bersaglio.
+                   Contiene anche la **coda**: `contributo_cartellini` prova
+                   l'inversione di E2.1 in due forme per due standardizzazioni, e
+                   `ridondanza_cartellini` e' cio' che distingue «e' gia' nel
+                   set» da «non c'e' segnale» — senza, un nulla e' ambiguo
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -228,8 +322,10 @@ acquisition/       cio' che porta dati dentro il repository (Fase 7A)
                    primo caso, e mandarla in quarantena sarebbe stato sbagliato
 scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
+          run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
+          run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
           tiri_in_porta.py
-tests/    conftest + 21 moduli
+tests/    conftest + 27 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -244,10 +340,32 @@ data/
                    deterministico, quindi l'hash del manifest significa qualcosa
     manifest.json  provenienza di ogni file acquisito. E' l'UNICA cosa sotto
                    data/ che sta in git.
-  processed/ITA-serie-a/2025-2026/*.parquet    rigenerabile
+  processed/ITA-serie-a/<stagione>/*.parquet   rigenerabile. Dal blocco E0 della
+                   Fase 9 le cartelle sono CINQUE, non una: `events_slim`,
+                   `lineup_events`, `shots`, `team_match`, `player_match` per
+                   ognuna delle stagioni storiche (73 MB in tutto)
   processed/ITA-serie-a/phase7_*.parquet       cache che ATTRAVERSA le stagioni
                    (`config.processed_league_dir`): non sta dentro nessuna
                    cartella di stagione perche' non appartiene a nessuna
+  processed/ITA-serie-a/fase9_medie_campionato.parquet   110 righe, forma lunga
+                   `stagione x grandezza x unita -> media`. E' il RIFERIMENTO con
+                   cui lo strato feature standardizzera' (E1), e sta qui e non
+                   dentro `player_match` perche' una media di campionato e' un
+                   fatto DI STAGIONE, non di riga
+  processed/ITA-serie-a/fase9_xg_diagnostica.parquet     5 righe, una per fit
+  processed/ITA-serie-a/fase9_e3_walkforward_gol.parquet 3.478 righe, il
+                   walk-forward dei GOL delle cinque stagioni con i quattro
+                   baseline e `lam_subiti` (il lambda dell'avversario nella stessa
+                   partita). Cache rigenerabile con `run_fase9_e3.py --force`
+  processed/ITA-serie-a/fase9_feature_giocatore.parquet  3.972 righe, la tripla
+                   `(stagione, playerId, teamId)`. Ogni candidata c'e' DUE volte,
+                   grezza e `_rel`: la grezza resta perche' senza non si potrebbe
+                   piu' misurare la deriva
+  processed/ITA-serie-a/fase9_feature_riferimenti.parquet  95 righe, **lo stesso
+                   schema** di `fase9_medie_campionato`. File separato per una
+                   ragione operativa e non concettuale: `run_fase9_e0.py`
+                   riscrive il proprio Parquet per intero, quindi righe di E1
+                   appese li' sparirebbero al primo rilancio di E0
   processed/ITA-serie-a/fantacalcio_{voti,partite}.{parquet,csv}
                    i voti delle cinque stagioni, in due forme. **Il Parquet e'
                    quello giusto**: il CSV perde i tipi, e `giocatore_id` (Int64
@@ -300,6 +418,23 @@ cancellati dalla Fase 7A**. Erano trappole di lettura, non dati.
   `Penalty`, e non rivela l'esito).
 - `role_code = 5` nel `FormationSet` significa **"sostituto"**, non una
   posizione: i panchinari non hanno ruolo. Usare `minutes.season_roles()`.
+
+  **Codebook della fonte per `PlayerPosition`** (qualifier del `FormationSet`),
+  **confermato da due strade indipendenti**: `1 = portiere, 2 = difensore,
+  3 = centrocampista, 4 = attaccante, 5 = panchina/ignoto`. Il repository ci era
+  arrivato **empiricamente** (`sot/minutes.py`: una sola occorrenza di `1` per
+  squadra-partita, e x medio dei tocchi monotono nel codice — 11.2 / 39.6 /
+  52.4 / 62.3); la codifica e' **dichiarata** come codifica Opta da uno script R
+  dell'utente precedente al repository (`Role Modifier.R:5`), scritto su una
+  forma diversa dei dati. Due derivazioni indipendenti che concordano, quindi il
+  codebook non e' piu' un'inferenza. Verificato sulle cinque stagioni: i valori
+  osservati sono **esattamente** `{1,2,3,4,5}` e i `1` sono 3.778, cioe' uno per
+  squadra-partita su 1.889 partite.
+
+  **Nello stesso qualifier c'e' anche `JerseyNumber`**, allineato posizionalmente
+  a `InvolvedPlayers` come `PlayerPosition`, e c'e' `CaptainPlayerId`. Sono in
+  `lineup_events.parquet`, che conserva la stringa `qualifiers` grezza: estrarli
+  **non costa una rilettura dei CSV**.
 - **85 espulsioni, ma solo 65 tolgono un uomo dal campo**: 17 sono ad
   allenatore/staff (`playerId` nullo), le altre a giocatori gia' usciti o in
   panchina.
@@ -406,9 +541,14 @@ circolare archiviato in `legacy/`.
 
 | Tabella | Righe | |
 |---|---|---|
-| `team_match.parquet` | 760 | 24 colonne |
-| `player_match.parquet` | 17.774 | 17 colonne |
+| `team_match.parquet` | 760 | 26 colonne (erano 24 prima di E0) |
+| `player_match.parquet` | 17.774 | 20 colonne (erano 17 prima di E0) |
 | `shots.parquet` | 9.359 | tiri con geometria e xG |
+
+> Le **righe non sono cambiate**; le colonne si'. `stagione` e `xg_fit` su
+> entrambe le tabelle, piu' `stato` su `player_match`, tutte dal blocco E0 della
+> Fase 9. Vedi quella sezione per il perche' `xg_fit` non e' ridondante rispetto
+> a `stagione`, e perche' `stato` non aggiunge dati.
 
 - **Riconciliazione giocatori → squadra esatta su 760/760** partite, tolleranza
   zero, per SoT, tiri, gol e xG.
@@ -1462,6 +1602,588 @@ della media di linea e' sottostimata. Con fasce a scalini il segno dell'effetto
 sul bonus atteso non e' ovvio, e non e' stato corretto a occhio.
 
 ---
+
+### Fase 9 — Blocco E0: `player_match` sulle cinque stagioni ✅
+
+`reports/fase9_e0_player_match_5_stagioni.md`, da `scripts/run_fase9_e0.py`;
+modulo `sot/multistagione.py`, test `tests/test_fase9_e0.py` (40). **Nessuna
+richiesta di rete.** **Nessun numero pubblicato e' cambiato**, verificato
+rieseguendo: `run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672
+eventi, `run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240].
+
+**Chiude il prerequisito della Fase 9**: senza storia player-match non esiste
+walk-forward, e un predittore che vive su una stagione sola non e' testabile.
+87.449 righe giocatore-partita su 1.889 partite.
+
+**La catena di Fase 1 non era parametrizzata sulla stagione**, e non era una
+svista: `io_events` e `aggregate` leggevano le costanti di modulo
+(`config.EVENTS_SLIM`, `RAW_MATCH_DIR`, `PLAYER_MATCH`…), tutte calcolate una
+volta da `config.SEASON`. Con una stagione sola costante e parametro
+coincidono. Ora `config` espone `player_match(season=…)` e compagne, le costanti
+storiche valgono `funzione(SEASON)` **e un test lo blocca**.
+
+**Il difetto che una stagione sola nascondeva**: `aggancio.mappa_giocatori`
+aveva `stagione` nella firma ma leggeva `config.PLAYER_MATCH`, cioe' **sempre la
+stagione pubblicata**, qualunque stagione le si chiedesse.
+
+| stagione | partite | righe giocatore | SoT/squadra-partita | aggancio | irrisolti |
+|---|---|---|---|---|---|
+| 2021-2022 | 374 | 16.666 | 4.441 | 629 | 2 |
+| 2022-2023 | 375 | 17.606 | 4.123 | 602 | 1 |
+| 2023-2024 | 380 | 17.698 | 4.149 | 610 | 3 |
+| 2024-2025 | 380 | 17.705 | 4.033 | 631 | 2 |
+| 2025-2026 | 380 | 17.774 | 4.034 | 609 | 0 |
+
+- **`xg_fit` non e' ridondante rispetto a `stagione`.** L'xG interno si stima una
+  stagione per volta, quindi i fit sono **cinque** e `xg` sta su **cinque
+  scale**. L'etichetta dice quale fit ha prodotto quel valore. **Non esiste e non
+  va costruita una colonna `xg` confrontabile fra stagioni dentro il derivato**:
+  la comparabilita' e' dello strato feature (E1), e un test vieta `xg_std`,
+  `xg_rel` e simili dentro `aggregate`.
+- **I cinque fit sono l'unica stima del blocco e sono dichiarati**, con log-loss,
+  AUC e calibrazione affiancati: AUC 0.807-0.816, calibrazione fra -0.09% e
+  +0.08%. La riga 2025-26 riproduce la Fase 1 (0.243 / 0.811 / +0.07%), che e' il
+  controllo che la parametrizzazione non ha spostato niente.
+- **Le medie di campionato sono una tabella `stagione x grandezza`**, non colonne
+  ripetute su 87.449 righe: una media di campionato e' un fatto **di stagione**.
+  Forma lunga perche' E1 aggiungera' le sue grandezze.
+- **Il denominatore non e' 38, e non e' nemmeno il calendario.** L'Atalanta ne ha
+  35 nelle due stagioni bucate. E **nessuna squadra arriva a 39** nel 2022-23,
+  benche' Spezia e Verona abbiano *giocato* 39 partite (38 + playout): di quelle,
+  WhoScored non ha 2 e 1. La correzione ovvia — mettere 39 a mano per le due
+  squadre del playout — avrebbe sostituito un errore con un altro. **Trovato da un
+  test**, non a occhio: il report affermava 39 e i dati dicono 37 e 38.
+- **La coerenza fra stagioni passa su 1.544 controlli incrociati indipendenti,
+  zero discordanze in entrambi i versi.** E' la verifica che una stagione sola
+  non poteva fare: `giocatore_id` e `playerId` sono entrambi stabili fra
+  stagioni, quindi cinque agganci indipendenti devono concordare — e il controllo
+  **non passa dal nome**, cioe' non e' circolare rispetto alla regola che
+  l'aggancio usa. Un test guasta un aggancio e pretende che il controllo lo veda,
+  perche' «zero discordanze» non deve poter voler dire «non guarda niente».
+- **Gli 8 irrisolti sono in tabella, non risolti d'ufficio**: omonimi veri
+  (`Andrea` contro `Filippo Ranocchia`), giocatori con **una** presenza, e due
+  casi in cui due nomi dei voti puntano allo stesso WhoScored — dove si tolgono
+  entrambi. Il residuo esiste anche nel verso opposto (`ws_non_agganciati`, 0-5
+  per stagione): chi gioca e che la fonte dei voti non elenca affatto.
+- **Il residuo NON sta tutto sui giocatori rari, e la parte che manca conta.**
+  Mediana 9,5 presenze contro 20 degli agganciati, 6 su 8 sotto la mediana — ma
+  tre casi stanno al 48°, 52° e **84° percentile** (`Arthur Melo`, 33 presenze,
+  cioe' un titolare), e il loro motivo non e' la rarita': e' la **collisione di
+  nomi**. Sono due difetti con due rimedi diversi, e per E2 il secondo e' il piu'
+  fastidioso perche' toglie dal campione un titolare, non una comparsa.
+
+**Coda del blocco — `player_match.stato`** (titolare / subentrato / panchina).
+**Non aggiunge dati**: i convocati non impiegati erano nella tabella fin dalla
+Fase 1, perche' `minutes.squads()` legge l'intera rosa da `InvolvedPlayers` del
+`FormationSet`, dove i panchinari stanno con `role_code = 5`. Sono **28.472
+righe a zero minuti, il 32,6% della tabella**. Erano pero' leggibili solo da chi
+sapesse che `minutes == 0` vuol dire "convocato e mai entrato" e non "dato
+mancante" — la distinzione che il bersaglio di E2 non puo' sbagliare. I tre stati
+sono una **partizione** e i titolari sono **11 per squadra-partita ovunque**, con
+test su entrambe le cose.
+
+> **Il quarto stato e' l'assenza della riga**, e non ha un'etichetta perche' non
+> ha una riga. Chi non e' stato convocato — fuori lista, infortunato,
+> squalificato, ceduto — non compare: WhoScored registra i convocati, non i
+> tesserati. Chi ricostruisce l'impiego deve procurarsi il denominatore della rosa
+> **da fuori** invece di contare le righe.
+- **Il Jaccard minimo (0.778) e' stato spiegato, non attribuito.** La spiegazione
+  comoda — «mancano 12 partite» — e' sbagliata nel verso: quelle tolgono presenze
+  dal lato WhoScored, e li' il lato WhoScored ne ha *di piu'*. Le cause vere sono
+  lo **spareggio Spezia-Verona** (14 giocatori dello Spezia con esattamente +1
+  presenza) e l'aritmetica degli insiemi piccoli (4 contro 5 fa 0.800).
+- **`possession` e `field_tilt` hanno media 0.500 in ogni stagione per
+  costruzione** — sono quote e le due squadre si dividono 1. Stanno in fondo alla
+  classifica di stabilita' per il motivo sbagliato, e il report lo dice. Per
+  contro `xg` e `xg_conceded` coincidono a ogni cifra, e **quello si' e' un
+  controllo** che passa.
+
+> **Trappola per le sessioni future.** `run_aggancio.py` e `run_fase9_e0.py`
+> scrivono **lo stesso** `data/mapping/aggancio_giocatori.csv`. Il primo lo
+> produceva per la sola 2025-26 e avrebbe cancellato le altre quattro: ora usa
+> `multistagione.aggancio_giocatori()` e filtra alla 2025-26 solo per la
+> narrazione del proprio report. E' una mappa sola, non due.
+
+### Fase 9 — Blocco E1: la regola delle feature, e dove non basta ✅
+
+`reports/fase9_e1_stabilita_feature.md`, da `scripts/run_fase9_e1.py`; modulo
+`sot/features_giocatore.py`, test `tests/test_fase9_e1.py` (32). **Nessuna
+richiesta di rete, nessuna stima** — niente fit, niente bersaglio, niente
+iperparametri. **Nessun numero pubblicato e' cambiato**, verificato rieseguendo:
+`run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi,
+`run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240].
+
+**La regola, che e' il deliverable:**
+
+```
+x_rel = x / m_s - 1        m_s = media di campionato della stagione s
+```
+
+Nessuna feature da dati evento entra in un modello multi-stagione in unita'
+grezze. **Non e' uno z-score**: dividere anche per la deviazione standard di
+stagione normalizzerebbe via la *dispersione*, che e' cio' che distingue i
+giocatori, cioe' il segnale. Si toglie il livello, si lascia la scala. E la
+regola vive **nello strato feature**: `player_match` e `team_match` restano
+grezzi, la trasformazione e' invertibile (`x = (x_rel + 1) * m_s`, con un test
+che ricostruisce), e un test verifica che nessuna colonna `_rel` sia scesa nel
+derivato.
+
+**Esito su 19 candidate: 8 grezze ammesse, 6 risolte dalla standardizzazione,
+5 no.** Per le ultime cinque — `xg_per_90`, `quota_tocchi_area`, `gol_per_90`,
+`tiri_per_90`, `sot_per_90` — la stagione deve entrare come **effetto
+esplicito**, che e' l'uscita che la regola stessa prevede.
+`richiede_effetto_stagione()` le ritorna: E2 ed E4 lo chiedono al codice, non al
+markdown.
+
+**Il risultato che non era previsto: la standardizzazione peggiora la deriva su
+8 candidate su 19**, e i meccanismi sono tre, tutti misurati
+(`scomposizione_deriva`, che affianca la deriva del **livello** — la media
+pesata di campionato — e quella della **popolazione** — la media non pesata fra
+i giocatori sopra il pavimento):
+
+1. **sovracorrezione**: `sot_per_90` ha un livello di campionato che scende
+   dell'11,3% e un giocatore tipico che scende del 5,2%. Dividere per il primo
+   toglie piu' di quanto ce ne sia nel secondo. **La caduta dei tiri in porta non
+   e' distribuita uniformemente sui giocatori**, ed e' un fatto sul gioco.
+2. **versi opposti**: su `quota_tocchi_area` il riferimento scende e la media fra
+   i giocatori sale del 10,2% — la deriva va da 10,2% a 13,9%. Il verso opposto
+   pero' **non basta da solo**: `minuto_medio_uscita` va in verso opposto e
+   migliora, perche' il suo riferimento si sposta dell'1,1%. Serve la condizione
+   **doppia**, e un test la verifica.
+3. **errore di grandezza**, ed e' il caso piu' istruttivo. Per le tre quote di
+   esposizione `somma(num)/somma(den)` **non e' "la quota del giocatore tipico"**:
+   e' la quota media su tutta la **rosa convocata**, cioe' `11/rosa` per
+   `quota_titolare` — 0,272 contro 0,490 di media fra i giocatori. Standardizzare
+   importa nella feature la deriva delle **rose**: `quota_titolare` passa da 2,4%
+   grezza a 12,2% standardizzata. Restano grezze, e possono.
+
+> **Ne segue la lezione operativa: standardizzare non e' gratis e non e' un
+> riflesso.** La guardia `verifica_standardizzazione(feat, colonne)` **misura** e
+> non guarda il suffisso — una grezza ferma passa, una `_rel` che si muove viene
+> fermata — e un test le inietta un gradino del 20% in una colonna `_rel` sana per
+> dimostrare che se ne accorge.
+
+**Le due soglie sono dichiarate prima, non ricavate dopo** (vincolo 1 applicato a
+una soglia, come gia' fatto per l'80'; un test vieta `argmax`/`idxmax`/`quantile`
+nel modulo e pretende che siano costanti letterali):
+
+- **`SOGLIA_DERIVA = 5%`** — sotto la piu' piccola deriva reale gia' misurata nel
+  repository (i tiri in porta per squadra-partita, -9,2%) e molto sopra l'errore
+  di campionamento di una media di campionato su 17.000 righe.
+- **`SOGLIA_QUALIFIER = 1,5`** sul rapporto max/min della frequenza per evento —
+  oltre il quale il movimento non e' piu' compatibile con cio' che il *gioco* ha
+  fatto (`Clearance` +48% e' il massimo mai misurato). I due casi noti di
+  dizionario cambiato stanno a 17x (`StandingSave`) e 30x (`OtherBodyPart`):
+  **non e' un numero delicato**.
+- **`MIN_MINUTI_DERIVA = 450`** (cinque partite) e' il pavimento di esposizione
+  delle **medie**, non del riferimento, che usa tutto. Non e' un dettaglio: **6
+  candidate su 19 cambiano verdetto** fra i quattro pavimenti provati, in
+  entrambe le direzioni. Solo `gol_per_90`, `xg_per_90` e `quota_tocchi_area`
+  stanno oltre la soglia ovunque; `sot_per_90` e `tiri_per_90` ballano e restano
+  **non risolte** per prudenza.
+
+**I tre corollari sono test, non buone intenzioni:**
+
+- **Il gate sui qualifier** (`verifica_qualifier`) chiede presenza in tutte e
+  cinque le stagioni e rapporto sotto soglia. **E' necessario e non
+  sufficiente**: il controllo sufficiente sarebbe l'id numerico, che
+  `acquisition/whoscored/main.py:432` butta via. **Nessuna candidata di oggi usa
+  qualifier**, e non per virtu': `events_slim` non porta `qualifiers`, quindi una
+  feature sui piazzati vuole una rilettura dei 1.889 CSV — costo di E4. Un test
+  costruisce una candidata finta che dichiara `StandingSave` e pretende che venga
+  fermata, perche' altrimenti "nessuna usa qualifier" potrebbe voler dire "la
+  guardia non guarda niente". `CornerTaken` (1,08) e `FreekickTaken` (1,07)
+  passano: la macchina sa dire anche di si'.
+- **Le 72 colonne mai valorizzate** restano fuori, e **la garanzia non e' la
+  disciplina ma l'impossibilita'**: `io_events` tiene ~60 colonne su 259 e
+  nessuna delle 72 e' fra quelle. Un test lo verifica su `ALL_COLS`, cosi' che
+  allargarlo faccia scattare la guardia. **Porta inviolata, gol subiti e
+  precisione dei passaggi si derivano** (`derivazioni()`), e la misura di presenza
+  e' "ne' nullo ne' `False`": un test verifica che sui dati veri `notna()` dica il
+  contrario del vero.
+- **La guardia sulla deriva** e' descritta sopra.
+
+Altre due cose che il blocco porta con se':
+
+- **Ogni candidata e' un rapporto `num/den` dichiarato**, non una colonna. E' cio'
+  che rende il riferimento di campionato la **stessa grandezza** del valore
+  individuale: `somma(num)/somma(den)`, non la media delle medie individuali, che
+  peserebbe uguale chi ha giocato 90 minuti e chi ne ha giocati 3.000. Un test
+  verifica che i due numeri siano davvero diversi invece di assumerlo.
+- **La riga e' la tripla `(stagione, playerId, teamId)`**, la stessa granularita'
+  dell'aggancio di E0. I denominatori di squadra si **contano** (l'Atalanta ha 35
+  partite, e un test lo pretende): con 38 ogni quota di esposizione sarebbe
+  sbagliata proprio dove la perdita alla fonte non e' casuale.
+
+**Cinque cose lasciate aperte di proposito**, in fondo al report: il riferimento
+giusto per le quote di esposizione; il fatto che `xg_per_90` abbia un problema in
+piu' degli altri quattro (**cinque fit sono cinque modelli, non cinque livelli**,
+e un effetto di stagione lo copre solo se la differenza e' un'intercetta — non
+verificato); la stabilita' della posizione, che non e' un rapporto e vuole
+un'altra forma; il passaggio da `playerId` a `giocatore_id`, che e' una decisione
+di E2; e `quota_presenze`, che ha il calendario intero al denominatore anche per
+chi arriva a gennaio.
+
+### Fase 9 — coda di E0: il residuo lato WhoScored ha nomi e minuti ✅
+
+`data/mapping/aggancio_ws_non_agganciati.csv` + due sezioni nuove del report di
+E0, da `multistagione.residuo_whoscored()` e `corrispondenza_residui()`.
+
+**Finche' `ws_non_agganciati` era un conteggio (0-5 per stagione) si leggeva come
+"quattro comparse". I minuti dicono altro**: nel 2023-24 il piu' grosso ne ha
+**2.145**, cioe' circa 24 partite intere, e nel 2024-25 ce n'e' uno da 1.178. In
+quota dei minuti di stagione il residuo resta sotto lo **0,4%** ovunque — non
+sposta nessuna media, ed e' per questo che era passato inosservato — ma sono
+righe di `player_match` **senza bersaglio**, cioe' il difetto che E2 avrebbe
+subito in silenzio.
+
+- **La colonna `ws_non_agganciati` gia' pubblicata SOTTOSTIMA**, trovato da un
+  test che pretendeva l'uguaglianza fra i due conteggi. Sottrae insiemi di
+  `playerId` **ignorando la squadra**: `Maxime Lopez` nel 2023-24 gioca 2 partite
+  al Sassuolo (agganciato) e 19 alla Fiorentina (non agganciato — e' li' che
+  avviene la collisione con `Arthur Melo`), quindi il Sassuolo lo assorbe e
+  **nasconde 884 minuti dietro un aggancio fatto su 2**. La colonna non e' stata
+  toccata: risponde a "quante persone", E2 ha bisogno di "quante righe". Il test
+  ora blocca la disuguaglianza nel verso giusto, e un secondo test pretende che
+  **tutto** lo scarto si spieghi col cambio di squadra.
+- **I due residui non sono indipendenti, e non era previsto.** Ogni irrisolto dei
+  voti ha, nella stessa squadra e stagione, una riga WhoScored non agganciata con
+  **lo stesso identico numero di presenze**: `Stryger Larsen` (11) contro
+  `Jens Stryger` (11), `Arthur Melo` (33) contro `Arthur` (33), `Kasa` (8) contro
+  `Lior Kassa` (8). **8 su 8.**
+- **Non risolto, e la ragione e' misurata.** La regola "stessa squadra, stesse
+  presenze" **non e' una chiave**: `Akinsamiro` trova **due** candidati a 1
+  presenza nell'Inter 2023-24. Sette accoppiamenti su nove sono unici. Applicarla
+  d'ufficio sarebbe scegliere, che e' cio' che E0 ha deciso di non fare. **Cio'
+  che cambia e' la domanda aperta**: non e' piu' «chi sono questi otto» ma «quale
+  regola si adotta, e con quale tasso d'errore».
+
+### Fase 9 — Blocco E2: le presenze ✅ (tre risultati negativi, che sono il contenuto)
+
+`reports/fase9_e2_presenze.md`, da `scripts/run_fase9_e2.py`; moduli
+`sot/squalifiche.py`, `sot/distinta.py`, `sot/impiego.py`, test
+`tests/test_fase9_e2.py` (29, di cui 5 sono la coda). **Nessuna richiesta di rete.** **Nessun numero
+pubblicato e' cambiato**, verificato rieseguendo: `run_phase1.py` ridà
+4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi, `run_phase5.py` ridà Como 4.34 e
+5.03 / 191 / [151, 240].
+
+> **Il limite vale per ogni numero del blocco: gli infortuni non sono nei dati.**
+> Sono la componente piu' grossa dell'assenza, e il tetto raggiungibile qui e'
+> percio' molto piu' basso del divario oracolo.
+
+| | esito |
+|---|---|
+| squalifiche come sottrazione di presenze | **−1,9%** del divario oracolo: **peggiorano** |
+| predittori d'impiego da dati evento | **+0,20%**, sotto l'MDE di **1,53%** |
+| numero di maglia | nessun contributo, e la versione utile **non e' costruibile** |
+| il cartellino come **predittore** (coda) | **±0,03%** con MDE **0,04-0,12%**: **confutato** |
+| la regola delle squalifiche in se' | **verificata**: 96-99% contro baseline 13-16% |
+| pavimento di esposizione a zero | **confermato da una misura**, non da un'opinione |
+
+**Le squalifiche non chiudono il divario: lo allargano, e anche da oracolo.**
+Conoscendo i cartellini della stagione bersaglio, sottrarre le giornate peggiora
+il MAE dell'1,9%. **Il perche' e' misurato**: chi prende squalifiche e' chi gioca
+— cinque ammonizioni non le accumula un panchinaro — e su quei giocatori il
+modello d'asta **gia' sottostima** le presenze di 6,0 (21,2 attese contro 27,2
+osservate), mentre sovrastima di 5,9 chi non ne prende. Togliere altre giornate a
+una previsione gia' troppo bassa allontana.
+
+> **L'inversione che il meccanismo suggeriva — il cartellino non e' una presenza
+> in meno, e' il segnale che quel giocatore gioca — E' STATA PROVATA E NON
+> REGGE.** Vedi la coda qui sotto. La lettura del meccanismo resta valida; la sua
+> conseguenza operativa no, e **non e' una pista aperta in nessun blocco**.
+
+- **La regola in se' regge, ed e' falsificabile senza modelli**: se un giocatore
+  e' squalificato non deve comparire fra i convocati. Accordo **96,2-99,4%** sulle
+  squadre col calendario intero, contro un baseline — le stesse persone nelle
+  giornate in cui **non** sono squalificate — del **12,6-15,6%**.
+- **Il residuo ha una causa cercata, non addotta**: l'accordo grezzo scende al
+  91,4% nel 2021-22, e **17 errori su 20** cadono su squadre a cui mancano
+  partite, che sono solo il 42,9% delle righe. `team_match_idx` numera le partite
+  **presenti nei dati**, quindi `idx + 1` scavalca la giornata di squalifica.
+  Difetto dell'indice, non della regola.
+- **Il taglio delle squalifiche NON e' quello dei minuti.** Le 85 espulsioni del
+  2025-26 tolgono 65 uomini dal campo, ma per le squalifiche contano tutte quelle
+  a **giocatori**, panchinari inclusi: il numero e' **68**. Un test lo blocca.
+- **Due fonti per i cartellini, misurate una contro l'altra** (vincolo 7): le
+  **espulsioni concordano al 98-99%**, le **ammonizioni solo all'85-93%** e la
+  fonte dei voti ne conta sistematicamente di piu'. Parte e' il buco
+  dell'archivio WhoScored — l'accordo e' peggiore nelle due stagioni incomplete —
+  ma **non tutto**: nel 2023-24, che e' completo, restano 42 ammonizioni di
+  scarto. **Causa residua non identificata e non ipotizzata.**
+- **La durata dell'espulsione non e' nei dati**: vale 1 giornata come **limite
+  inferiore**, con gli scenari a 2 e 3 riportati accanto (997 / 1.356 / 1.715
+  giornate in tutto).
+
+**Lo strato distinta costa 0,3 secondi**, ed e' misurato e non sperato:
+`JerseyNumber` e `CaptainPlayerId` stanno nella **stessa lista di qualifier** da
+cui `minutes.squads()` gia' estrae `PlayerPosition`, presenti sul **100%** delle
+3.778 righe `FormationSet` di tutte e cinque le stagioni, con lunghezza sempre
+allineata a `InvolvedPlayers`. I piazzati di E4, che vogliono `qualifiers` sugli
+eventi normali, costerebbero invece una rilettura dei 1.889 CSV.
+
+- **Le 11 triple con due numeri si risolvono con la PRIMA DISTINTA**, non con la
+  moda pesata sui minuti: la moda userebbe i minuti della stagione per costruire
+  un predittore il cui unico pregio e' di esistere **prima** che quei minuti siano
+  giocati. Sarebbe il vincolo 1 violato nel punto esatto in cui la feature vale.
+- **La fascia `1/12/22` non e' la fascia dei portieri.** La **1** e' portiere nel
+  **100%** dei casi, la **12** nel **18%**, la **22** nell'**8%**; e solo il 35%
+  dei portieri porta uno di quei tre numeri. **La fascia non e' stata
+  ridefinita** — lo si e' scoperto *dopo* aver dichiarato la partizione, e
+  cambiarla adesso sarebbe adattarla al campione su cui poi la si valuta.
+  **L'eterogeneita' e' il risultato**, e un test blocca sia il fatto sia la
+  partizione.
+- **1.013 triple su 3.972 (25,5%) non hanno NESSUN ruolo**: sono i convocati mai
+  scesi in campo, `role_code == 5` in ogni distinta. **Tutte e 1.013 hanno un
+  numero di maglia.** E' l'argomento a favore della feature detto nel modo piu'
+  stretto possibile.
+- **Il capitano e' sfasato di una stagione**, e lo sfasamento e' **parte della
+  definizione**: la fascia di t contro le presenze di t misurerebbe una
+  conseguenza del giocare e la chiamerebbe causa.
+
+**Il difetto che rende inutilizzabile la versione interessante della maglia, ed
+e' il risultato metodologico del blocco.** Il numero e' assegnato in agosto,
+quindi in teoria e' noto anche per chi al nuovo club non ha storia — ed era tutto
+l'argomento. Ma **la nostra unica fonte del numero e' la distinta di una
+partita**: chi non viene mai convocato non ha nessuna distinta. Misurato sulle
+quattro transizioni, fra i quotati con una distinta in t+1 le presenze medie sono
+**19,1-19,3**, fra quelli senza **0,0-0,3**. **La sola disponibilita' della
+feature e' la risposta.** Si usa quindi il numero di t-1, e il costo cade proprio
+sul caso che si voleva coprire. Un test blocca il leakage.
+
+> Il numero d'agosto **sarebbe acquisibile** — lo pubblicano i club e sta nei
+> listoni — ma non e' nel repository. E' una domanda aperta **con una risposta
+> nota**, non un limite dei dati evento.
+
+**La valutazione, sulle stesse quattro transizioni e sulle stesse 2.678 righe del
+modello d'asta** — 61,42 e 5,56 riprodotti, quindi il campione e' lo stesso:
+
+| variante | MAE | quota del divario |
+|---|---:|---:|
+| modello completo | 61,42 | 0,00% |
+| impiego (senza maglia) | 61,32 | **+0,20%** |
+| impiego + maglia | 61,32 | +0,19% |
+| presenze note (oracolo) | 5,56 | 100% |
+
+- **La potenza e' dichiarata**, come in 6D: differenza appaiata 0,110 di MAE,
+  errore standard 0,306, **t = 0,36**, MDE a potenza 80% pari al **1,53% del
+  divario**. Il test **non** avrebbe visto un effetto sotto l'1,5%: esclude
+  effetti grandi, non effetti piccoli, e va letto cosi'.
+- **Perche' non aiuta e' leggibile**: il modello d'asta usa gia' le presenze
+  passate del giocatore, e `quota_titolare`, `quota_convocato`, capitano e ruolo
+  instabile sono un altro modo di dire la stessa cosa. E' il meccanismo della
+  Fase 2 — i predittori evento gia' coperti dagli effetti attacco/difesa — su un
+  bersaglio diverso. Sulle presenze il MAE e' 9,906 contro 9,904, cioe' identico;
+  la correlazione sale da 0,438 a 0,461 e non basta.
+- **Il pavimento di esposizione a zero e' confermato da una misura**, ed e'
+  monotona: **+0,20% a zero, −0,83% a 450, −1,15% a 900, −5,07% a 1.800**.
+  Addestrare sui soli giocatori con molti minuti rende il modello peggiore
+  proprio dove il bersaglio vive. In E1 il pavimento proteggeva le medie; qui i
+  pochi minuti **sono** il bersaglio, non la coda.
+- **La maglia dove dovrebbe servire**: sui giocatori al primo anno nel club
+  migliora di 0,03 di MAE, su chi era gia' nel club **peggiora** di 0,06. Segno
+  previsto, grandezza indistinguibile da zero, entrambi molto sotto l'MDE.
+  **Coerente con l'ipotesi e non una conferma.**
+
+> **Trappola per le sessioni future.** I tre risultati negativi sono il contenuto
+> del blocco e **non vanno "sistemati"**. In particolare non va ritoccata la
+> sottrazione delle squalifiche finche' il numero diventa positivo: il segno e'
+> spiegato da un meccanismo misurato, e cambiarlo cancellerebbe la spiegazione.
+> La strada che i dati indicano e' l'inversione scritta sopra.
+
+**Quattro domande aperte** (erano cinque: il cartellino come predittore e' stato
+chiuso dalla coda), in fondo al report: il numero di maglia **d'agosto** dalla
+fonte giusta (unico modo di provare l'argomento per cui la feature esisteva); le
+42 ammonizioni di scarto del 2023-24 — **per i punti fantacalcio la fonte dei voti
+e' definitoria e non una candidata**, quindi lo scarto e' un problema di WhoScored
+da spiegare, non una scelta da fare; la durata vera delle espulsioni; gli
+infortuni, che non sono in nessuna delle due fonti acquisite.
+
+### Fase 9 — coda di E2: l'inversione del cartellino, provata e confutata ✅
+
+Quarta sezione di `reports/fase9_e2_presenze.md`, da `impiego.contributo_cartellini`,
+`deriva_cartellini` e `ridondanza_cartellini`; 5 test nuovi in
+`tests/test_fase9_e2.py` (29 in tutto). **Nessuna richiesta di rete, nessun numero
+pubblicato cambiato** — un test verifica che il 61,32 e lo 0,196% di E2.4 non si
+muovano, cioe' che il join delle colonne nuove non abbia perso o moltiplicato righe.
+
+**`tasso_cartellini` NON era nel set di E2.4**: `FEATURE` sono cinque colonne e
+nessuna e' un cartellino. L'inversione non era ne' confermata ne' confutata, era
+**non provata** — ed e' il motivo per cui la coda si e' fatta subito invece di
+aspettare E3/E4, dove per giunta non c'entrava: e' un predittore di **presenze**,
+e E3 riguarda portieri e difese.
+
+| variante | divario chiuso | t appaiato | MDE |
+|---|---:|---:|---:|
+| impiego (E2.4, riferimento) | 0,196% | — | — |
+| + cartellini (conteggio) | 0,194% | −0,10 | 0,074% |
+| + cartellini (tasso) | 0,193% | −0,25 | 0,040% |
+| + cartellini (entrambi) | 0,220% | +0,56 | 0,120% |
+| + conteggio `_rel` | 0,193% | −0,13 | 0,079% |
+| + tasso `_rel` | 0,204% | +0,22 | 0,099% |
+
+- **La potenza qui non e' una scusa, e' l'argomento.** In E2.4 l'MDE valeva
+  l'1,53% del divario e il negativo escludeva solo effetti grandi. Qui il
+  confronto e' **appaiato contro un modello quasi identico** — cambia una colonna
+  — quindi la varianza della differenza e' minuscola e l'MDE scende a
+  **0,04-0,12%**. Il test vedrebbe effetti **dieci volte piu' piccoli** di quelli
+  che E2.4 poteva vedere, e non ne trova nessuno.
+- **Il nulla non e' ridondanza, ed e' la misura che rende la confutazione forte
+  invece che ambigua** (`ridondanza_cartellini`). Il **conteggio** e' in buona
+  parte gia' nel set (R² **0,41** sulle tre quote, corr 0,64 con
+  `quota_minuti_prec`): da solo, il suo nulla si spiegherebbe con la ridondanza,
+  che e' il meccanismo della Fase 2. Il **tasso** no: R² **0,021**, quasi
+  ortogonale. Porta informazione che il set non ha, e non serve lo stesso.
+- **Il gate di E1 non si chiude e non e' stato aggirato**: deriva 17,0% e 12,4%
+  grezze, 7,2% la `_rel` del tasso, contro una soglia del 5%. Quindi si sono
+  provate **entrambe le forme**, e l'esito coincide: la conclusione non dipende da
+  una scelta di standardizzazione che i dati non giustificano.
+- **Il conteggio non e' un rapporto**, e la conseguenza e' dichiarata invece che
+  nascosta: il suo unico denominatore possibile e' il numero di giocatori, quindi
+  il riferimento coincide con la media fra i giocatori e la sua `_rel` ha media
+  **esattamente zero per costruzione**. Non e' una candidata che passa il gate,
+  e' una colonna resa degenere — con un test che lo blocca.
+- **La deriva di una `_rel` si legge su `rel + 1`, non su `rel`.** Su una serie
+  centrata vicino allo zero `(max-min)/|max|` e' dominata dal denominatore e
+  restituisce 115% dove la deriva vera e' 7,2%. Trappola trovata qui.
+- **La fonte dei cartellini e' quella dei VOTI, dichiarata** (`FONTE_CARTELLINI`):
+  per i punti fantacalcio e' **definitoria** — ha prodotto il malus dentro il
+  bersaglio — e sta gia' su `giocatore_id` senza aggancio di mezzo. WhoScored
+  resta il controllo indipendente di `squalifiche.py` (vincolo 7).
+
+> **Trappola per le sessioni future.** L'inversione e' **chiusa**, non aperta. Non
+> va riaperta in E3 ne' in E4, e non va "sistemata" ritoccando la forma della
+> feature finche' un `t` supera 2: sarebbe la ricerca sugli otto predittori della
+> Fase 2 rifatta su un altro bersaglio, e con un MDE dello 0,04% il margine per
+> illudersi non c'e'. Cio' che resta vero di E2.1 e' il **meccanismo** (chi prende
+> cartellini gioca di piu', e per questo la sottrazione allontana), non la sua
+> conseguenza operativa.
+
+### Fase 9 — Blocco E3: la difesa ✅ (quattro strumenti che funzionano, una verifica che li boccia)
+
+`reports/fase9_e3_difesa.md`, da `scripts/run_fase9_e3.py`; modulo `sot/difesa.py`,
+test `tests/test_fase9_e3.py` (27). **Nessuna richiesta di rete.** **Nessun numero
+pubblicato e' cambiato**, verificato rieseguendo: `run_phase1.py` ridà
+4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi, `run_phase5.py` ridà Como 4.34 e
+5.03 / 191 / [151, 240].
+
+| | esito |
+|---|---|
+| E3.1 modello di squadra sui **gol** | **funziona**: batte il baseline migliore per **t = 5.52** |
+| E3.2 porta inviolata come probabilita' | **funziona**: pendenza **1.044 ± 0.083**, Brier 0.1899 vs 0.1992 |
+| E3.3 voto della linea condizionato | **effetto reale**: −0.243 di voto sui difensori (p10→p90), t = −22.5 |
+| E3.3 sui **portieri** | **segno OPPOSTO** (+0.0795, t = +3.44), e non era previsto |
+| E3.4 correlazione dentro la linea | misurata: **0.261**, e il segno del suo effetto **si inverte** |
+| **verifica sui portieri** | **FALLISCE**: 0.465 → 0.435, precisione resta **0** |
+
+**Il risultato del blocco e' che la causa data per identificata non regge.** Il
+blocco del modello d'asta scriveva che i punti di un portiere dipendono dalla
+difesa della sua squadra e che quel modello non la guarda. **La prima meta' e'
+vera** — E3.2 e E3.3 la misurano — **ma la seconda non e' la spiegazione**: dare al
+modello la difesa della squadra, con un modello di squadra validato per conto suo,
+**peggiora** l'ordinamento dei portieri.
+
+- **Gli autogol: `team_match.goals` NON e' il punteggio.** `shots.shots_mask` li
+  esclude dai tiri (giusto per i tiri in porta, sbagliato per i gol subiti), quindi
+  un autogol non compare da nessuna parte. L'attribuzione e' **verificata, non
+  assunta**: l'evento `Goal` con `isOwnGoal` porta il `teamId` di chi lo **subisce**.
+  Ricomposto cosi', il punteggio coincide con `matches.json` su **3.778/3.778** in
+  entrambe le direzioni, contro 3.628 ignorando gli autogol. `matches.json` porta il
+  punteggio **dichiarato**, non ricostruito: e' cio' che rende la verifica una
+  verifica. Un test blocca sia l'accordo sia il fatto che senza autogol non torni.
+- **Sui gol il modello si giustifica anche sull'accuratezza, e sui tiri no.**
+  t = 5.52 contro il baseline migliore; nella Fase 2, stesso confronto e stessa
+  procedura, valeva t = 1.86. **Non e' un modello migliore: e' un bersaglio piu'
+  facile da distinguere** — i gol dipendono dall'avversario molto piu' dei tiri in
+  porta, che sono in gran parte "quanto tira questa squadra". La lezione sulla
+  calibrazione della Fase 4 si ripete piu' netta: i baseline informativi stanno a
+  0.553 e 0.535 con z sotto −11.
+- **La validazione NON e' stata ereditata**, ed e' il punto metodologico: media tre
+  volte piu' bassa, 28% di zeri, dispersione diversa. PIT p = 0.773, zeri osservati
+  27.7% contro 28.9% attesi (ed e' il controllo che conta, perche' la porta
+  inviolata **e'** lo zero). **I gol non sono sovradispersi** (var/media 1.03, `r`
+  NB2 al massimo): per questo Poisson e NB2 danno lo stesso numero, **misurato**.
+- **Il walk-forward e' dentro la stagione, non attraverso**: le squadre cambiano, e
+  un'emivita di 150 giorni attraverso l'estate darebbe a settembre un training
+  fatto di maggio.
+- **Il voto del portiere e' relativo all'ATTESA**, ed e' il fatto non previsto del
+  blocco: su una difesa attesa **debole** il portiere prende un voto base piu'
+  **alto** (para di piu'), ma a **gol subiti osservati** il voto scende
+  (−0.141, t = −18.7). I due segni opposti sono la firma di quel meccanismo, e un
+  test li pretende entrambi cosi' che non se ne possa "correggere" uno solo.
+- **La correlazione dentro la linea e' 0.261 ed e' genuina co-variazione di
+  giornata**: al netto del giocatore passa da 0.263 a 0.261, cioe' non si muove. Se
+  fosse "le difese forti hanno difensori bravi" sarebbe crollata, perche' quella
+  parte e' gia' dentro `mu` e verrebbe contata due volte.
+- **Il segno dell'effetto della correlazione SI INVERTE**, e cercarlo solo sotto le
+  soglie avrebbe dato la conclusione sbagliata: sotto 6,60 di voto medio di linea
+  aumenta il bonus atteso (fino a +6 punti di stagione), sopra 6,90 lo riduce (fino
+  a **−8,8**). Il meccanismo e' la forma della scala: le fasce sono convesse
+  crescenti (−1/+1/+3/+6), quindi la varianza aiuta **finche' non si e' dentro
+  l'ultima**, che non ha nulla sopra di se'. Inversione intorno a 6,7. Un test
+  pretende **entrambi** i segni.
+- **La frequenza storica grezza e' un estimatore degenere** e sta in tabella per
+  mostrarlo: `p = 0` esatto per chi non ha ancora tenuto la porta inviolata, log-loss
+  1.189 contro 0.606 della versione smorzata, pendenza non identificabile. Il
+  baseline del confronto e' quello **smorzato**, perche' il vincolo 6 chiede un
+  avversario serio: batterne uno degenere non dimostrerebbe niente.
+- **`paired_t` ritorna `(somma, t)`, non `(t, p)`.** Scambiarli e' silenzioso e
+  produce "p" sopra 1. Trappola incontrata qui.
+
+**Perche' la verifica fallisce, ed e' la cosa piu' utile del blocco:**
+
+| soglia presenze attese | portieri | mai in campo | modello | + difesa E3 | sole presenze | **FVM** |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 258 | 40% | 0.536 | 0.507 | 0.534 | 0.831 |
+| 15 | 177 | 37% | 0.720 | 0.623 | 0.714 | 0.869 |
+| 20 | 63 | 2% | **0.073** | −0.027 | −0.011 | **0.700** |
+
+1. **La premessa del blocco era falsa per la popolazione che conta.** «Un portiere
+   titolare gioca quasi tutto» e' vero per il titolare e falso per i **quotati**: il
+   **40%** dei portieri a listino non gioca nemmeno una partita. Fra tutti i
+   quotati, ordinare per **sole presenze attese** da' 0.534 contro 0.536 del modello
+   intero — **sui portieri il modello e' gia' quasi solo un modello di presenze**.
+2. **Fra i probabili titolari non funziona piu' niente**: il modello crolla a 0.073,
+   le sole presenze a −0.011, la difesa di E3 a −0.027.
+3. **Ma il FVM non crolla: 0.700.** E' il numero decisivo. Il vantaggio del FVM sui
+   portieri **non e' sapere chi gioca** (sopravvive dove le presenze sono note) e
+   **non e' la forza difensiva della squadra** (e' quello che E3 ha provato).
+
+> **Precisazione sui numeri di riferimento**: il «0 contro 0,667» del modello
+> d'asta e' la **precisione sui primi N**, non lo Spearman. Lo Spearman sui portieri
+> non era mai stato pubblicato e vale **0.465**. Un test riproduce entrambi i numeri
+> pubblicati, cosi' che il confronto non sia con quantita' ricalcolate diversamente.
+
+> **Trappola per le sessioni future.** La verifica negativa **non va "sistemata"**.
+> Il segno e' spiegato da un meccanismo misurato — le presenze dominano
+> l'ordinamento, e dove non dominano non c'e' segnale nei nostri candidati — e
+> ritoccare la sostituzione finche' lo Spearman supera 0.465 cancellerebbe la
+> spiegazione invece di trovarne una. **I quattro strumenti restano validi**: non
+> dipendono dall'esito della verifica, e sono cio' che il blocco consegna.
+
+**Quattro domande aperte**: (1) **che cosa sa il FVM sui portieri** — la domanda
+piu' stretta che il progetto abbia adesso, e non e' ne' le presenze ne' la difesa;
+(2) il voto del portiere modellato sui **tiri affrontati** e non solo sui gol
+subiti (`sot_conceded` c'e' gia'); (3) il modificatore con `rho` acceso, che **non
+e' stato ricalcolato** sulla lista d'asta — `run_asta_2627.py` gira ancora a
+`rho = 0`; (4) la forza difensiva delle **neopromosse**, che resta senza stima.
+
+**Due cose portate dentro, e chiuse:** (1) **l'xG non entra nel modello dei gol**,
+quindi il problema dei cinque fit non si pone — la parola non compare in
+`sot/difesa.py`, e se un blocco futuro volesse metterlo, la verifica che la
+differenza fra i cinque fit sia di sola **intercetta** va fatta prima e resta da
+fare; (2) **il malus dei cartellini e' alimentato dalla fonte dei VOTI ed e'
+definitorio** — `fantapunti.con_fantavoto_lega` lo calcola dalle colonne
+`ammonizione`/`espulsione` dei voti, che sono quelle che producono i
+`punti_osservati`. **WhoScored non tocca i punti in nessun punto della catena**,
+quindi le 42 ammonizioni di scarto del 2023-24 non sono una scelta fra due
+candidate ma un difetto di WhoScored da spiegare.
+
+> **Parametrizzazione condivisa**: `TeamModel`, `baselines.*` e
+> `validate.walkforward_predict/baselines` hanno ora un parametro `target` con
+> default `"sot"`. Le Fasi 1-6 non lo passano e ottengono cio' che ottenevano
+> prima; `modificatore.simula_linea` ha `rho` con default `0.0`, **identico bit per
+> bit** alla versione precedente. Tre test bloccano i default.
 
 ## Convenzioni
 

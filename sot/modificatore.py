@@ -65,25 +65,46 @@ def _arrotonda(x: np.ndarray) -> np.ndarray:
 
 def simula_linea(mu: np.ndarray, sd: np.ndarray, p_voto: np.ndarray,
                  giornate: int = GIORNATE, repliche: int = REPLICHE,
-                 seed: int = None) -> np.ndarray:
+                 seed: int = None, rho: float = 0.0) -> np.ndarray:
     """Bonus di modificatore per ogni replica di stagione.
 
     `mu`, `sd`, `p_voto` sono vettori lunghi quanto la linea: il primo elemento
     e' il portiere, gli altri i difensori. Restituisce un vettore di lunghezza
     `repliche` con il **bonus medio per giornata** di ogni stagione simulata.
 
-    Le tre grandezze sono indipendenti fra i membri della linea, ed e' una
-    semplificazione dichiarata: in realta' una difesa che prende tre gol prende
-    voti bassi *insieme*, quindi la correlazione vera e' positiva e questa
-    simulazione **sottostima la variabilita' della media di linea**. Con fasce a
-    scalini la sottostima non ha segno ovvio sul bonus atteso — dipende da dove
-    cade la linea — e va detta invece di essere corretta a occhio.
+    `rho` e' la correlazione equicorrelata fra i voti dei membri della linea nella
+    stessa giornata, e vale **0 di default**: e' il comportamento pubblicato dal
+    blocco del modificatore, e un test verifica che con `rho=0` l'uscita sia
+    identica bit per bit a prima che il parametro esistesse.
+
+    Il limite che `rho` toglie era gia' dichiarato qui: una difesa che prende tre
+    gol prende voti bassi *insieme*, quindi la correlazione vera e' positiva e con
+    `rho=0` la simulazione **sottostima la variabilita' della media di linea**.
+    Il blocco E3.4 la **misura** (`difesa.correlazione_linea`) invece di lasciarla
+    assunta. Con fasce a scalini il segno dell'effetto sul bonus atteso non e'
+    ovvio — dipende da dove la linea cade rispetto alle soglie — e infatti cambia
+    segno; `difesa.effetto_correlazione` lo fa vedere a piu' livelli.
+
+    La correlazione entra con **un fattore comune**: `z_i = sqrt(rho) * u +
+    sqrt(1-rho) * e_i`, che e' la struttura giusta per un gruppo senza ordine —
+    non c'e' un "primo" e un "secondo" difensore, quindi ogni coppia deve avere la
+    stessa correlazione. Riguarda i **voti**, non `p_voto`: chi prende voto dipende
+    dalle scelte del tecnico, non dall'andamento della partita.
     """
+    if not 0.0 <= rho < 1.0:
+        raise ValueError(f"rho={rho!r} fuori da [0, 1)")
+
     rng = np.random.default_rng(config.SEED if seed is None else seed)
     n = len(mu)
     forma = (repliche, giornate, n)
     prende = rng.random(forma) < p_voto[None, None, :]
-    voti = _arrotonda(rng.normal(mu[None, None, :], sd[None, None, :], forma))
+    if rho == 0.0:
+        z = rng.normal(0.0, 1.0, forma)
+    else:
+        comune = rng.normal(0.0, 1.0, (repliche, giornate, 1))
+        proprio = rng.normal(0.0, 1.0, forma)
+        z = np.sqrt(rho) * comune + np.sqrt(1.0 - rho) * proprio
+    voti = _arrotonda(mu[None, None, :] + sd[None, None, :] * z)
 
     if L.gestione_sv() != "escludi":                      # pragma: no cover
         raise NotImplementedError(

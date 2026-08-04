@@ -19,7 +19,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from sot import aggancio as AG, config, presenza as PR  # noqa: E402
+from sot import aggancio as AG, config, multistagione as MS, presenza as PR  # noqa: E402
 
 OUT_MD = config.REPORTS / "aggancio.md"
 
@@ -60,8 +60,12 @@ def main(argv=None) -> int:
     partite, solo_fc, solo_ws = part["partite"], part["solo_fc"], part["solo_ws"]
     partite.to_csv(AG.PARTITE_CSV, index=False, date_format="%Y-%m-%d")
 
-    print("aggancio giocatori (2025-2026)...")
-    g = AG.mappa_giocatori()
+    # **Tutte e cinque le stagioni**, non piu' la sola pubblicata: dal blocco E0
+    # della Fase 9 `player_match` esiste per tutte, e il limite che costringeva
+    # a una sola e' caduto. Scriverne una qui cancellerebbe le altre quattro dal
+    # CSV, che e' condiviso — e' una sola mappa, non due.
+    print("aggancio giocatori (cinque stagioni)...")
+    g = MS.aggancio_giocatori()
     g["mappa"].to_csv(AG.GIOCATORI_CSV, index=False)
     if len(g["irrisolti"]):
         g["irrisolti"].to_csv(AG.IRRISOLTI_CSV, index=False)
@@ -93,7 +97,16 @@ def main(argv=None) -> int:
         squadre=("teamId_ws", "size"), margine_min=("margine", "min"),
         in_comune_min=("in_comune", "min")).reset_index()
 
+    # La narrazione di questo report resta sulla 2025-26 — e' la stagione su cui
+    # la regola dell'80' e' falsificabile, cioe' l'oggetto di §4. Il CSV invece
+    # le contiene tutte e cinque: le due cose non sono in conflitto, e i numeri
+    # di §3 sono gli stessi di prima perche' sono lo stesso sottoinsieme.
     m = g["mappa"]
+    m = m[m["stagione"] == AG.STAGIONE_CON_ENTRAMBE].reset_index(drop=True)
+    irrisolti_stagione = g["irrisolti"]
+    if len(irrisolti_stagione):
+        irrisolti_stagione = irrisolti_stagione[
+            irrisolti_stagione["stagione"] == AG.STAGIONE_CON_ENTRAMBE]
     ruolo_ws = m["ruolo_fc"].map({"p": "GK", "d": "DEF", "c": "MID", "a": "FWD"})
     discordi = int((ruolo_ws != m["ruolo_ws"]).sum())
     incrocio = (pd.crosstab(m["ruolo_fc"], m["ruolo_ws"])
@@ -111,7 +124,7 @@ Nessuna richiesta di rete, niente scritto sotto `data/raw/`.
 ## Esito in una riga
 
 Le due fonti sono agganciate su **{_mila(len(partite))} partite** di cinque
-stagioni e su **{_mila(len(m))} giocatori su {_mila(len(m) + len(g['irrisolti']))}**
+stagioni e su **{_mila(len(m))} giocatori su {_mila(len(m) + len(irrisolti_stagione))}**
 della 2025-26, senza nessun caso irrisolto; e la regola dell'80' — decisa
 dall'utente e marcata `[DA MISURARE]` in `docs/regole_fantacalcio.md` §1.2 —
 **concorda con l's.v. osservato sul {regola['quota_concordi']:.2%} delle righe,
@@ -305,17 +318,19 @@ la decido io. **La regola resta quella di §1.2.**
 |---|---|
 | `data/mapping/aggancio_squadre.csv` | 100 righe, 20 per stagione |
 | `data/mapping/aggancio_partite.csv` | {_mila(len(partite))} righe, con giornata e `matchId` |
-| `data/mapping/aggancio_giocatori.csv` | {_mila(len(m))} righe, 2025-26 |
+| `data/mapping/aggancio_giocatori.csv` | {_mila(len(g['mappa']))} righe, **cinque stagioni** |
 | `{PR.TAVOLA_PARQUET.relative_to(config.ROOT).as_posix()}` | voti **e** minuti sulla stessa riga |
 | `reports/presenza_*.csv` | le quattro tavole di questa sezione |
 
 ## Limiti dichiarati
 
-1. **L'aggancio dei giocatori copre solo la 2025-2026.** Ha bisogno delle
-   presenze partita per partita dal lato WhoScored, che oggi esistono solo per la
-   stagione pubblicata (`player_match.parquet`). Estenderlo alle altre quattro
-   vuol dire far girare l'aggregazione della Fase 1 su 1.509 CSV in piu': e'
-   fattibile e non e' stato fatto qui.
+1. ~~**L'aggancio dei giocatori copre solo la 2025-2026.**~~ **Chiuso dal blocco
+   E0 della Fase 9**, che ha fatto girare l'aggregazione della Fase 1 sui 1.509
+   CSV mancanti: `player_match` esiste ora per tutte e cinque le stagioni e la
+   mappa dei giocatori le copre tutte
+   (`reports/fase9_e0_player_match_5_stagioni.md`). Questo report resta sulla
+   2025-26 per §3 e §4 perche' e' la stagione su cui la regola dell'80' e'
+   falsificabile — non perche' le altre non si possano agganciare.
 2. **La regola dell'80' e' misurata su una stagione e non puo' esserlo su
    altre.** 11.926 righe sono tante, ma sono un anno solo di una redazione sola.
    Se il criterio editoriale cambiasse, questo numero non se ne accorgerebbe.
