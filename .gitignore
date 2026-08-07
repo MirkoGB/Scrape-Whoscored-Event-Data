@@ -33,3 +33,17 @@ reports/*
 
 # pytest
 .pytest_cache/
+
+# Configurazione di Claude Code. La distinzione e' fra le due, non fra la
+# cartella e il resto:
+#   settings.json        e' configurazione DI PROGETTO e sta in git. Oggi
+#                        contiene la regola di permesso per
+#                        `./.venv/Scripts/python.exe`, che CLAUDE.md impone a
+#                        chiunque cloni: il percorso e' relativo alla radice,
+#                        quindi vale identico su qualunque macchina.
+#   settings.local.json  e' configurazione DELLA SINGOLA MACCHINA (permessi
+#                        concessi a mano in una sessione, percorsi assoluti).
+#                        Escluso adesso che non esiste: se comparisse, il
+#                        momento in cui accorgersene sarebbe `git status`,
+#                        cioe' troppo tardi.
+.claude/settings.local.json
