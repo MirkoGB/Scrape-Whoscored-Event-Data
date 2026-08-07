@@ -281,6 +281,144 @@ def verifica_esito(p: pd.DataFrame = None) -> dict:
     }
 
 
+#: Il calendario COMPLETO, dalla fonte dei voti: 380 partite per stagione, gol
+#: mai nulli. E' cio' che rende rispondibile la domanda sulle mancanti — di una
+#: partita che WhoScored non ha, il **risultato** ce l'abbiamo lo stesso.
+CALENDARIO = config.processed_league_dir() / "fantacalcio_partite.parquet"
+
+
+def _calendario_lungo() -> pd.DataFrame:
+    """Una riga per squadra-partita su TUTTO il calendario, con `acquisita`.
+
+    La forma lunga serve perche' la domanda e' per squadra: «delle partite che
+    mancano **a questa squadra**, quante erano vittorie».
+    """
+    cal = pd.read_parquet(CALENDARIO)
+    ag = pd.read_csv(MAPPA_PARTITE)
+    agganciate = set(zip(ag["stagione"], ag["partita_id"]))
+
+    righe = []
+    for r in cal.itertuples(index=False):
+        acq = (r.stagione, r.partita_id) in agganciate
+        for team, avv, gf, gs, casa in (
+            (r.casa, r.trasferta, r.gol_casa, r.gol_trasferta, 1),
+            (r.trasferta, r.casa, r.gol_trasferta, r.gol_casa, 0),
+        ):
+            righe.append({
+                "stagione": r.stagione, "giornata": r.giornata, "team": team,
+                "avversario": avv, "casa": casa, "acquisita": acq,
+                "gf": gf, "gs": gs,
+                "punti": 3 if gf > gs else (1 if gf == gs else 0),
+                "esito": "V" if gf > gs else ("P" if gf == gs else "S"),
+            })
+    return pd.DataFrame(righe)
+
+
+def partite_mancanti() -> pd.DataFrame:
+    """Le partite del calendario che WhoScored non ha, **con il loro risultato**.
+
+    Sono le 12 gia' dichiarate da `reports/phase7_acquisizione_whoscored.md` come
+    `matchCentreData: null`. La novita' non e' quali siano: e' che il risultato si
+    puo' leggere dall'altra fonte, quindi la domanda «mancano a caso rispetto
+    all'esito?» ha una risposta invece di essere retorica.
+    """
+    cal = pd.read_parquet(CALENDARIO)
+    ag = pd.read_csv(MAPPA_PARTITE)
+    agganciate = set(zip(ag["stagione"], ag["partita_id"]))
+    m = cal[[(s, p) not in agganciate
+             for s, p in zip(cal["stagione"], cal["partita_id"])]]
+    return m[["stagione", "giornata", "casa", "trasferta",
+              "gol_casa", "gol_trasferta"]].reset_index(drop=True)
+
+
+def _medie_permutate(v: np.ndarray, k: int, repliche: int,
+                     rng, blocco: int = 25000) -> np.ndarray:
+    """Medie di `repliche` campioni di `k` elementi da `v`, senza reinserimento.
+
+    Vettorizzata: l'estrazione senza reinserimento e' l'`argsort` di una matrice
+    di uniformi, quindi le `repliche` si fanno in una volta invece che in un
+    ciclo Python. A blocchi perche' la matrice intera sarebbe centinaia di MB.
+
+    **Il ciclo ingenuo costava 58 s per chiamata**, e la funzione che la usa
+    veniva invocata quattro volte dai test: era il 90% del tempo del modulo.
+    """
+    fuori = np.empty(repliche)
+    n = len(v)
+    for i in range(0, repliche, blocco):
+        m = min(blocco, repliche - i)
+        idx = np.argsort(rng.random((m, n)), axis=1)[:, :k]
+        fuori[i:i + m] = v[idx].mean(axis=1)
+    return fuori
+
+
+def casualita_mancanti(min_mancanti: int = 2, repliche: int = 200000,
+                       seed: int = None) -> pd.DataFrame:
+    """Le partite mancanti sono a caso rispetto al risultato? Per squadra.
+
+    **Non e' la domanda a cui l'acquisizione ha gia' risposto.** Li' si era
+    chiesto se le partite mancassero a caso rispetto alla **squadra** (no:
+    l'Atalanta ne perde sei contro un'attesa di 1,2, p corretto 1,1%). Qui si
+    chiede, data la squadra, se manchino a caso rispetto all'**esito** — cioe' se
+    la fonte abbia perso sistematicamente vittorie, o partite in trasferta.
+
+    Il test e' una **permutazione esatta**: sotto il nullo le partite mancanti
+    sono un campione casuale senza reinserimento di quelle che la squadra ha
+    giocato in quelle stagioni. Due code, perche' il verso non era previsto.
+
+    Si testa su quattro grandezze e non su una: i **punti** sono cio' che la
+    domanda nomina, ma **i gol sono cio' che il modello usa** — e le due possono
+    divergere, perche' i punti sono una funzione a gradini dei gol.
+    """
+    rng = np.random.default_rng(config.SEED if seed is None else seed)
+    L = _calendario_lungo()
+    mancanti = L[~L["acquisita"]]
+
+    righe = []
+    for t, sub in mancanti.groupby("team"):
+        if len(sub) < min_mancanti:
+            continue
+        stag = sorted(sub["stagione"].unique())
+        tot = L[(L["team"] == t) & (L["stagione"].isin(stag))]
+        riga = {"squadra": t, "mancanti": len(sub), "giocate": len(tot),
+                "record": "".join(f"{e}{int((sub['esito'] == e).sum())}"
+                                  for e in ("V", "P", "S"))}
+        for col in ("punti", "gf", "gs", "casa"):
+            v = tot[col].to_numpy()
+            oss = float(sub[col].mean())
+            sim = _medie_permutate(v, len(sub), repliche, rng)
+            riga[f"{col}_oss"] = oss
+            riga[f"{col}_atteso"] = float(v.mean())
+            riga[f"{col}_p"] = float(
+                (np.abs(sim - v.mean()) >= abs(oss - v.mean())).mean())
+        righe.append(riga)
+
+    out = pd.DataFrame(righe).sort_values("mancanti", ascending=False)
+    return out.reset_index(drop=True)
+
+
+def mde_mancanti(squadra: str = "Atalanta", col: str = "gf",
+                 repliche: int = 200000, seed: int = None) -> dict:
+    """Quale scarto sarebbe stato visibile, con sei partite. Potenza dichiarata.
+
+    E' la lezione della 6D: un `p` sopra soglia non dice che l'effetto sia zero
+    finche' non si sa quanto grande dovesse essere per essere visto. Con `n = 6`
+    la risposta e' «molto», e va scritta accanto al risultato.
+    """
+    rng = np.random.default_rng(config.SEED if seed is None else seed)
+    L = _calendario_lungo()
+    sub = L[(~L["acquisita"]) & (L["team"] == squadra)]
+    stag = sorted(sub["stagione"].unique())
+    tot = L[(L["team"] == squadra) & (L["stagione"].isin(stag))]
+
+    v = tot[col].to_numpy()
+    sim = _medie_permutate(v, len(sub), repliche, rng)
+    q = float(np.quantile(sim, 0.975))
+    return {"squadra": squadra, "grandezza": col, "n_mancanti": int(len(sub)),
+            "atteso": float(v.mean()), "soglia_975": q,
+            "mde": q - float(v.mean()),
+            "osservato": float(sub[col].mean()) - float(v.mean())}
+
+
 def realizzazioni(p: pd.DataFrame = None) -> pd.DataFrame:
     """L'unita' di validazione di ogni affermazione, e quante ne esistono.
 

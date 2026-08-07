@@ -22,8 +22,8 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
-ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e il blocco **R0 della
-Fase 10**, che apre il ramo G1.** Dettaglio ed esiti nella
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0 e R1
+della Fase 10**, che aprono il ramo G1.** Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
@@ -52,7 +52,7 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
-| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R1** (R0 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R2** (R0 ✅, R1 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
 
 **La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
 dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
@@ -172,6 +172,12 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # walk-forward dei gol di E3 da squadra-partita a PARTITA e conta (~5 s, tutto
 # da cache). NON tocca la rete e NON stima niente.
 ./.venv/Scripts/python.exe scripts/run_fase10_r0.py
+
+# Fase 10 / Blocco R1: la congiunta del risultato. Si apre con il controllo di
+# casualita' delle partite mancanti alla fonte, poi stima `rho` (dipendenza fra
+# i due lati) a marginali FISSATE e ne dichiara la potenza (~1 min; con
+# --repliche si cambia la precisione della potenza). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase10_r1.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -378,7 +384,21 @@ sot/
                    punteggio ricomposto da WhoScored contro quello della fonte
                    dei voti (vincolo 7, zero discordanze), e `realizzazioni()`,
                    che e' l'argomento sull'ordine G1/G2 messo in codice invece
-                   che solo in prosa: e' un conteggio, non un'opinione
+                   che solo in prosa: e' un conteggio, non un'opinione.
+                   Da R1 contiene anche `casualita_mancanti()`, che chiede se le
+                   partite che la fonte non ha manchino a caso rispetto
+                   all'ESITO — domanda diversa da quella dell'acquisizione, che
+                   riguardava la squadra. Sta qui e non in `risultato.py` perche'
+                   e' una proprieta' del perimetro
+  risultato.py     Fase 10 / R1. Dalla coppia di lambda alla **congiunta**. Le
+                   marginali non determinano la congiunta: moltiplicarle e' gia'
+                   l'ipotesi di indipendenza, presa senza dichiararla, e questo
+                   modulo la rende un parametro (`rho`, forma di Dixon-Coles,
+                   `rho = 0` = indipendenza). **I lambda di E3.1 NON si
+                   ristimano**: entrano come dati, altrimenti la validazione di
+                   E3 non varrebbe piu' per il modello che R2 usa — un test lo
+                   blocca. `verifica_marginali()` e' la verifica falsificabile
+                   del blocco, e ha corretto la docstring che la descriveva
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -402,9 +422,9 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
           run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
           run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
-          run_fase9_e4.py, run_fase10_r0.py,
+          run_fase9_e4.py, run_fase10_r0.py, run_fase10_r1.py,
           tiri_in_porta.py
-tests/    conftest + 29 moduli
+tests/    conftest + 30 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -2810,6 +2830,76 @@ resta fuori** per mancanza di giornata — e' l'unica partita senza, ed e' il
 residuo gia' dichiarato dall'aggancio; (4) **non e' verificato che l'ordine per
 data basti a ricostruire la classifica progressiva** in presenza di recuperi, e
 R3 ne ha bisogno.
+
+### Fase 10 — Blocco R1: la congiunta del risultato ✅
+
+`reports/fase10_r1_congiunta.md`, da `scripts/run_fase10_r1.py`; modulo
+`sot/risultato.py`, test `tests/test_fase10_r1.py` (23). **Nessuna richiesta di
+rete.** Si stima **un parametro solo**, `rho`, a marginali fissate. **Nessun
+numero pubblicato e' cambiato**, verificato rieseguendo.
+
+**§1 — la precondizione, chiesta dall'utente prima della congiunta.** Le partite
+che WhoScored non ha mancano a caso **rispetto al risultato**? Non e' la domanda
+dell'acquisizione, che riguardava la **squadra**. E' rispondibile perche' di una
+partita che manca **il risultato ce l'abbiamo lo stesso**, dalla fonte dei voti
+(380 partite per stagione, gol mai nulli). Permutazione esatta a due code.
+
+| | |
+|---|---|
+| Atalanta, 6 mancanti | **V5 P1 S0**, 2,67 punti/partita contro 1,62 attesi |
+| p sui **punti** | **0,055** grezzo — **non passa Bonferroni** su 7 squadre (soglia 0,0071) |
+| p sui **gol fatti / subiti / casa** | 0,48 / 0,54 / 0,44 — **niente** |
+| MDE con n = 6 | **±1,28 gol** a partita (osservato +0,44) |
+
+- **La grandezza che conta e' il gol, non il punto**: R1 compone una
+  distribuzione di gol e E3.1 e' stimato sui gol. Li' non c'e' niente.
+- **Il meccanismo della divergenza e' aritmetico**: i punti sono una funzione **a
+  gradini** dei gol, quindi vincere 5 su 6 con 2,17 gol fatti e 1,00 subiti e'
+  ordinario in gol e straordinario in punti.
+- **Sui punti l'osservato coincide con la soglia di rilevabilita' a ogni cifra**
+  (1,048 contro 1,048): l'effetto sta esattamente sul limite del test.
+- **Verdetto**: nessuna non-casualita' dimostrata sul bersaglio che R1 usa; sui
+  punti un segnale coerente che non sopravvive alla molteplicita' e che con sei
+  partite non e' ne' confermabile ne' escludibile. **Dichiarato, non liquidato.**
+- **Il buco non tocca R3**: la classifica finale si ricostruisce dal calendario
+  completo della fonte dei voti. E' nell'**ingresso**, non nel bersaglio.
+
+**§2-§6 — la congiunta.** Le marginali **non determinano** la congiunta:
+moltiplicarle e' gia' l'ipotesi di indipendenza, presa senza dichiararla.
+
+- **Le marginali si conservano ESATTAMENTE a `rho` qualsiasi**, ed e' algebra e
+  non fortuna numerica (i due termini della riga si cancellano via
+  `P(1;t) = t·P(0;t)`). **La verifica ha corretto la docstring che la
+  descriveva**, che affermava un residuo dell'ordine di `rho·lam`.
+- **Nessuna delle tre strade indipendenti trova dipendenza**: MLE `rho` =
+  **−0,0087** (LR 0,077, p 0,78); frequenza delle quattro celle chi2 = 6,35 su 4
+  gdl (p 0,17), che non passa da nessuna ottimizzazione; correlazione dei residui
+  +0,026 (p 0,29), che non usa nemmeno `tau`. Le cinque stagioni separate danno
+  cinque stime che **cambiano segno**.
+- **Lo scostamento presente non ha la forma di Dixon-Coles**, ed e' il risultato
+  non cercato del blocco: si osserva **meno 0-0 e piu' 1-1**, mentre un `rho` solo
+  lega quelle due celle allo **stesso** verso. **Nessun valore di `rho` puo'
+  produrre quel disegno**, e per questo l'MLE cade a zero invece di limitarsi a
+  starci vicino. Lo scostamento di suo non e' significativo.
+- **La potenza e' dichiarata** ed e' cio' che rende leggibile il negativo: 80% a
+  `rho` = 0,09, 99% a 0,12. Il campione **non e' cieco** — esclude dipendenze di
+  taglia media, non solo enormi. Sotto 0,05 la potenza e' 36%.
+- **R1 consegna a R2 `rho = 0`**, come esito misurato e non come default comodo.
+
+> **Vincolo 1, per chi volesse un `rho` diverso da zero.** Qui e' stimato **in
+> campione** ed e' lecito perche' usato come **limite superiore** — la direzione
+> in cui 6D ha usato lo stesso genere di test. Usarlo *in previsione* vuole una
+> ristima sul solo passato, come `walkforward_r` fa per `r`.
+
+**Quattro domande aperte**: (1) il buco dell'Atalanta **non e' risolvibile qui** —
+sei partite non bastano e altre non ne arriveranno, servirebbe un'altra fonte di
+dati evento; (2) la dipendenza e' stata cercata **solo** nella forma di
+Dixon-Coles, e lo scostamento osservato ne suggerisce un'altra che su 1.638
+partite sarebbe adattarsi al rumore — e' la prima cosa che G2 avrebbe la massa per
+guardare; (3) **`rho` e' assunto costante fra partite** e potrebbe dipendere dal
+divario di forza; (4) la correzione originale ha un **decadimento temporale**, qui
+assente perche' i lambda di E3.1 ce l'hanno gia' dentro, e che i due debbano
+essere lo stesso non e' ovvio ne' verificato.
 
 
 ## Convenzioni
