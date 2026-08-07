@@ -22,7 +22,8 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
-ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa**.** Dettaglio ed esiti nella
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e il blocco **R0 della
+Fase 10**, che apre il ramo G1.** Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
@@ -51,6 +52,15 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
+| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R1** (R0 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+
+**La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
+dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
+comprerebbe dati per un test che non e' ancora stato scritto; (b) il costo di G2
+e' sottostimato — tutti e quattro gli altri campionati hanno `whoscored: None` e
+`main.py` e' gia' il collo di bottiglia dichiarato; (c) G1 riusa il derivato di
+E3, dove `lam_subiti` e' gia' a terra. **La famiglia dell'acquisizione (rating
+WhoScored, FVM e maglia d'agosto) e' rimandata, non esclusa.**
 
 **Nessuno dei due produce ingressi dell'altro**, ed e' il motivo per cui sono
 paralleli: 7B porta una colonna SoT a granularita' squadra-partita con una
@@ -61,9 +71,10 @@ aprirebbe l'obbligo di riconciliazione di 7C senza aggiungere capacita'.
 
 Le tre direzioni **G1-G3** in fondo a `docs/prompt_fase9.md` (risultato, altri
 campionati, scouting) chiedevano che la Fase 9 avesse dei blocchi chiusi: con E4
-la Fase 9 **e' chiusa**, quindi la condizione e' soddisfatta e la scelta e'
-dell'utente — vanno rimesse in fila con un giudizio e se ne sceglie una, non se
-ne aprono tre. **Attenzione a G3 (scouting)**: la sua condizione era «il modello
+la Fase 9 **e' chiusa**, quindi la condizione e' soddisfatta. **`[SCELTO
+2026-08-07]` l'utente ha aperto G1**, cioe' la Fase 10, con l'ordine dichiarato
+G1 → G2; **G2 non e' aperta** e ha una condizione bloccante di autorizzazione
+(vedi la sezione R0). **Attenzione a G3 (scouting)**: la sua condizione era «il modello
 batte il FVM», e quel confronto e' stato **squalificato** dall'orologio delle
 quotazioni — il concorrente leale e' QI, contro cui il verdetto e' misto. La
 condizione va riscritta prima di poterla dichiarare soddisfatta. **Erano
@@ -156,6 +167,11 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # assegnazione discreta e QI (~35 s da cache; con --force rilegge i 1.889 CSV
 # per rifare i piazzati, ~2 min in piu'). NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase9_e4.py
+
+# Fase 10 / Blocco R0: il perimetro di cio' che e' validabile. Ruota il
+# walk-forward dei gol di E3 da squadra-partita a PARTITA e conta (~5 s, tutto
+# da cache). NON tocca la rete e NON stima niente.
+./.venv/Scripts/python.exe scripts/run_fase10_r0.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -352,6 +368,17 @@ sot/
                    chiude la verifica sui cinque fit di xG rimandata due volte
                    (stessa forma, livello che si muove del 15,8%), e i due
                    oracoli separati che hanno corretto il divario dei bonus
+  perimetro.py     Fase 10 / R0. **LA DEFINIZIONE DI «PARTITA VALIDABILE», e sta
+                   in un posto solo** perche' R1, R2 e R3 la useranno tutti e
+                   tre — stessa ragione per cui la definizione di tiro in porta
+                   sta in `shots.py`. Non stima niente: ruota il walk-forward dei
+                   gol da squadra-partita a **partita** e conta. La condizione e'
+                   `elig_casa AND elig_trasferta`, non `or`: un esito 1X2 non e'
+                   meta' previsto. Contiene `verifica_esito()`, che mette il
+                   punteggio ricomposto da WhoScored contro quello della fonte
+                   dei voti (vincolo 7, zero discordanze), e `realizzazioni()`,
+                   che e' l'argomento sull'ordine G1/G2 messo in codice invece
+                   che solo in prosa: e' un conteggio, non un'opinione
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -375,9 +402,9 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
           run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
           run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
-          run_fase9_e4.py,
+          run_fase9_e4.py, run_fase10_r0.py,
           tiri_in_porta.py
-tests/    conftest + 28 moduli
+tests/    conftest + 29 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -2692,6 +2719,97 @@ all'indietro** nei punti in cui il 61,4 → 52,5 e' citato come divario dei bonu
 (4) **il designato dei rigori per il 2026-27**, che nessuna fonte acquisita
 contiene e che vale fino a 15 punti sul singolo; (5) **gli infortuni**, che dopo E4
 sono il limite dichiarato del progetto invece che uno fra tanti.
+
+### Fase 10 — Blocco R0: il perimetro di cio' che e' validabile ✅
+
+`reports/fase10_r0_perimetro.md`, da `scripts/run_fase10_r0.py`; modulo
+`sot/perimetro.py`, test `tests/test_fase10_r0.py` (20). **Nessuna richiesta di
+rete. Nessuna stima**: nessun fit, nessun bersaglio, nessun iperparametro — il
+blocco *conta*. **Nessun numero pubblicato e' cambiato**, verificato
+rieseguendo: `run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672
+eventi, `run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240].
+
+**Apre la Fase 10 (G1), scelta dall'utente il 2026-08-07 con l'ordine G1 → G2.**
+
+**1.889 acquisite → 1.739 con previsione → 1.638 validabili**, e il 13,3% si
+perde per **due** ragioni che non vanno sommate:
+
+| gradino | quante | causa |
+|---|---:|---|
+| `senza_training` | 150 | `date_splits` pretende 30 partite di training: sono **le prime tre giornate**, che nel derivato di E3 non esistono affatto |
+| `perse_burnin` | 101 | hanno una previsione ma non sono `eligible`: le giornate 4 e 5 |
+
+- **`eligible` equivale a `team_match_idx >= 6`**, ed e' **verificato e
+  falsificabile**, non assunto: zero discordanti su 3.478 righe, e un test
+  guasta una riga e pretende che la verifica lo veda.
+- **`eligible` e' una proprieta' della SQUADRA, non della partita**, quindi una
+  partita puo' averne un lato solo. **Succede due volte, entrambe nel 2021-22**,
+  ed entrambe coinvolgono squadre a cui WhoScored ha perso partite: alla sua
+  sesta partita vera l'Atalanta e' all'indice 5. **E' lo stesso difetto
+  dell'indice che E2 aveva trovato sulle squalifiche**, e cade di nuovo dove la
+  perdita alla fonte e' gia' dichiarata non casuale. La condizione e'
+  `elig_casa AND elig_trasferta`, con un test che vieta la disgiunzione: **un
+  esito 1X2 non e' meta' previsto.**
+- **Il bersaglio di R2 regge a due derivazioni indipendenti (vincolo 7), a costo
+  zero**: il punteggio ricomposto dagli eventi WhoScored (autogol riattribuiti)
+  contro quello della fonte dei voti, **1.738 su 1.738 identici, zero
+  discordanze**, sia sul punteggio sia sull'esito 1X2. Non passa da nessun
+  modello.
+- **La giornata vera c'e'** (D6, chiusa in Fase 8) e **`team_match_idx` non e'
+  la giornata**: per una metrica per partita non importa, per una **classifica**
+  si', perche' un indice che salta i recuperi mette la stessa squadra in due
+  turni diversi. Un test vieta di concluderne che coincidano.
+- **Giornate piene (10 partite su 10 validabili): 155 su 175**, e **la prima e'
+  la 6a o la 7a, mai prima.** Ne segue il vincolo che R3 dichiara in specifica
+  invece di scoprire a meta': **non si simula una stagione da zero.** Non esiste
+  una probabilita' di scudetto alla prima giornata. Si simula il **resto** di una
+  stagione dalla giornata k, data la classifica a k.
+
+**Il risultato che decide l'ordine, ed e' un conteggio e non un'opinione**
+(`perimetro.realizzazioni()`):
+
+| affermazione | unita' | n |
+|---|---|---:|
+| 1X2, over/under | partita | **1.638** |
+| **classifica** | **stagione** | **5** |
+
+- **R2 e' abbondante**: 1.638 partite sono due volte e mezzo le 660 righe su cui
+  le Fasi 2 e 4 hanno concluso, su un bersaglio che E3 ha gia' mostrato piu'
+  facile da distinguere (t = 5,52 contro 1,86). **Il burn-in non e' un problema
+  per R2**: era la preoccupazione che ha motivato il blocco, ed e' infondata.
+- **R3 lo e'.** Una probabilita' di scudetto ha **una realizzazione per
+  stagione**, e previsioni fatte a giornate diverse della stessa stagione **non
+  sono indipendenti**: condividono l'esito. 155 giornate piene non sono 155
+  osservazioni, sono cinque guardate piu' volte.
+
+> **La dipendenza da G2, dichiarata prima e non scoperta a meta'** (era la
+> domanda dell'utente): G2 **non** cambia la calibrazione — poolare i campionati
+> e' l'errore che E1 vieta e che E4 ha quantificato — e **non** cambia R2. Cambia
+> **solo R3**, da 5 realizzazioni a 25: **sottile, non sufficiente**. Ne segue che
+> la dipendenza **non impone G2 prima**; impone che R3 dichiari il limite invece
+> di fabbricare una validazione, che e' il vincolo 5.
+
+> **CONDIZIONE BLOCCANTE SU G2 — autorizzazione.** Registrata su richiesta
+> dell'utente del 2026-08-07 come condizione e **non come dettaglio tecnico**.
+> L'autorizzazione di `regole_fantacalcio.md` §7.1 riguarda **WhoScored per la
+> Serie A**, via il mirror `1xbet.whoscored.com`. **Estenderla a quattro
+> campionati e' una decisione dell'utente, che verra' presa se e quando si arriva
+> a G2, e non prima.** Nessun blocco della Fase 10 la presuppone. Accanto, e
+> indipendente: tutti e quattro gli altri campionati hanno `whoscored: None` in
+> `config.LEAGUE_CODES` — la terna `(regione, torneo, slug)` non e' accertata per
+> nessuno, e `target.py:63` solleva invece di inventare un URL. «Lo scraper e'
+> gia' parametrizzato» e' vero e non basta.
+
+**Quattro domande aperte**: (1) la **forma della dipendenza fra i due lati** non
+e' stata guardata, ed e' di proposito — due lambda dallo stesso modello non
+implicano gol indipendenti dati i lambda, ed e' la domanda di R1; (2) le **due
+partite disallineate** sarebbero recuperabili allineando il burn-in alla
+giornata invece che a `team_match_idx`, ma cambierebbe una definizione che E3 ha
+gia' pubblicato: si decide in R2 **se** toccarla; (3) **il playout Spezia-Verona
+resta fuori** per mancanza di giornata — e' l'unica partita senza, ed e' il
+residuo gia' dichiarato dall'aggancio; (4) **non e' verificato che l'ordine per
+data basti a ricostruire la classifica progressiva** in presenza di recuperi, e
+R3 ne ha bisogno.
 
 
 ## Convenzioni
