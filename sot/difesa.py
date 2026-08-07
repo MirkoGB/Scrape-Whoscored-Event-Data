@@ -876,6 +876,14 @@ def premessa_portieri(wf: pd.DataFrame = None, gsp: pd.DataFrame = None
     attese, con accanto le sole presenze attese come ordinatore. Se le presenze
     fossero davvero risolte, la loro Spearman dovrebbe essere bassa e quella del
     modello alta; si osserva il contrario.
+
+    **I due concorrenti di mercato non hanno lo stesso orologio, e la colonna che
+    conta e' QI.** `quotazioni.orologio()` ha misurato che il FVM archiviato si
+    muove **durante** la stagione: come concorrente in un confronto fuori campione
+    non e' leale, perche' per una stagione passata ne conosce l'esito. Resta in
+    tabella — un errore di questo progetto non si cancella — ma **marcato**, e
+    accanto ci sta QI, che e' la sola quotazione davvero nota al momento
+    dell'asta.
     """
     from . import modello_asta as MA
     from scipy.stats import spearmanr
@@ -893,26 +901,29 @@ def premessa_portieri(wf: pd.DataFrame = None, gsp: pd.DataFrame = None
             continue
         dif = bonus_difensivo_portiere(x["lam"].to_numpy())
         pe3 = x["presenze_attese"] * (x["voto_atteso"] + dif)
-        base, con_e3, solo_pres, fvm = [], [], [], []
+        base, con_e3, solo_pres = [], [], []
+        mercato = {"b_fvm": [], "b_qi": []}
         for _, s2 in x.groupby("stagione_prevista"):
             i = s2.index
             base.append(spearmanr(s2["punti_previsti"], s2["punti_osservati"]).statistic)
             con_e3.append(spearmanr(pe3[i], s2["punti_osservati"]).statistic)
             solo_pres.append(spearmanr(s2["presenze_attese"],
                                        s2["punti_osservati"]).statistic)
-            ok = s2["b_fvm"].notna()
-            fvm.append(spearmanr(s2.loc[ok, "b_fvm"],
-                                 s2.loc[ok, "punti_osservati"]).statistic
-                       if ok.sum() >= 5 else np.nan)
+            for col in mercato:
+                ok = s2[col].notna()
+                mercato[col].append(
+                    spearmanr(s2.loc[ok, col], s2.loc[ok, "punti_osservati"]).statistic
+                    if ok.sum() >= 5 else np.nan)
         righe.append({
             "soglia_presenze_attese": soglia, "portieri": len(x),
             "quota_mai_in_campo": float((x["presenze_osservate"] == 0).mean()),
             "spearman_modello": float(np.mean(base)),
             "spearman_con_difesa_e3": float(np.mean(con_e3)),
             "spearman_sole_presenze_attese": float(np.mean(solo_pres)),
-            # Il confronto decisivo: se anche il FVM crolla fra i probabili
+            # Il confronto decisivo: se anche la quotazione crolla fra i probabili
             # titolari, il suo vantaggio e' sapere CHI GIOCA, non la difesa.
-            "spearman_fvm": float(np.nanmean(fvm)),
+            "spearman_qi": float(np.nanmean(mercato["b_qi"])),
+            "spearman_fvm_CONTAMINATO": float(np.nanmean(mercato["b_fvm"])),
         })
     return pd.DataFrame(righe)
 
@@ -947,7 +958,7 @@ def spearman_portieri(wf: pd.DataFrame = None, gsp: pd.DataFrame = None
     candidati = {"modello d'asta": "punti_previsti",
                  "modello d'asta + difesa E3 (ultima stagione)": "punti_e3_ultima",
                  "modello d'asta + difesa E3 (tutte le stagioni)": "punti_e3_tutte",
-                 "FVM della fonte": "b_fvm",
+                 "FVM della fonte (CONTAMINATO)": "b_fvm",
                  "quotazione iniziale QI": "b_qi",
                  "persistenza (anno prima)": "b_persistenza"}
 
@@ -1000,3 +1011,334 @@ def _precisione(s: pd.DataFrame, col: str, ruolo: str) -> float:
 def _ponte_squadre() -> pd.DataFrame:
     from . import aggancio as AG
     return AG.mappa_squadre()[["stagione", "squadra_id_fc", "teamId_ws"]]
+
+
+# --------------------------------------------------------------------------
+# E3.5 — coda: perche' la difesa peggiora invece di migliorare
+#
+# L'IPOTESI, E COME SI FALSIFICA
+# -------------------------------
+# E3.3 ha trovato che sul portiere il voto base si muove nel verso **opposto** a
+# quello dei difensori rispetto alla forza difensiva attesa. Da li' nasce una
+# spiegazione dell'esito negativo di E3: dietro una difesa debole il portiere
+# para di piu' e il voto sale, il malus dei gol subiti scende, **le due voci si
+# compensano, il netto e' quasi piatto** — e collegare la difesa a un solo lato
+# dei due peggiora, perche' aggiunge una meta' della compensazione senza l'altra.
+#
+# E' un'ipotesi con tre conseguenze misurabili, e si tengono separate perche'
+# possono cadere una per volta:
+#
+#   1. la pendenza del voto sul portiere e' positiva          (E3.3: si', +0.0795)
+#   2. il NETTO e' quasi piatto, cioe' la compensazione e' quasi completa
+#   3. attraverso i portieri le due componenti sono correlate NEGATIVAMENTE
+#
+# La 1 e' gia' misurata e qui viene solo riprodotta, come controllo che le
+# componenti siano costruite sulla stessa popolazione di E3.3. **Sono la 2 e la 3
+# a decidere**, e la 2 ha una soglia dichiarata prima di guardare: la
+# compensazione si chiama tale se il netto e' sotto **un terzo** del malus, cioe'
+# se il voto base ne annulla almeno i due terzi. Sotto quella soglia "quasi
+# piatto" e' una descrizione; sopra, non lo e'.
+#
+# QUALE FONTE ALIMENTA IL MALUS — E NON E' UNA FORMALITA'
+# -------------------------------------------------------
+# `voti_difensori` **sovrascrive** `gol_subiti` con i gol della squadra ricomposti
+# dal walk-forward (autogol compresi). E' la grandezza giusta per condizionare il
+# voto, ed e' sbagliata per il malus: il malus lo produce la **fonte dei voti**,
+# che e' definitoria perche' e' quella che ha generato i `punti_osservati` contro
+# cui tutto si valuta. Le due colonne hanno lo stesso nome e differiscono su **32
+# righe su 3.307**, sempre nel verso di WhoScored che ne conta di piu'. Qui si
+# riprende quella della fonte e la si tiene con un nome diverso.
+# --------------------------------------------------------------------------
+
+#: La fonte dei gol subiti che alimenta il **malus** del portiere. Dichiarata
+#: perche' il vincolo 7 vieta di mescolare due definizioni della stessa
+#: grandezza, e qui ce ne sono due a portata di mano.
+FONTE_MALUS = "voti"
+
+#: Sotto questa quota il netto si dice "quasi piatto", cioe' la compensazione si
+#: dice completa. **Dichiarata prima di guardare i numeri** (vincolo 1 applicato a
+#: una soglia, come l'80' della presenza e le soglie di E1): un terzo del malus
+#: superstite significa che il voto base ne annulla i due terzi.
+SOGLIA_COMPENSAZIONE = 1 / 3
+
+
+def _ols(x, y) -> tuple[float, float, float]:
+    """Pendenza, errore standard e `t` di una regressione semplice.
+
+    Ritorna `se = nan` quando la risposta e' costante — succede sul difensore,
+    la cui componente difensiva e' identicamente zero per regolamento — invece di
+    dividere per zero e stampare un avviso.
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    X = np.column_stack([np.ones(len(x)), x])
+    b, *_ = np.linalg.lstsq(X, y, rcond=None)
+    res = y - X @ b
+    den = (res ** 2).sum()
+    if den <= 0 or len(y) <= 2:
+        return float(b[1]), float("nan"), float("nan")
+    se = float(np.sqrt(den / (len(y) - 2) * np.linalg.inv(X.T @ X)[1, 1]))
+    return float(b[1]), se, float(b[1] / se)
+
+
+def componenti_portiere(v: pd.DataFrame = None, stagioni=None) -> pd.DataFrame:
+    """Le due componenti che la forza difensiva muove, piu' il loro netto.
+
+    - `comp_voto`  = il voto base, che e' la componente di E3.3;
+    - `comp_bonus` = `-1 x gol subiti + 1 x porta inviolata` in punti di lega,
+      cioe' le due voci di `lega.BONUS` che dipendono dalla squadra. **Solo al
+      portiere**: per il difensore vale zero, e vale zero *per regolamento*, non
+      per approssimazione — un difensore non prende malus sui gol subiti.
+    - `comp_netto` = la loro somma.
+
+    Il netto **non e' il fantavoto**: gol, assist e cartellini restano fuori
+    perche' con la solidita' difensiva non c'entrano, ed e' la stessa scelta con
+    cui E3.3 ha usato il voto base invece del fantavoto.
+    """
+    from . import lega as L, voti as VT
+
+    v = voti_difensori(stagioni=stagioni) if v is None else v
+    src = VT.carica()[["stagione", "partita_id", "giocatore_id", "gol_subiti"]]
+    v = v.merge(src.rename(columns={"gol_subiti": "gol_subiti_voti"}),
+                on=["stagione", "partita_id", "giocatore_id"], how="left")
+
+    e_p = v["ruolo"] == "p"
+    gs = v["gol_subiti_voti"]
+    v["comp_voto"] = v["voto"]
+    v["comp_bonus"] = np.where(
+        e_p, L.BONUS["gol_subiti"] * gs
+        + L.BONUS["porta_inviolata"] * (gs == 0), 0.0)
+    v["comp_netto"] = v["comp_voto"] + v["comp_bonus"]
+    # Quanto le due definizioni di "gol subiti" divergono, come numero e non come
+    # rassicurazione: se un giorno crescesse, il malus starebbe cambiando fonte
+    # senza che nessuno l'abbia deciso.
+    v.attrs["righe_gol_subiti_discordi"] = int(
+        (v.loc[e_p, "gol_subiti"] != gs[e_p]).sum())
+    return v
+
+
+def pendenza_componenti(c: pd.DataFrame = None) -> pd.DataFrame:
+    """La regressione di E3.3, rifatta sulle tre grandezze e per ruolo.
+
+    La riga `comp_voto` del portiere deve riprodurre il `+0.0795` di E3.3: e' il
+    controllo che le componenti stiano sulla stessa popolazione, non un risultato
+    nuovo. Il risultato nuovo e' la riga `comp_netto`.
+    """
+    c = componenti_portiere() if c is None else c
+    righe = []
+    for ruolo in RUOLI_LINEA:
+        d = c[c["ruolo"] == ruolo]
+        if len(d) < 50:
+            continue
+        x = d["lam_subiti"]
+        amp = float(x.quantile(0.9) - x.quantile(0.1))
+        for nome in ("comp_voto", "comp_bonus", "comp_netto"):
+            b, se, t = _ols(x, d[nome])
+            righe.append({"ruolo": ruolo, "componente": nome, "righe": len(d),
+                          "pendenza": b, "se": se, "t": t,
+                          "delta_p10_p90": b * amp})
+    out = pd.DataFrame(righe)
+
+    # La conseguenza 2, come numero invece che come impressione: quanta parte del
+    # malus sopravvive nel netto. Sotto SOGLIA_COMPENSAZIONE si dice compensato.
+    p = out[out["ruolo"] == "p"].set_index("componente")["pendenza"]
+    out.attrs["quota_malus_superstite"] = (
+        float(abs(p["comp_netto"] / p["comp_bonus"]))
+        if p.get("comp_bonus") else float("nan"))
+    out.attrs["compensazione"] = bool(
+        out.attrs["quota_malus_superstite"] < SOGLIA_COMPENSAZIONE)
+    return out
+
+
+def correlazione_componenti(c: pd.DataFrame = None,
+                            pavimenti=(1, 5, 10, 19)) -> pd.DataFrame:
+    """Correlazione fra le due componenti **attraverso i portieri**.
+
+    E' la conseguenza 3, ed e' la domanda che conta per l'ordinamento: la Spearman
+    di E3 confronta portieri fra loro, quindi cio' che la muove e' come le due
+    componenti co-variano *da un portiere all'altro*, non dentro la partita.
+
+    **Sulle MEDIE per presenza, non sui totali di stagione**, e la differenza non
+    e' cosmetica: il totale del voto cresce col numero di presenze e quello del
+    bonus *cala* (ogni presenza in piu' porta altri gol subiti), quindi i totali
+    risultano correlati negativamente **attraverso le presenze** anche se le due
+    componenti fossero indipendenti. Si riportano entrambe le colonne proprio per
+    far vedere che la seconda non e' leggibile come compensazione.
+
+    Il pavimento di presenze e' variato invece che scelto: un portiere con una
+    presenza sola ha una media di bonus che e' un conteggio di gol, non un tasso.
+    """
+    c = componenti_portiere() if c is None else c
+    p = c[c["ruolo"] == "p"]
+    g = p.groupby(["stagione", "giocatore_id"]).agg(
+        presenze=("comp_voto", "size"),
+        voto_medio=("comp_voto", "mean"), bonus_medio=("comp_bonus", "mean"),
+        voto_totale=("comp_voto", "sum"), bonus_totale=("comp_bonus", "sum"))
+
+    righe = []
+    for pav in pavimenti:
+        d = g[g["presenze"] >= pav]
+        if len(d) < 30:
+            continue
+        sa, sb = float(d["voto_medio"].std()), float(d["bonus_medio"].std())
+        sn = float((d["voto_medio"] + d["bonus_medio"]).std())
+        righe.append({
+            "pavimento_presenze": pav, "portieri": len(d),
+            "corr_medie": float(d["voto_medio"].corr(d["bonus_medio"])),
+            "corr_totali": float(d["voto_totale"].corr(d["bonus_totale"])),
+            "sd_voto": sa, "sd_bonus": sb, "sd_netto": sn,
+            # Quanto il netto e' piu' stretto di quanto sarebbe se le due
+            # componenti fossero indipendenti. Positivo = si compensano.
+            "compressione_vs_indipendenza": float(
+                1 - sn / np.sqrt(sa ** 2 + sb ** 2)),
+        })
+    return pd.DataFrame(righe)
+
+
+def pendenza_voto_dal_passato(c: pd.DataFrame = None) -> pd.Series:
+    """La pendenza del voto del portiere, stimata sulle SOLE stagioni precedenti.
+
+    Serve a collegare anche il lato del voto senza violare il vincolo 1. Il numero
+    di E3.3 (`+0.0795`) e' stimato su tutte e cinque le stagioni, quindi come
+    ingrediente di una previsione e' un **oracolo**: si riporta accanto come
+    tetto, esattamente come E3.3 riporta `gol_subiti` osservati accanto a
+    `lam_subiti`, e non al posto della versione onesta.
+    """
+    c = componenti_portiere() if c is None else c
+    p = c[c["ruolo"] == "p"]
+    fuori = {}
+    for st in sorted(p["stagione"].unique()):
+        passato = p[p["stagione"] < st]
+        if len(passato) < 200:
+            continue
+        fuori[st] = _ols(passato["lam_subiti"], passato["comp_voto"])[0]
+    return pd.Series(fuori, name="pendenza_voto_dal_passato")
+
+
+def collegamento_due_lati(wf: pd.DataFrame = None, gsp: pd.DataFrame = None,
+                          c: pd.DataFrame = None) -> pd.DataFrame:
+    """Spearman sui portieri collegando la difesa a un lato, all'altro, a entrambi.
+
+    E' la conseguenza operativa dell'ipotesi: **se la compensazione fosse il
+    meccanismo, collegare entrambe le componenti dovrebbe recuperare cio' che
+    collegarne una sola perde.** E3 aveva collegato solo il bonus
+    (`bonus_difensivo_portiere`), lasciando `voto_atteso` indipendente dalla
+    squadra; qui si aggiunge il lato del voto, da solo e insieme.
+
+    Le due varianti del lato del voto — pendenza dal passato e pendenza oracolo —
+    stanno affiancate perche' se **nemmeno l'oracolo** recupera, la questione non
+    e' la qualita' della stima della pendenza.
+    """
+    from . import modello_asta as MA
+    from scipy.stats import spearmanr
+
+    wf = MA.walkforward() if wf is None else wf
+    gsp = gol_squadra_partita() if gsp is None else gsp
+    c = componenti_portiere() if c is None else c
+
+    d = wf[wf["ruolo"] == "p"].copy()
+    d["lam"] = _lam_portieri(d, gsp)
+    d = d[d["lam"].notna()]
+    lam_rif = float(d["lam"].mean())
+    bonus = bonus_difensivo_portiere(d["lam"].to_numpy())
+
+    pend_passato = pendenza_voto_dal_passato(c)
+    pend_oracolo = _ols(c.loc[c["ruolo"] == "p", "lam_subiti"],
+                        c.loc[c["ruolo"] == "p", "comp_voto"])[0]
+    # Il voto corretto per la forza difensiva: si sposta il voto atteso del
+    # modello d'asta lungo la pendenza, centrando sulla lam media perche' cio'
+    # che si aggiunge e' uno scostamento, non un livello.
+    dv_passato = (d["stagione_prevista"].map(pend_passato).astype(float)
+                  * (d["lam"] - lam_rif))
+    dv_oracolo = pend_oracolo * (d["lam"] - lam_rif)
+
+    d["p_solo_bonus"] = d["presenze_attese"] * (d["voto_atteso"] + bonus)
+    d["p_solo_voto"] = d["presenze_attese"] * (
+        d["voto_atteso"] + dv_passato + d["bonus_per_presenza_atteso"])
+    d["p_entrambi"] = d["presenze_attese"] * (d["voto_atteso"] + dv_passato + bonus)
+    d["p_entrambi_oracolo"] = d["presenze_attese"] * (
+        d["voto_atteso"] + dv_oracolo + bonus)
+
+    candidati = {"modello d'asta (nessun lato)": "punti_previsti",
+                 "solo bonus — e' E3": "p_solo_bonus",
+                 "solo voto": "p_solo_voto",
+                 "entrambi i lati": "p_entrambi",
+                 "entrambi i lati (pendenza ORACOLO)": "p_entrambi_oracolo",
+                 "FVM della fonte (CONTAMINATO)": "b_fvm"}
+
+    righe = []
+    for soglia in (0, 15, 20):
+        x = d[d["presenze_attese"] >= soglia]
+        if len(x) < 40:
+            continue
+        for nome, col in candidati.items():
+            s = []
+            for _, g in x.groupby("stagione_prevista"):
+                ok = g[col].notna() & g["punti_osservati"].notna()
+                if ok.sum() >= 5:
+                    s.append(spearmanr(g.loc[ok, col],
+                                       g.loc[ok, "punti_osservati"]).statistic)
+            if s:
+                righe.append({"soglia_presenze_attese": soglia, "portieri": len(x),
+                              "candidato": nome, "spearman": float(np.mean(s))})
+    return pd.DataFrame(righe)
+
+
+def qualita_componente_difensiva(wf: pd.DataFrame = None,
+                                 gsp: pd.DataFrame = None,
+                                 min_presenze: int = 10) -> pd.DataFrame:
+    """Il bonus difensivo di E3 contro quello storico del portiere, sull'osservato.
+
+    Domanda separata da tutte le precedenti, e va tenuta separata: **la
+    componente difensiva di E3 stima peggio o meglio della cosa che ha
+    sostituito?** Il modello d'asta usa il bonus per presenza del portiere nelle
+    sue stagioni passate; E3 lo rimpiazza con `bonus_difensivo_portiere(lam)`.
+    Se il rimpiazzo fosse semplicemente peggiore, l'esito negativo di E3 sarebbe
+    spiegato senza scomodare nessuna compensazione.
+
+    Il bersaglio e' il bonus difensivo **per presenza effettivamente realizzato**
+    nella stagione bersaglio, sui soli portieri che l'hanno giocata abbastanza da
+    avere un tasso invece di un conteggio.
+    """
+    from . import lega as L, modello_asta as MA, voti as VT
+
+    wf = MA.walkforward() if wf is None else wf
+    gsp = gol_squadra_partita() if gsp is None else gsp
+    d = wf[wf["ruolo"] == "p"].copy()
+    d["lam"] = _lam_portieri(d, gsp)
+    d = d[d["lam"].notna()].copy()
+    d["dif_e3"] = bonus_difensivo_portiere(d["lam"].to_numpy())
+
+    src = VT.carica()
+    src = src[(src["ruolo"] == "p") & ~src["allenatore"]
+              & src["voto_redazione"].notna()]
+    src = src.assign(b=L.BONUS["gol_subiti"] * src["gol_subiti"]
+                     + L.BONUS["porta_inviolata"] * (src["gol_subiti"] == 0))
+    oss = src.groupby(["stagione", "giocatore_id"])["b"].agg(["mean", "size"])
+    oss.columns = ["bonus_osservato", "presenze_osservate_voti"]
+
+    d = d.join(oss, on=["stagione_prevista", "giocatore_id"])
+    q = d[d["presenze_osservate_voti"].fillna(0) >= min_presenze]
+
+    righe = []
+    for nome, col in (("bonus storico del portiere (il modello d'asta)",
+                       "bonus_per_presenza_atteso"),
+                      ("difesa E3 (modello di squadra)", "dif_e3")):
+        righe.append({
+            "stimatore": nome,
+            # DUE DENOMINATORI DIVERSI, ed e' voluto. La qualita' della stima si
+            # puo' misurare solo su chi ha giocato abbastanza da avere un tasso
+            # invece di un conteggio; la correlazione con le presenze va invece
+            # misurata su **tutti** i portieri, perche' e' la popolazione su cui
+            # la Spearman di E3 e' calcolata. Restringerla ai titolari
+            # troncherebbe proprio la variabile di cui si chiede la correlazione.
+            "portieri_qualita": len(q),
+            "mae": float((q[col] - q["bonus_osservato"]).abs().mean()),
+            "corr": float(q[col].corr(q["bonus_osservato"])),
+            "portieri_tutti": len(d),
+            # Quanta informazione sul GIOCARE porta con se' ciascuno stimatore.
+            # E' l'unico canale per cui uno stimatore peggiore del bonus puo'
+            # produrre un ordinamento migliore dei punti di stagione.
+            "corr_con_presenze": float(d[col].corr(d["presenze_osservate"])),
+        })
+    return pd.DataFrame(righe)

@@ -1,6 +1,6 @@
 # Fase 9 / Blocco E3 — la difesa
 
-> Generato da `scripts/run_fase9_e3.py` il 2026-08-04.
+> Generato da `scripts/run_fase9_e3.py` il 2026-08-05.
 > Nessuna richiesta di rete.
 
 ## In breve
@@ -13,6 +13,9 @@
 | E3.3 sui **portieri** | **segno OPPOSTO**, e non era previsto |
 | E3.4 correlazione dentro la linea | misurata: **0.261**, e il segno del suo effetto **si inverte** |
 | **verifica sui portieri** | **FALLISCE**: la difesa di squadra non e' cio' che separa i portieri |
+| E3.5 coda — la compensazione voto/malus | **ipotesi CONFUTATA**: sopravvive il **93%** del malus, non un terzo |
+| E3.5 coda — collegare **entrambi** i lati | non recupera niente, **nemmeno con la pendenza oracolo** |
+| E3.5 coda — la difesa di E3 come stimatore | **e' il migliore dei due**: MAE 0.322 contro 0.378 dello storico |
 
 **Il blocco produce quattro strumenti che funzionano e una verifica finale che
 li boccia**, ed e' il risultato piu' informativo possibile: la causa che il
@@ -253,7 +256,7 @@ ci sono entrambe.
 | modello d'asta | 4 | 0.465 | 0.355 | 0.555 | 0.000 |
 | modello d'asta + difesa E3 (ultima stagione) | 4 | 0.435 | 0.341 | 0.544 | 0.000 |
 | modello d'asta + difesa E3 (tutte le stagioni) | 4 | 0.421 | 0.341 | 0.517 | 0.000 |
-| FVM della fonte | 4 | 0.818 | 0.763 | 0.865 | 0.667 |
+| FVM della fonte (CONTAMINATO) | 4 | 0.818 | 0.763 | 0.865 | 0.667 |
 | quotazione iniziale QI | 4 | 0.730 | 0.589 | 0.797 | 0.083 |
 | persistenza (anno prima) | 4 | 0.446 | 0.361 | 0.514 | 0.167 |
 
@@ -267,15 +270,15 @@ stagione e tutte), quindi non dipende da quella scelta.
 
 ### Perche', e qui il blocco consegna la cosa piu' utile che ha
 
-| soglia_presenze_attese | portieri | quota_mai_in_campo | spearman_modello | spearman_con_difesa_e3 | spearman_sole_presenze_attese | spearman_fvm |
-|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 258 | 0.399 | 0.536 | 0.507 | 0.534 | 0.831 |
-| 10 | 195 | 0.364 | 0.592 | 0.528 | 0.586 | 0.865 |
-| 15 | 177 | 0.367 | 0.720 | 0.623 | 0.714 | 0.869 |
-| 20 | 63 | 0.016 | 0.073 | -0.027 | -0.011 | 0.700 |
-| 25 | 48 | 0.021 | -0.010 | -0.168 | -0.153 | 0.745 |
+| soglia_presenze_attese | portieri | quota_mai_in_campo | spearman_modello | spearman_con_difesa_e3 | spearman_sole_presenze_attese | spearman_qi | spearman_fvm_CONTAMINATO |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 258 | 0.399 | 0.536 | 0.507 | 0.534 | 0.740 | 0.831 |
+| 10 | 195 | 0.364 | 0.592 | 0.528 | 0.586 | 0.779 | 0.865 |
+| 15 | 177 | 0.367 | 0.720 | 0.623 | 0.714 | 0.798 | 0.869 |
+| 20 | 63 | 0.016 | 0.073 | -0.027 | -0.011 | 0.273 | 0.700 |
+| 25 | 48 | 0.021 | -0.010 | -0.168 | -0.153 | 0.300 | 0.745 |
 
-Tre letture, in ordine:
+Quattro letture, in ordine:
 
 1. **La premessa del blocco era falsa per la popolazione che conta.**
    L'argomento era: *un portiere titolare gioca quasi tutto, quindi le presenze
@@ -289,19 +292,191 @@ Tre letture, in ordine:
    presenze sono davvero risolte li'. E il modello crolla a
    0.073, le sole presenze a -0.011, la difesa di E3 a
    -0.027. **Tolte le presenze, nessuno dei nostri candidati sa niente.**
-3. **Ma il FVM non crolla: 0.700.** Ed e' il numero decisivo del blocco.
-   Il vantaggio del FVM sui portieri **non e' sapere chi gioca** — sopravvive
-   intatto proprio dove le presenze sono note — e **non e' la forza difensiva
-   della squadra**, perche' e' esattamente quello che E3 ha provato e che va nel
-   verso sbagliato.
+3. **La quotazione non crolla come il resto, e QI e' quella che conta.** Fra i
+   probabili titolari **QI** fa 0.273 — contro 0.073 del modello e
+   -0.011 delle sole presenze. E' l'unica cosa sopra lo zero li' dentro,
+   ed e' informazione **disponibile prima dell'asta**. Il vantaggio della
+   quotazione sui portieri **non e' sapere chi gioca**: sopravvive proprio dove le
+   presenze sono risolte.
+4. **Ma il numero che questo report citava era un altro, e non era leale.**
+
+> ### CORREZIONE — il 0.700 del FVM era contaminato
+>
+> Questa sezione affermava *«ma il FVM non crolla: 0.700, ed e' il numero
+> decisivo del blocco»*, e ne ricavava che il FVM sapesse qualcosa di ignoto sui
+> portieri. **Il FVM della pagina archiviata si muove durante la stagione**
+> (`quotazioni.orologio()`, §3-bis del report del modello d'asta), quindi per una
+> stagione passata ne conosce l'esito. Il numero resta in tabella, marcato
+> `CONTAMINATO`: e' un errore di questo progetto e non si cancella.
+>
+> **Rifatto con QI, che e' pulito, il vantaggio regge ma si riduce di molto**:
+> 0.273 invece di 0.700. Ed e' la risposta alla domanda aperta n. 1: **non
+> era solo "sapeva come era andata la stagione"** — una quotazione che non puo'
+> saperlo sta comunque a 0.273 dove tutto il nostro sta a zero — **ma la
+> maggior parte di quel 0.700 era esattamente quello**. La domanda sopravvive
+> piu' piccola e meglio posta.
+>
+> Sulla **precisione sui primi N** il divario invece **non e' misurabile**: il
+> modello fa 0 e QI fa 0,000 o 0,083 **a seconda di come si sciolgono i pari
+> merito** — QI e' un prezzo intero e in **due stagioni su quattro** ci sono pari
+> merito al confine dei primi tre (2024-25 ha 15 e 15 al terzo e quarto posto,
+> 2025-26 ha quattro 16 per tre posti), quindi quali tre entrano lo decide il
+> sorteggio. Con 3 posti per 4 stagioni la metrica ha passi da 1/12, e le due
+> implementazioni del repository danno i due valori per quella ragione. **E' la
+> risoluzione della metrica, non un risultato**, e su quel piano il divario col
+> FVM contaminato
+> (0,667) resta l'unica cosa grande — cioe' l'unica cosa che la contaminazione
+> spiegava.
 
 > **La causa data per identificata non regge.** Il blocco del modello d'asta
 > scriveva che i punti di un portiere dipendono dalla difesa della sua squadra e
 > che il modello non la guarda. La prima meta' e' vera — E3.2 e E3.3 la misurano —
 > ma **la seconda non e' la spiegazione dello Spearman**: dare al modello la
 > difesa della squadra, con un modello di squadra validato per conto suo, non
-> migliora l'ordinamento dei portieri. **Cio' che il FVM sa sui portieri resta
-> ignoto, ed e' ora una domanda molto piu' stretta di prima.**
+> migliora l'ordinamento dei portieri. **Cio' che la quotazione sa sui portieri
+> resta ignoto, ed e' ora una domanda molto piu' stretta di prima** — vale
+> 0.273, non 0.700.
+
+## 5-bis. E3.5 — la coda: perche' la difesa peggiora, e l'ipotesi che non regge
+
+E3.3 aveva lasciato un segno opposto sui portieri, e da li' nasceva una
+spiegazione dell'esito negativo: **dietro una difesa debole il portiere para di
+piu' e il voto sale, il malus dei gol subiti scende, le due voci si compensano e
+il netto e' quasi piatto** — quindi collegare la difesa a un solo lato dei due
+peggiora, perche' aggiunge meta' compensazione senza l'altra meta'.
+
+E' un'ipotesi con tre conseguenze, e si misurano separate perche' possono cadere
+una per volta. La soglia della seconda **e' dichiarata prima di guardare**: la
+compensazione si chiama completa se nel netto sopravvive meno di **un terzo** del
+malus.
+
+### Le due componenti, e quale fonte alimenta il malus
+
+`comp_voto` e' il voto base (la componente di E3.3); `comp_bonus` e'
+`-1 x gol subiti + 1 x porta inviolata` in punti di lega, cioe' le due voci di
+`lega.BONUS` che dipendono dalla squadra. **Per il difensore `comp_bonus` e' zero
+per regolamento**, non per approssimazione: un difensore non prende malus sui gol
+subiti. E' gia' meta' della risposta — il difensore ha **un canale**, il portiere
+**due**, e i due hanno segno opposto.
+
+**Il malus lo alimenta la fonte dei VOTI** (`difesa.FONTE_MALUS`), non i gol
+ricomposti da WhoScored: e' la fonte definitoria, quella che ha prodotto i
+`punti_osservati`. Non e' una formalita', perche' `voti_difensori` **sovrascrive**
+`gol_subiti` con i gol di squadra (autogol compresi) e le due colonne, che hanno
+lo stesso nome, differiscono su **32 righe su 3307**, sempre nel verso di
+WhoScored che ne conta di piu'.
+
+| ruolo | componente | righe | pendenza | se | t | delta_p10_p90 |
+|---|---|---:|---:|---:|---:|---:|
+| p | comp_voto | 3307 | 0.0795 | 0.0231 | 3.44 | 0.0775 |
+| p | comp_bonus | 3307 | -1.1153 | 0.0631 | -17.67 | -1.0876 |
+| p | comp_netto | 3307 | -1.0357 | 0.0739 | -14.01 | -1.0100 |
+| d | comp_voto | 16935 | -0.2481 | 0.0110 | -22.52 | -0.2431 |
+| d | comp_bonus | 16935 | 0.0000 |  |  | 0.0000 |
+| d | comp_netto | 16935 | -0.2481 | 0.0110 | -22.52 | -0.2431 |
+
+**La conseguenza 1 regge**, ed e' il controllo che le componenti stiano sulla
+stessa popolazione di E3.3: la pendenza del voto sul portiere e'
++0.0795 con t = +3.44, cioe' il numero di E3.3 riprodotto.
+
+**La conseguenza 2 cade, e non di poco.** Il malus si muove di
+-1.1153 per unita' di gol attesi, il voto base lo compensa di
++0.0795, e nel netto sopravvive **92.9%** del malus — contro la
+soglia del 33% dichiarata. Il netto ha pendenza -1.0357 con
+**t = -14.0**: non e' piatto, e' quasi tutto il malus. Dal decimo al
+novantesimo percentile della forza difensiva attesa un portiere perde
+1.01 punti **per partita**, che su una stagione da titolare sono
+una trentina di punti. **La compensazione esiste e vale il 7% del malus, non i due
+terzi che servivano.**
+
+### La conseguenza 3, e la trappola dei totali
+
+| pavimento_presenze | portieri | corr_medie | corr_totali | sd_voto | sd_bonus | sd_netto | compressione_vs_indipendenza |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 222 | 0.357 | -0.773 | 0.363 | 0.917 | 1.101 | -0.116 |
+| 5 | 148 | 0.186 | -0.592 | 0.150 | 0.558 | 0.604 | -0.046 |
+| 10 | 117 | -0.003 | -0.380 | 0.128 | 0.475 | 0.492 | 0.001 |
+| 19 | 90 | -0.012 | -0.223 | 0.114 | 0.452 | 0.465 | 0.003 |
+
+**Attraverso i portieri le due componenti non sono correlate negativamente: non
+sono correlate affatto.** Sulle medie per presenza si passa da
++0.357 con un pavimento di una presenza a -0.003 e -0.012 sopra le dieci e le
+diciannove, cioe' zero appena si pretende che la media di bonus sia un tasso e non
+un conteggio di gol.
+
+> **La colonna `corr_totali` e' li' per essere squalificata, non per essere
+> letta.** Sui totali di stagione la correlazione e' fortemente negativa
+> (-0.380 a dieci presenze) e sembrerebbe la conferma cercata. Non lo e':
+> il totale del voto **cresce** col numero di presenze e quello del bonus **cala**
+> (ogni presenza in piu' porta altri gol subiti), quindi i totali si correlano
+> negativamente **attraverso le presenze** anche se le due componenti fossero
+> indipendenti. E' la stessa forma di errore che il progetto ha gia' incontrato su
+> `possession` e `field_tilt` in E0, dove una media di 0.500 esatta era una
+> proprieta' della definizione e non un risultato.
+
+### La conseguenza operativa, misurata comunque
+
+Se la compensazione fosse il meccanismo, collegare **entrambe** le componenti
+dovrebbe recuperare cio' che collegarne una sola perde. E3 aveva collegato solo il
+bonus, lasciando `voto_atteso` indipendente dalla squadra.
+
+| candidato | 0 | 15 | 20 |
+|---|---:|---:|---:|
+| FVM della fonte (CONTAMINATO) | 0.831 | 0.869 | 0.700 |
+| entrambi i lati | 0.508 | 0.624 | -0.019 |
+| entrambi i lati (pendenza ORACOLO) | 0.507 | 0.624 | -0.016 |
+| modello d'asta (nessun lato) | 0.536 | 0.720 | 0.073 |
+| solo bonus — e' E3 | 0.507 | 0.623 | -0.027 |
+| solo voto | 0.529 | 0.661 | 0.064 |
+
+**Non recupera niente.** A soglia zero collegare entrambi i lati da'
+0.508 contro 0.507 di E3 e 0.536 del modello che non
+collega nulla; fra i probabili titolari -0.019 contro 0.073. La riga
+**pendenza ORACOLO** — la pendenza stimata su tutte e cinque le stagioni, bersaglio
+compreso, che come ingrediente di una previsione e' un imbroglio dichiarato — fa
+0.507: **nemmeno conoscendo la risposta il lato del voto recupera**, ed e' il
+modo di escludere che la questione sia la qualita' della stima della pendenza.
+
+### E allora dove sta il problema — una cosa esclusa, il resto aperto
+
+La spiegazione piu' semplice sarebbe che la componente difensiva di E3 stimi
+peggio di cio' che ha sostituito. **Si misura, e non e' cosi'.**
+
+| stimatore | portieri_qualita | mae | corr | portieri_tutti | corr_con_presenze |
+|---|---:|---:|---:|---:|---:|
+| bonus storico del portiere (il modello d'asta) | 85 | 0.3780 | 0.346 | 258 | 0.104 |
+| difesa E3 (modello di squadra) | 85 | 0.3220 | 0.500 | 258 | 0.035 |
+
+Contro il bonus difensivo per presenza **effettivamente realizzato** nella
+stagione bersaglio, la difesa di E3 fa MAE 0.3220 e correlazione +0.500;
+il bonus storico del portiere, che e' cio' che il modello d'asta usa, fa
+0.3780 e +0.346. **La componente di E3 e' lo stimatore migliore della
+cosa che stima, e sostituirla peggiora l'ordinamento lo stesso.**
+
+> Le due meta' della tabella hanno **due denominatori diversi**, ed e' voluto: la
+> qualita' della stima si puo' misurare solo sui 85 portieri che hanno giocato
+> abbastanza da avere un tasso invece di un conteggio, mentre la correlazione con
+> le presenze va misurata su **tutti** i 258, che sono la popolazione su cui la
+> Spearman e' calcolata. Restringerla ai titolari troncherebbe proprio la
+> variabile di cui si chiede la correlazione — ed e' l'errore che questa sezione
+> aveva commesso in prima stesura, con il segno che ne usciva rovesciato.
+
+L'unico canale per cui questo e' possibile e' che lo stimatore peggiore porti con
+se' informazione su **quante partite** il portiere giochera', che e' cio' che
+domina l'ordinamento dei punti di stagione. La colonna `corr_con_presenze` lo
+misura, ed e' nel verso giusto ma piccola: +0.104 per il bonus storico contro
++0.035 per quello di E3. **Non basta a spiegare niente**, e va detto invece
+di arrotondarlo verso l'alto: e' un indizio coerente col meccanismo, non una causa
+dimostrata.
+
+> **L'ipotesi era sbagliata, e la domanda resta aperta.** Il voto base del portiere
+> si muove davvero nel verso opposto a quello dei difensori — quella meta' di E3.3
+> regge — ma **non compensa il malus**: ne annulla il 7%, il netto resta
+> ripido, e attraverso i portieri le due componenti sono scorrelate invece che
+> compensarsi. Collegare entrambi i lati non recupera niente, nemmeno con la
+> pendenza oracolo. **Cio' che questa coda aggiunge e' un'esclusione**: non e' che
+> la difesa sia stimata male, perche' e' stimata meglio di cio' che ha sostituito.
+> Perche' collegarla peggiori l'ordinamento resta senza spiegazione misurata.
 
 ## Cosa questo blocco lascia, e cosa no
 
@@ -346,11 +521,20 @@ E2 e non di E3. La stessa dichiarazione vale per la coda di E2
 
 ## Domande aperte
 
-1. **Che cosa sa il FVM sui portieri.** E' la domanda piu' stretta e piu' preziosa
-   che il progetto abbia adesso: sopravvive al condizionamento sulle presenze
-   (0,70 fra i probabili titolari) e non e' la forza difensiva della squadra.
-   Restano gerarchia dichiarata dai club, mercato in corso e valutazione
-   individuale del portiere — nessuna delle tre e' nel repository.
+1. **Che cosa sa la QUOTAZIONE sui portieri.** Era formulata sul FVM e vale
+   0.273, non 0.700: la differenza fra i due era contaminazione. Resta la
+   domanda piu' stretta che il progetto abbia — sopravvive al condizionamento
+   sulle presenze e non e' la forza difensiva della squadra — ma su una metrica
+   sola: sulla **precisione sui primi N** QI e il modello stanno entrambi a un
+   pescaggio dallo zero, dentro la risoluzione della metrica. Restano gerarchia
+   dichiarata dai club, mercato in corso e valutazione individuale del portiere:
+   nessuna delle tre e' nel repository.
+5. **Un valore pre-stagione dalla fonte, per il FVM e per il numero di maglia
+   insieme.** Sono la **stessa domanda aperta**, non due: un valore d'agosto che i
+   club e i listoni pubblicano e che il repository non ha. Il FVM pulito
+   renderebbe leale un concorrente oggi squalificato; il numero di maglia d'agosto
+   proverebbe l'argomento per cui quella feature di E2 esisteva. Vanno tenute
+   appaiate — se un giorno si risponde a una si risponde all'altra.
 2. **Il voto del portiere e' relativo all'attesa**, e questo blocco lo misura ma
    non lo modella. Un modello del voto base che tenesse conto dei **tiri
    affrontati** e non solo dei gol subiti e' la forma naturale, e i tiri in porta

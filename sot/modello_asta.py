@@ -110,6 +110,17 @@ def _stima_k(storia: pd.DataFrame, colonna: str, esposizione: str) -> float:
     return float(np.clip(var_entro / var_fra, 0.5, 200.0))
 
 
+def per_giocatore_stagione_default() -> pd.DataFrame:
+    """L'osservato per giocatore-stagione, importato tardi per non ciclare.
+
+    `fantapunti` non importa questo modulo, ma l'import in testa costerebbe il
+    calcolo dei voti a chiunque importi `modello_asta` anche solo per le
+    costanti. Sta qui in una funzione per la stessa ragione per cui `impiego` e
+    `difesa` fanno import locali.
+    """
+    return FP.per_giocatore_stagione()
+
+
 def storia_fino_a(per_stagione: pd.DataFrame, stagione: str) -> pd.DataFrame:
     """Le stagioni **precedenti** a quella bersaglio. Nient'altro."""
     return per_stagione[per_stagione["stagione"] < stagione]
@@ -277,7 +288,7 @@ COLONNE_CONFRONTO = {
     "media di ruolo": "b_media_ruolo",
     "persistenza (anno prima)": "b_persistenza",
     "quotazione iniziale QI": "b_qi",
-    "FVM della fonte": "b_fvm",
+    "FVM della fonte (CONTAMINATO)": "b_fvm",
 }
 
 
@@ -351,7 +362,8 @@ def precisione_top(wf: pd.DataFrame, n_per_ruolo: dict = None) -> pd.DataFrame:
     return pd.DataFrame(righe)
 
 
-def scomposizione_errore(wf: pd.DataFrame) -> pd.DataFrame:
+def scomposizione_errore(wf: pd.DataFrame,
+                         per_stagione: pd.DataFrame = None) -> pd.DataFrame:
     """Quale dei tre fattori sbaglia: presenze, voto o bonus.
 
     E' la ragione per cui i tre si stimano separatamente. Il confronto e' fra il
@@ -360,20 +372,74 @@ def scomposizione_errore(wf: pd.DataFrame) -> pd.DataFrame:
     Non e' una scomposizione esatta — i fattori si moltiplicano, quindi gli
     effetti non sono additivi — ed e' riportata come diagnostica, non come
     bilancio.
+
+    ATTENZIONE AL CAMPIONE, ED E' LA COLONNA `mae_stesse_righe`
+    -----------------------------------------------------------
+    **Le varianti non girano tutte sulle stesse righe, e la differenza non e'
+    piccola.** Chi non ha mai giocato in `t` non ha un bonus per presenza
+    osservato — il denominatore e' zero — quindi le righe di "bonus noti" sono
+    2.204 e non 2.678. Sono **474 righe in meno, e sono le peggiori**: il modello
+    predice punti a chi ne fara' zero, ed e' li' che l'errore e' massimo.
+
+    Ne segue che il confronto `61,42 -> 52,50` **sovrastima di molto** quanto
+    valga conoscere i bonus, perche' mette insieme due cose: quanto si guadagna a
+    conoscerli (poco) e quanto si guadagna a togliere dal campione i casi
+    peggiori (molto). Sulle **stesse** 2.204 righe il modello completo fa
+    **55,01**, quindi il guadagno vero e' 2,51 punti e non 8,92.
+
+    La colonna `mae_stesse_righe` porta il MAE del modello completo sul campione
+    di *quella* riga, cosi' che il confronto giusto sia sempre orizzontale e non
+    verticale. E' stata aggiunta dal Blocco E4, che sul divario dei bonus
+    fondava la propria priorita' — la misura ha corretto la premessa.
+
+    E "BONUS NOTI" NON ERA IL BONUS
+    -------------------------------
+    La versione precedente costruiva il bonus osservato **per differenza**, come
+    `punti/presenze - voto_atteso`. Quella quantita' non e' il bonus: e' tutto il
+    **tasso per presenza**, cioe' voto *e* bonus insieme. Si vede da un'identita'
+    che la vecchia tabella non poteva mostrare perche' aveva una riga sola:
+    sostituire il voto per differenza da' lo stesso identico numero, perche'
+    entrambe le sostituzioni si riducono a `presenze_attese x punti/presenze`.
+
+    Le due componenti sono osservate **separatamente** in
+    `fantapunti.per_giocatore_stagione` (`voto_medio` e `bonus_totale`), e da li'
+    si prendono. La riga con la vecchia definizione resta in tabella, col nome
+    che dice cos'era: il 52,50 pubblicato e' riproducibile, e non si cancella un
+    numero — si dice che cosa misurava.
     """
     d = wf.copy()
-    osservato_bpp = (d["punti_osservati"] / d["presenze_osservate"].replace(0, np.nan)
-                     - d["voto_atteso"])
+    ps = per_giocatore_stagione_default() if per_stagione is None else per_stagione
+    oss = ps.set_index(["stagione", "giocatore_id"])
+    chiave = list(zip(d["stagione_prevista"], d["giocatore_id"]))
+    bonus_pp = ps["bonus_totale"] / ps["presenze"].replace(0, np.nan)
+    bonus_pp.index = oss.index
+
+    voto_oss = pd.Series([oss["voto_medio"].get(k, np.nan) for k in chiave],
+                         index=d.index)
+    bonus_oss = pd.Series([bonus_pp.get(k, np.nan) for k in chiave], index=d.index)
+
+    # La vecchia definizione, conservata per riproducibilita' del 52,50.
+    tasso_osservato = (d["punti_osservati"] / d["presenze_osservate"].replace(0, np.nan)
+                       - d["voto_atteso"])
     varianti = {
         "modello completo": d["punti_previsti"],
         "presenze note": d["presenze_osservate"] * (d["voto_atteso"]
                                                     + d["bonus_per_presenza_atteso"]),
-        "bonus noti": d["presenze_attese"] * (d["voto_atteso"] + osservato_bpp),
+        "voto noto": d["presenze_attese"] * (voto_oss
+                                             + d["bonus_per_presenza_atteso"]),
+        "bonus noti": d["presenze_attese"] * (d["voto_atteso"] + bonus_oss),
+        'tasso per presenza noto (era "bonus noti")':
+            d["presenze_attese"] * (d["voto_atteso"] + tasso_osservato),
     }
     righe = []
     for nome, x in varianti.items():
         ok = x.notna()
-        righe.append({"variante": nome, "righe": int(ok.sum()),
-                      "mae": round(float((x[ok] - d["punti_osservati"][ok])
-                                         .abs().mean()), 2)})
-    return pd.DataFrame(righe)
+        righe.append({
+            "variante": nome, "righe": int(ok.sum()),
+            "mae": round(float((x[ok] - d["punti_osservati"][ok]).abs().mean()), 2),
+            "mae_stesse_righe": round(float(
+                (d["punti_previsti"][ok] - d["punti_osservati"][ok]).abs().mean()), 2),
+        })
+    out = pd.DataFrame(righe)
+    out["guadagno_vero"] = (out["mae_stesse_righe"] - out["mae"]).round(2)
+    return out

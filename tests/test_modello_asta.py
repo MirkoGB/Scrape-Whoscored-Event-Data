@@ -166,6 +166,66 @@ def test_un_quotato_senza_presenze_ha_zero_e_non_un_nullo(quote):
 
 
 # --------------------------------------------------------------------------
+# 3-bis. L'orologio delle colonne — il gate prima di usarne una come ingresso
+# --------------------------------------------------------------------------
+
+def test_le_due_famiglie_di_colonne_sono_dichiarate():
+    """Non e' una convenzione di stile: e' cio' che un blocco futuro leggera'.
+
+    Se qualcuno spostasse il FVM fra le pulite, dovrebbe farlo qui e in vista, non
+    dentro un modello.
+    """
+    assert "qi_classic" in Q.COLONNE_PULITE
+    assert "fvm_classic" in Q.COLONNE_CONTAMINATE
+    assert "qa_classic" in Q.COLONNE_CONTAMINATE
+    assert not set(Q.COLONNE_PULITE) & set(Q.COLONNE_CONTAMINATE)
+
+
+def test_il_fvm_sta_sull_orologio_di_qa_e_non_su_quello_di_qi():
+    """Il risultato del gate, con i **due controlli** che lo rendono leggibile.
+
+    Il vantaggio di essere della pagina di t non e' zero nemmeno per una colonna
+    pulita — il mercato estivo e' informazione legittima — quindi si pretende la
+    posizione relativa fra le tre, non una soglia assoluta.
+    """
+    o = Q.orologio_sintesi().set_index("colonna")
+    v = o["vantaggio_di_essere_di_t"]
+    assert v["fvm_classic"] > v["qi_classic"], "il FVM non e' sull'orologio di QI"
+    assert abs(v["fvm_classic"] - v["qa_classic"]) < 0.5 * v["qi_classic"], (
+        "il FVM deve stare vicino a QA, che e' il controllo contaminato")
+    # e in livello: FVM sta su QA, non su QI
+    assert abs(o.loc["fvm_classic", "listone_t"]
+               - o.loc["qa_classic", "listone_t"]) < 0.05
+    assert o.loc["fvm_classic", "listone_t"] - o.loc["qi_classic", "listone_t"] > 0.2
+
+
+def test_il_controllo_pulito_ha_comunque_un_vantaggio_e_non_e_un_difetto():
+    """Senza questo, "vantaggio > 0" sembrerebbe di per se' una prova di leakage.
+
+    QI e' la colonna dichiarata iniziale e ha comunque un vantaggio: e' il mercato
+    estivo, che la pagina di t conosce e quella di t-1 no. E' la ragione per cui il
+    confronto del test precedente e' **fra colonne** e non con lo zero.
+    """
+    o = Q.orologio_sintesi().set_index("colonna")
+    assert o.loc["qi_classic", "vantaggio_di_essere_di_t"] > 0.05
+
+
+def test_lo_scarto_dal_qi_dentro_la_pagina_predice_la_stagione():
+    """Il taglio che non e' confuso dalla qualita' intrinseca delle colonne.
+
+    Entrambi gli scarti sono presi rispetto allo stesso QI, sulla stessa pagina e
+    sulla stessa popolazione: se `FVM - QI` sa quanto `QA - QI`, i due sono sullo
+    stesso orologio.
+    """
+    s = Q.scarti_di_pagina()
+    assert len(s) == 4, "il FVM non esiste per la 2021-2022"
+    assert (s["scarto_fvm_meno_qi"] > 0.15).all()
+    assert (s["scarto_fvm_meno_qi"] >= 0.8 * s["scarto_qa_meno_qi"]).all()
+    # e il FVM assomiglia a QA piu' che a QI, in ogni stagione
+    assert (s["corr_fvm_con_qa"] > s["corr_fvm_con_qi"]).all()
+
+
+# --------------------------------------------------------------------------
 # 4. Il modello, e il leakage
 # --------------------------------------------------------------------------
 
@@ -233,23 +293,44 @@ def test_il_baseline_che_non_sa_niente_deve_andare_a_caso(wf):
     assert media["modello"] > 2 * media["media di ruolo"]
 
 
-def test_il_risultato_negativo_contro_fvm_e_riportato(wf):
+def test_il_risultato_negativo_contro_qi_e_riportato(wf):
     """Non e' un test di qualita' del modello: e' un test che il **fatto** resti
-    visibile. Se un domani qualcuno facesse salire il modello sopra il FVM, va
+    visibile. Se un domani qualcuno facesse salire il modello sopra QI, va
     fatto cambiando il modello — e allora questo test va aggiornato con una
     misura nuova, non cancellato per comodita'.
+
+    **Il concorrente leale e' QI, non il FVM**: il FVM della pagina archiviata si
+    muove durante la stagione (`quotazioni.orologio()`). Il suo numero resta
+    asserito qui perche' deve restare **visibile**, non perche' conti.
     """
     m = MA.metriche(wf)
     tutte = m[m["stagione"] == "tutte"].set_index("candidato")
-    assert tutte.loc["FVM della fonte", "spearman"] > tutte.loc["modello", "spearman"]
+    assert (tutte.loc["quotazione iniziale QI", "spearman"]
+            > tutte.loc["modello", "spearman"])
     assert tutte.loc["modello", "spearman"] > tutte.loc["media di ruolo", "spearman"]
+    # il FVM contaminato batte tutti, ed e' il fatto che il gate spiega
+    assert (tutte.loc["FVM della fonte (CONTAMINATO)", "spearman"]
+            > tutte.loc["quotazione iniziale QI", "spearman"])
+
+
+def test_il_verdetto_contro_qi_e_misto_e_va_riportato_misto(wf):
+    """Sullo Spearman QI vince, sulla precisione sui primi N vince il modello.
+
+    Le due metriche non misurano la stessa cosa — tutto l'ordine contro la sola
+    testa — e riportarne una sola darebbe un verdetto netto che i dati non danno.
+    """
+    tutte = MA.metriche(wf)
+    tutte = tutte[tutte["stagione"] == "tutte"].set_index("candidato")
+    prec = MA.precisione_top(wf).groupby("candidato")["precisione"].mean()
+    assert tutte.loc["quotazione iniziale QI", "spearman"] > tutte.loc["modello", "spearman"]
+    assert prec["modello"] > prec["quotazione iniziale QI"]
 
 
 def test_mae_e_bias_non_si_calcolano_fra_scale_diverse(wf):
     """QI e FVM sono crediti, i punti sono punti: un MAE fra i due sarebbe un
     numero senza significato, e resta `NaN` invece di essere stampato."""
     m = MA.metriche(wf).set_index(["stagione", "candidato"])
-    for nome in ("quotazione iniziale QI", "FVM della fonte"):
+    for nome in ("quotazione iniziale QI", "FVM della fonte (CONTAMINATO)"):
         assert pd.isna(m.loc[("tutte", nome), "mae"])
         assert pd.notna(m.loc[("tutte", nome), "spearman"])
 

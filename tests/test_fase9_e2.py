@@ -491,6 +491,106 @@ def test_la_coda_non_sposta_i_numeri_di_e2_4():
 
 
 # --------------------------------------------------------------------------
+# (b) — la quotazione QI come predittore di presenza
+# --------------------------------------------------------------------------
+
+@serve_parquet
+def test_solo_colonne_pulite_del_listone():
+    """Il gate di `quotazioni` applicato al punto d'uso, e non a parole.
+
+    La guardia e' sull'**elenco** e non sul suffisso `_asta`: un nome che dice
+    "noto all'asta" resterebbe vero anche mettendoci QA o FVM, e sarebbe falso.
+    """
+    from sot import quotazioni as Q
+
+    assert set(IM.COLONNE_LISTONE_AMMESSE) <= set(Q.COLONNE_PULITE)
+    assert not set(IM.COLONNE_LISTONE_AMMESSE) & set(Q.COLONNE_CONTAMINATE)
+    for feat in IM.FEATURE_QI.values():
+        for f in feat:
+            assert "fvm" not in f and "qa_" not in f, f
+
+
+@serve_parquet
+def test_il_join_del_listone_non_moltiplica_ne_perde_righe():
+    """E la valutazione gira su righe che hanno TUTTE un QI, per costruzione."""
+    tab = IM.tabella_predittori()
+    con = IM.con_quotazione(tab)
+    assert len(con) == len(tab)
+    # ~31% delle righe di t-1 non e' nel listone di t: ha lasciato il campionato.
+    assert 0.2 < float(con["senza_quotazione_asta"].mean()) < 0.45
+
+
+@serve_parquet
+def test_il_percentile_passa_il_gate_di_e1_e_il_grezzo_no():
+    """La forma che funziona e' anche la sola che non deriva, e non e' un caso.
+
+    Se un domani il grezzo passasse la soglia, la coincidenza andrebbe rimisurata
+    invece che ereditata: e' l'argomento in piu' che regge la §5.
+    """
+    d = IM.deriva_qi().set_index("colonna")
+    assert not bool(d.loc["qi_asta", "passa"])
+    assert bool(d.loc["qi_pct_ruolo_asta", "passa"])
+    # il percentile e' un rango dentro la stagione: piatto per costruzione
+    assert float(d.loc["qi_pct_ruolo_asta", "deriva"]) < 0.03
+
+
+@serve_parquet
+def test_qi_supera_il_rumore_ed_e_il_primo():
+    """Il risultato di (b), bloccato nei due sensi.
+
+    **Sopra** la propria soglia di rilevabilita' e sopra Bonferroni per le quattro
+    varianti provate; e **molto sopra** lo 0,196% che i dati evento avevano
+    prodotto. Se un domani scendesse sotto l'MDE, la §5 andrebbe riscritta.
+    """
+    r = IM.contributo_qi()
+    t = r["tabella"].set_index("variante")
+    m = r["mde"].set_index("variante")
+    vince = "impiego + QI (percentile di ruolo)"
+
+    quota = float(t.loc[vince, "divario_chiuso_pct"])
+    assert quota > float(t.loc["impiego (senza maglia)", "divario_chiuso_pct"]) * 4
+    assert quota > float(m.loc[vince, "mde_quota_divario_pct"]), "sotto il suo MDE"
+    # 4 varianti: Bonferroni a due code su 0.05 vuole |t| > 2.50
+    assert float(m.loc[vince, "t"]) > 2.50
+    # e migliora il passaggio giusto, non solo il prodotto finale
+    assert (float(t.loc[vince, "mae_presenze"])
+            < float(t.loc["impiego (senza maglia)", "mae_presenze"]))
+
+
+@serve_parquet
+def test_qi_e_un_complemento_non_un_sostituto():
+    """Da solo la quotazione e' PEGGIO del modello d'asta, e va detto.
+
+    Senza questo test la §5 potrebbe essere letta come "all'asta guarda solo il
+    prezzo", che e' il contrario di quello che i numeri dicono.
+    """
+    t = IM.contributo_qi()["tabella"].set_index("variante")
+    assert float(t.loc["SOLO QI, senza le feature evento",
+                       "divario_chiuso_pct"]) < 0
+
+
+@serve_parquet
+def test_qi_non_e_ne_ridondante_ne_indipendente():
+    """Meta' di QI e' gia' nel set, e il guadagno viene dall'altra meta'.
+
+    Serve a impedire le due letture sbagliate: "e' solo chi giocava gia'" (falso,
+    R2 sotto 1) e "e' informazione tutta nuova" (falso, R2 ben sopra 0).
+    """
+    r = IM.ridondanza_qi().set_index("colonna")
+    r2 = float(r.loc["qi_pct_ruolo_asta", "r2_sulle_quote"])
+    assert 0.25 < r2 < 0.75, r2
+
+
+@serve_parquet
+def test_b_non_ha_spostato_i_numeri_di_e2_4_e_della_coda():
+    """Il riferimento deve restare quello pubblicato, o le quote non si confrontano."""
+    t = IM.contributo_qi()["tabella"].set_index("variante")
+    assert abs(float(t.loc["impiego (senza maglia)", "mae_punti"]) - 61.315) < 0.01
+    assert abs(float(t.loc["impiego (senza maglia)",
+                           "divario_chiuso_pct"]) - 0.196) < 0.01
+
+
+# --------------------------------------------------------------------------
 # Il blocco non deve aver spostato i numeri pubblicati
 # --------------------------------------------------------------------------
 

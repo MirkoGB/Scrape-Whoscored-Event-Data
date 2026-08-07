@@ -21,12 +21,24 @@ iniziativa.
 Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
-voti fantacalcio 2021-2026 e i blocchi E0, E1, E2 (con la sua coda) ed E3 della
-Fase 9.** Dettaglio ed esiti nella sezione "Le fasi e i
+voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa**.** Dettaglio ed esiti nella
+sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
-Fase 9 in `docs/prompt_fase9.md` (che contiene anche la specifica di E2, dall'utente
-il 2026-08-04); il seguito del lavoro e' il piano dati
+Fase 9 in `docs/prompt_fase9.md` (che contiene anche le specifiche di E2,
+dall'utente il 2026-08-04, e di E4, dall'utente il 2026-08-07).
+
+> **Prima di scegliere dove andare, si legge `docs/bilancio_fase9.md`.** E' il
+> bilancio della fase in una pagina, richiesto dall'utente a chiusura di E4, e
+> non e' un elenco di blocchi chiusi: dice che cosa ha funzionato (**una** cosa,
+> QI sulle presenze, +1,49%), che cosa e' stato escluso e **con quanta potenza**,
+> e qual e' il tetto — 61,42 → 60,59 e' tutto cio' che la Fase 9 ha comprato,
+> **il 98,5% del divario delle presenze resta non attaccato e le fonti gia' in
+> casa sono esaurite**. Chi riparte da qui senza averlo letto rischia di
+> riprovare una delle sette strade gia' escluse.
+
+Il seguito del lavoro e' il piano dati
 prodotto da 6F (`reports/phase6_piano_dati.md`), che **richiede dati non
 presenti nel repository** ed e' cio' che la Fase 7 va a prendere.
 
@@ -38,7 +50,7 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 | ramo | bersaglio | prossimo blocco | fonte |
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
-| **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **E4** (E0 ✅, E1 ✅, E2 ✅, E3 ✅) | WhoScored + voti + listoni, **gia' in casa** |
+| **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
 
 **Nessuno dei due produce ingressi dell'altro**, ed e' il motivo per cui sono
 paralleli: 7B porta una colonna SoT a granularita' squadra-partita con una
@@ -48,8 +60,14 @@ cinque le stagioni. Tirare la fonte tabellare dentro il ramo giocatore
 aprirebbe l'obbligo di riconciliazione di 7C senza aggiungere capacita'.
 
 Le tre direzioni **G1-G3** in fondo a `docs/prompt_fase9.md` (risultato, altri
-campionati, scouting) **non sono aperte**: vanno rimesse in fila e se ne sceglie
-una, non prima che la Fase 9 abbia dei blocchi chiusi. **Erano quattro**: la
+campionati, scouting) chiedevano che la Fase 9 avesse dei blocchi chiusi: con E4
+la Fase 9 **e' chiusa**, quindi la condizione e' soddisfatta e la scelta e'
+dell'utente — vanno rimesse in fila con un giudizio e se ne sceglie una, non se
+ne aprono tre. **Attenzione a G3 (scouting)**: la sua condizione era «il modello
+batte il FVM», e quel confronto e' stato **squalificato** dall'orologio delle
+quotazioni — il concorrente leale e' QI, contro cui il verdetto e' misto. La
+condizione va riscritta prima di poterla dichiarare soddisfatta. **Erano
+quattro**: la
 direzione su `rho` e l'ancora 4.90 e' stata tolta dalla Fase 9 il 2026-08-03
 perche' **e' la Fase 7**, e tenerla in due posti sarebbe stato un modo di fare
 la stessa domanda due volte — con la differenza che di qua i dati per
@@ -70,7 +88,7 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 570 test, ~142 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 626 test, ~340 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -121,16 +139,23 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 
 # Fase 9 / Blocco E2: le squalifiche (che non si stimano), lo strato distinta
 # (maglia, capitano, ruolo come serie), il modello d'impiego valutato sulle
-# stesse quattro transizioni del modello d'asta e la coda sul cartellino come
-# predittore (~3 min). NON tocca la rete.
+# stesse quattro transizioni del modello d'asta, la coda sul cartellino come
+# predittore e il blocco (b) sulla quotazione QI (~4 min). NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase9_e2.py
 
 # Fase 9 / Blocco E3: il modello di squadra sui GOL (rivalidato per conto suo),
 # la porta inviolata come probabilita', il voto della linea condizionato alla
-# forza difensiva, la correlazione dentro la linea e la verifica sui portieri
-# (~1 min da cache; con --force rifa' il walk-forward dei gol, ~25 s in piu').
+# forza difensiva, la correlazione dentro la linea, la verifica sui portieri e la
+# coda E3.5 sulla compensazione voto/malus
+# (~2 min da cache; con --force rifa' il walk-forward dei gol, ~25 s in piu').
 # NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase9_e3.py
+
+# Fase 9 / Blocco E4: il derivato dei piazzati dai qualifier, npxG e xA, la
+# verifica dei cinque fit di xG, il voto base, i bonus, i rigori come
+# assegnazione discreta e QI (~35 s da cache; con --force rilegge i 1.889 CSV
+# per rifare i piazzati, ~2 min in piu'). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase9_e4.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -249,8 +274,13 @@ sot/
                    fasce del modificatore, formato. Non legge dati e non stima
                    niente. `gestione_sv()` solleva DecisioneMancante finche' la
                    0.3 non e' decisa, invece di scegliere un default
-  quotazioni.py    il listone. QI e' il prezzo d'asta, FVM e' un CONCORRENTE del
-                   modello e non un riferimento
+  quotazioni.py    il listone, e **l'orologio delle sue colonne**. QI e' il prezzo
+                   d'asta ed e' il concorrente LEALE; il FVM **non lo e'** — sta
+                   sull'orologio di QA, cioe' si muove durante la stagione, e per
+                   una stagione passata ne conosce l'esito. `orologio()` e
+                   `scarti_di_pagina()` lo misurano con due controlli dichiarati
+                   dalla fonte; `COLONNE_PULITE`/`COLONNE_CONTAMINATE` stanno qui
+                   e non al punto d'uso perche' e' una proprieta' della FONTE
   fantapunti.py    il fantavoto DI QUESTA LEGA, ricalcolato dai bonus. Diverge da
                    quello della fonte solo sulle porte inviolate, e lo verifica
   modello_asta.py  punti totali attesi di stagione. Walk-forward su 4 transizioni
@@ -272,7 +302,10 @@ sot/
                    MISURA, non guarda il suffisso), `verifica_qualifier` (il
                    nome di un qualifier non e' un identificatore) e
                    `colonne_mai_valorizzate` (le 72, col criterio "ne' nullo
-                   ne' False")
+                   ne' False"). **Il gate misura se una colonna si MUOVE, non se
+                   corrisponde al proprio nome**: sono due proprieta' diverse e
+                   ne controlla una sola. La regola e la prova (`passFreekick`,
+                   E4) stanno nella sezione E1
   squalifiche.py   Fase 9 / E2. **NON STIMA NIENTE**: una regola di conteggio sui
                    cartellini, con tre assunzioni dichiarate. Il taglio sui
                    destinatari **non e' quello dei minuti** — un espulso dalla
@@ -292,15 +325,33 @@ sot/
                    correlazione dentro la linea. `verifica_punteggio()` e'
                    falsificabile contro `matches.json` e non passa da nessun
                    modello. **La verifica finale sui portieri e' negativa** ed e'
-                   il risultato: vedi la sezione di E3
-  impiego.py       Fase 9 / E2. Il modello d'impiego e la sua valutazione sulle
+                   il risultato: vedi la sezione di E3. Contiene anche la **coda
+                   E3.5**: `componenti_portiere` separa voto e malus, e
+                   `correlazione_componenti` porta la colonna `corr_totali`
+                   apposta per squalificarla — sui totali le due componenti si
+                   correlano **attraverso le presenze** e sembrerebbero
+                   compensarsi
+  impiego.py       Fase 9 / E2 e (b). Il modello d'impiego e la sua valutazione sulle
                    stesse quattro transizioni del modello d'asta. Il pavimento di
                    esposizione e' **zero** ed e' un parametro di E2, non
                    un'eredita' di E1: qui i pochi minuti sono il bersaglio.
                    Contiene anche la **coda**: `contributo_cartellini` prova
                    l'inversione di E2.1 in due forme per due standardizzazioni, e
                    `ridondanza_cartellini` e' cio' che distingue «e' gia' nel
-                   set» da «non c'e' segnale» — senza, un nulla e' ambiguo
+                   set» da «non c'e' segnale» — senza, un nulla e' ambiguo.
+                   Contiene anche **(b)**: `quotazione_asta` e `contributo_qi`, la
+                   quotazione QI come predittore di presenza. E' l'unica feature
+                   del progetto che venga da **t** e non da t-1, ed e' lecito
+                   perche' il listone esce prima dell'asta: la guardia e'
+                   `COLONNE_LISTONE_AMMESSE`, non il suffisso `_asta`
+  voto_bonus.py    Fase 9 / E4. I piazzati **dai qualifier e non dalle colonne
+                   omonime**: `passFreekick` e' identica a `passCorner` e non
+                   contiene nessuna punizione, e il gate non l'avrebbe fermata —
+                   un gate misura se una colonna si e' mossa, non se si chiama
+                   come cio' che contiene. Contiene anche `scale_dei_fit`, che
+                   chiude la verifica sui cinque fit di xG rimandata due volte
+                   (stessa forma, livello che si muove del 15,8%), e i due
+                   oracoli separati che hanno corretto il divario dei bonus
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -324,8 +375,9 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
           run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
           run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
+          run_fase9_e4.py,
           tiri_in_porta.py
-tests/    conftest + 27 moduli
+tests/    conftest + 28 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -361,6 +413,17 @@ data/
                    `(stagione, playerId, teamId)`. Ogni candidata c'e' DUE volte,
                    grezza e `_rel`: la grezza resta perche' senza non si potrebbe
                    piu' misurare la deriva
+  processed/ITA-serie-a/fase9_e4_piazzati.parquet         3.099 righe, la tripla
+                   `(stagione, playerId, teamId)` con corner, punizioni, rigori
+                   e passaggi chiave **contati dai qualifier**. E' un derivato a
+                   se' e non una colonna di `player_match`: sono dati grezzi
+                   riletti per uno scopo, non una ricostruzione strutturale
+  processed/ITA-serie-a/fase9_e4_assist_tiro.parquet     35.231 righe, il legame
+                   passaggio chiave -> tiro. **Il legame non e' nei dati** e
+                   questa e' la sua ricostruzione dichiarata (98,9-99,2% dei tiri
+                   assistiti); `fase9_e4_assist_qualita.parquet` ne porta il
+                   denominatore, contato nella stessa passata invece che in una
+                   seconda rilettura dei 1.889 CSV
   processed/ITA-serie-a/fase9_feature_riferimenti.parquet  95 righe, **lo stesso
                    schema** di `fase9_medie_campionato`. File separato per una
                    ragione operativa e non concettuale: `run_fase9_e0.py`
@@ -1503,26 +1566,40 @@ solleva `DecisioneMancante` invece di scegliere un default.
 applica. Se divergesse altrove sarebbe un difetto; divergendo solo li', e' la
 conferma.
 
-**Esito del modello: batte l'ignoranza, non batte il mercato.**
+**Esito del modello: batte l'ignoranza, perde contro QI — e il verdetto e' misto.**
+
+> **CORREZIONE del 2026-08-05.** Questa sezione diceva **«batte l'ignoranza, non
+> batte il mercato»**, e il mercato era il FVM. **Quel confronto era con un
+> concorrente contaminato** (vedi «L'orologio delle quotazioni» piu' sotto): il
+> FVM della pagina archiviata si muove *durante* la stagione. I numeri **restano
+> in tabella, marcati** — e' un errore di questo progetto e non si cancella — ma
+> il concorrente leale e' **QI**.
 
 | candidato | Spearman | precisione sui primi N |
 |---|---:|---:|
-| **FVM della fonte** | **0.811** | **0.518** |
-| quotazione iniziale QI | 0.606 | 0.162 |
+| ~~FVM della fonte~~ **CONTAMINATO** | ~~0.811~~ | ~~0.518~~ |
+| **quotazione iniziale QI** (concorrente leale) | **0.606** | **0.162** |
 | persistenza (anno prima) | 0.451 | 0.211 |
 | **modello** | 0.452 | 0.177 |
 | media di ruolo | 0.156 | 0.065 |
 
-- **Il FVM e' un concorrente, non un riferimento**: e' una stima di valore fatta
-  da altri, con informazioni che il modello non ha. Se non lo si batte, comprare
-  al listino e' la scelta razionale — e va scritto, non aggirato.
+- **Contro QI il verdetto e' misto, e va riportato misto**: sullo Spearman QI
+  vince (0.606 contro 0.452), sulla **precisione sui primi N** vince il modello
+  (0.177 contro 0.162). Le due metriche non misurano la stessa cosa — tutto
+  l'ordine contro la sola testa, che e' cio' che si compra — e citarne una sola
+  darebbe un verdetto netto che i dati non danno.
 - **Il modello non supera nemmeno la persistenza** ("l'anno prossimo come
   l'anno scorso"). Tutto il macchinario dei tre fattori con shrinkage non
   aggiunge niente. Con quattro transizioni la differenza non e' distinguibile dal
   rumore, ma il segno e' contrario al modello.
-- **Sui portieri il modello fa 0 e il FVM 0.667**, e la causa e' identificabile:
-  i punti di un portiere dipendono dalla difesa della sua squadra, e **questo
-  modello non guarda la squadra affatto**.
+- **Sui portieri**: il modello fa precisione 0 e il FVM contaminato 0.667, ma
+  **con QI quel divario non e' misurabile** — QI fa 0.000 o 0.083 a seconda di
+  come si sciolgono i pari merito (prezzo intero, pari merito al confine dei primi
+  tre in due stagioni su quattro; con 3 posti per 4 stagioni la metrica ha passi
+  da 1/12). Sullo **Spearman** il divario invece regge: QI 0.730 contro 0.465.
+  La causa che questa sezione dava per identificata — *i punti di un portiere
+  dipendono dalla difesa della sua squadra e il modello non la guarda* — **e'
+  stata provata da E3 e non regge**.
 
 **Il risultato piu' utile e' dove sta l'errore**: con le presenze note il MAE
 crolla da **61.4 a 5.6** (−91%); con i bonus noti scende solo a 52.5. Il voto
@@ -1530,6 +1607,24 @@ base e i bonus sono quasi risolti; il problema e' prevedere **quante partite un
 giocatore giochera'**, e quello dipende da cose che nessuna tabella acquisita
 contiene — minutaggio atteso, gerarchia di rosa, mercato, infortuni. **Non e' un
 difetto di stima, e' un'assenza di dati.**
+
+> **CORREZIONE del 2026-08-07 (Blocco E4).** Il **52.5 e' su un altro campione**,
+> e la conclusione che se ne traeva era giusta per la ragione sbagliata. «Bonus
+> noti» gira su **2.204 righe** e non 2.678: chi non ha mai giocato in `t` non ha
+> un tasso osservato, e quelle 474 righe — **le peggiori**, dove il modello
+> predice punti a chi ne fara' zero — cadono. Sulle stesse 2.204 righe il modello
+> completo fa **55.01**. E «bonus noti» **non era il bonus**: costruito per
+> differenza come `punti/presenze - voto_atteso`, e' l'intero *tasso per
+> presenza*, voto compreso — si vede dal fatto che costruendo allo stesso modo
+> l'oracolo del voto si ottiene lo stesso identico numero.
+>
+> I divari veri, con le componenti prese separate e a campione fisso: **voto 1.24
+> · bonus 1.44 · entrambi 2.51** contro i **55.86** delle presenze. Il numero
+> pubblicato resta riproducibile e resta in tabella con il nome che dice cos'era
+> (`tasso per presenza noto`); `scomposizione_errore` ha ora la colonna
+> `mae_stesse_righe`, che rende il confronto orizzontale e non verticale.
+> **La lettura non cambia — le presenze sono il problema, i bonus no — ma il
+> margine di E4 e' il 4% dell'errore, non il 14.5%.**
 
 **Un difetto trovato dai test, e non era piccolo**: `precisione_top` scioglieva i
 pari merito nell'ordine della tabella, e il listone arriva ordinato per `QI`
@@ -1542,12 +1637,66 @@ progetto.
 dichiara "Dati non disponibili"), quindi **la lista d'asta vera non e'
 producibile oggi**. Lo scraper distingue questo caso da un cambio di markup.
 
-> **Trappola per le sessioni future.** Il modello perde contro FVM e persistenza,
+> **Trappola per le sessioni future.** Il modello perde contro QI e persistenza,
 > e questo e' il contenuto informativo del blocco. **Non va "sistemato"**
 > ritoccando lo shrinkage finche' il numero non supera il concorrente: e' lo
-> stesso errore che le Fasi 2 e 3 servivano a escludere. La strada indicata dai
-> dati e' un'altra ed e' scritta sopra: collegare il **modello di squadra** gia'
-> validato (Fasi 2-4) e attaccare le **presenze**, non i bonus.
+> stesso errore che le Fasi 2 e 3 servivano a escludere. Il FVM e' stato tolto dal
+> ruolo di concorrente **perche' contaminato, non perche' scomodo** — la misura e'
+> riproducibile e vale per chiunque. La strada indicata dai dati resta: attaccare
+> le **presenze**, non i bonus. (Collegare il **modello di squadra**, che questa
+> sezione indicava come prima cosa da fare, e' stato fatto in E3 e **non funziona
+> sui portieri**.)
+
+### L'orologio delle quotazioni — quale colonna e' nota PRIMA della stagione ✅
+
+`quotazioni.orologio()`, `orologio_sintesi()`, `scarti_di_pagina()`,
+`COLONNE_PULITE` / `COLONNE_CONTAMINATE`; test in `tests/test_modello_asta.py`.
+Sezione 3-bis di `reports/modello_asta.md`. **Nessuna richiesta di rete.**
+
+E' il **gate** da superare prima di usare una quotazione come **ingresso** di un
+modello, e non solo come baseline. I cinque listoni sono stati scaricati **tutti
+nell'agosto 2026**, una pagina per stagione: quella pagina porta i valori di
+agosto di quella stagione, o l'ultimo stato al momento del prelievo?
+
+**Il disegno e' due controlli noti e un soggetto**, e senza i controlli la
+domanda non avrebbe risposta: sulla stessa pagina `QI` e' dichiarata dalla fonte
+*iniziale* e `QA` *attuale* («un unico valore corrente, non una serie»); il `FVM`
+non ha una data dichiarata da nessuna parte. La domanda non e' «il FVM e'
+pulito?» ma **«a quale dei due somiglia?»**.
+
+| colonna | listone di t | listone di t−1 | vantaggio di essere di t |
+|---|---:|---:|---:|
+| `fvm_classic` (SOGGETTO) | **0.804** | 0.441 | **+0.363** |
+| `qa_classic` (contaminata, controllo) | 0.802 | 0.430 | +0.372 |
+| `qi_classic` (pulita, controllo) | 0.536 | 0.349 | +0.187 |
+
+- **Il vantaggio di essere della pagina di t non e' zero nemmeno per una colonna
+  pulita**, ed e' il motivo per cui servono i controlli: la pagina di t conosce il
+  **mercato estivo**, quella di t−1 no. Il confronto e' fra colonne, non con lo
+  zero. Un test lo blocca, altrimenti «vantaggio > 0» sembrerebbe di per se' una
+  prova di leakage.
+- **Il secondo taglio non e' confuso dalla qualita' intrinseca delle colonne**,
+  perche' entrambi gli scarti sono presi rispetto allo **stesso QI**, sulla stessa
+  pagina e sulla stessa popolazione: `FVM − QI` predice l'esito di quella stagione
+  a 0.242-0.371 contro 0.206-0.328 di `QA − QI`, cioe' **quanto QA e in tre casi
+  su quattro di piu'**. E il FVM assomiglia a QA (0.80-0.90) piu' che a QI
+  (0.64-0.75).
+- **Cosa e' dimostrato**: non che il FVM sia un valore di fine stagione, ma che
+  **non e' uno snapshot pre-stagione**. E' coerente col fatto che un "Fanta Valore
+  di Mercato" sia per costruzione ricalcolato in continuo — non un incidente del
+  prelievo, ma **cosa la grandezza e'**.
+- **Su QI il verdetto e' sostenuto, non provato**: l'unica prova sarebbe una
+  pagina scaricata prima dell'inizio di una stagione, e non ne esiste una nel
+  repository. Le tre firme concordano, e QI e' comunque la sola quotazione
+  davvero disponibile al momento in cui si fa l'asta.
+- **Il FVM non esiste affatto per la 2021-2022** (0 valori non nulli): sono quattro
+  stagioni, non cinque.
+
+> **Trappola per le sessioni future.** Il FVM **non e' un concorrente leale** in
+> nessun confronto fuori campione, e non va rimesso in quel ruolo. Resta
+> utilizzabile come descrizione e come baseline **dichiarato contaminato**, ed e'
+> per questo che ovunque si chiama `FVM della fonte (CONTAMINATO)`: un test
+> pretende che il nome nudo non ricompaia.
 
 ---
 
@@ -1794,6 +1943,26 @@ nel modulo e pretende che siano costanti letterali):
   fermata, perche' altrimenti "nessuna usa qualifier" potrebbe voler dire "la
   guardia non guarda niente". `CornerTaken` (1,08) e `FreekickTaken` (1,07)
   passano: la macchina sa dire anche di si'.
+
+  > **REGOLA, e vale per ogni blocco futuro: il gate misura se una colonna si
+  > MUOVE, non se corrisponde al proprio nome.** Sono due proprieta' diverse e il
+  > gate ne controlla una sola. **La prova e' `passFreekick`** (Blocco E4): e'
+  > valorizzata in tutte e cinque le stagioni, ha rapporto max/min 1,08 — passa il
+  > gate a pieni voti — ed e' **identica a `passCorner` riga per riga**, con
+  > intersezione vuota con i `FreekickTaken` veri. Non contiene una sola
+  > punizione. Un blocco che si fosse fidato del gate avrebbe pubblicato una
+  > tabella di battitori di punizioni dell'ordine di grandezza giusto in cui ogni
+  > riga era un battitore di corner, e nessun controllo di quadratura se ne
+  > sarebbe accorto.
+  >
+  > Ne segue che **una colonna nuova va confrontata con una derivazione
+  > indipendente della stessa grandezza prima di usarla**, non solo passata al
+  > gate. In E4 le derivazioni indipendenti erano i qualifier (`CornerTaken`,
+  > `FreekickTaken`) e le booleane dei rigori, e hanno trovato entrambe le
+  > trappole: la collisione di `passFreekick` e il fatto che il qualifier
+  > `Penalty` marca il rigore e non il rigorista. **E' il vincolo 7 applicato
+  > dentro una fonte sola**: due nomi per la stessa grandezza non sono la stessa
+  > grandezza finche' non e' misurato che lo siano.
 - **Le 72 colonne mai valorizzate** restano fuori, e **la garanzia non e' la
   disciplina ma l'impossibilita'**: `io_events` tiene ~60 colonne su 259 e
   nessuna delle 72 e' fra quelle. Un test lo verifica su `ALL_COLS`, cosi' che
@@ -1951,9 +2120,18 @@ quattro transizioni, fra i quotati con una distinta in t+1 le presenze medie son
 feature e' la risposta.** Si usa quindi il numero di t-1, e il costo cade proprio
 sul caso che si voleva coprire. Un test blocca il leakage.
 
-> Il numero d'agosto **sarebbe acquisibile** — lo pubblicano i club e sta nei
-> listoni — ma non e' nel repository. E' una domanda aperta **con una risposta
-> nota**, non un limite dei dati evento.
+> Il numero d'agosto **sarebbe acquisibile** — lo pubblicano i club — ma non e'
+> nel repository. E' una domanda aperta **con una risposta nota**, non un limite
+> dei dati evento.
+>
+> **CORREZIONE del 2026-08-07: "e sta nei listoni" era falso, ed e' stato tolto.**
+> Verificato decomprimendo il listone 2025-26: **zero** occorrenze di
+> `maglia`/`numero`/`shirt`/`number`, e le uniche colonne che la pagina espone
+> sono `sq`, `c_qi`, `c_qa`, `c_fvm` e le tre `m_*`. Idem nelle pagine dei voti.
+> Il numero **non sta in nessuna delle due pagine gia' acquisite**: la fonte
+> sarebbe una terza pagina (le rose di club) che non e' stata individuata. La
+> domanda resta aperta e il suo costo e' piu' alto di quanto questa riga
+> lasciasse credere.
 
 **La valutazione, sulle stesse quattro transizioni e sulle stesse 2.678 righe del
 modello d'asta** — 61,42 e 5,56 riprodotti, quindi il campione e' lo stesso:
@@ -2059,6 +2237,63 @@ e E3 riguarda portieri e difese.
 > cartellini gioca di piu', e per questo la sottrazione allontana), non la sua
 > conseguenza operativa.
 
+### Fase 9 — (b): la quotazione QI come predittore di presenza ✅ (il primo che passa)
+
+Sezione 5 di `reports/fase9_e2_presenze.md`, da `impiego.quotazione_asta`,
+`con_quotazione`, `ridondanza_qi`, `deriva_qi` e `contributo_qi`; 7 test nuovi in
+`tests/test_fase9_e2.py`. **Nessuna richiesta di rete, nessun numero pubblicato
+cambiato** — un test pretende che il riferimento di E2.4 resti 61,315 e 0,196%.
+
+**E' il primo predittore di presenze del progetto che superi il rumore**, e la
+ragione e' strutturale: tutte le feature di E2 vengono da **t-1**, perche' i dati
+evento di t non esistono ancora. **QI viene da t** — un prezzo della stagione
+bersaglio, pubblicato prima che cominci. E' l'unica cosa nel repository che guardi
+t senza guardarne l'esito. Il **FVM e' fuori** perche' sta sull'orologio di QA
+(vedi «L'orologio delle quotazioni»), e la guardia e' su `COLONNE_LISTONE_AMMESSE`
+e non sul suffisso `_asta`: un nome che dice "noto all'asta" resterebbe vero anche
+mettendoci QA, e sarebbe falso.
+
+| variante | divario chiuso | t appaiato | MDE |
+|---|---:|---:|---:|
+| impiego (E2.4, riferimento) | 0,196% | — | — |
+| + QI prezzo **grezzo** | 0,45% | +0,77 | 0,91% |
+| + QI **percentile di ruolo** | **1,49%** | **+2,91** | 1,25% |
+| + percentile + indicatrice | 1,46% | +2,88 | 1,23% |
+| **SOLO** QI, senza feature evento | **−0,18%** | −0,61 | 1,72% |
+
+- **1,49% contro 0,196%**, cioe' **otto volte** quello che i dati evento avevano
+  prodotto, con t = 2,91 sopra il proprio MDE (1,25%) e sopra la soglia di
+  Bonferroni per quattro varianti (|t| > 2,50). Migliora anche il **passaggio
+  giusto**: MAE presenze 9,906 → 9,744, correlazione 0,461 → 0,481.
+- **Resta piccolo in assoluto**: MAE punti 61,32 → 60,59, sette decimi su
+  sessantuno. Le presenze restano il 91% dell'errore e **gli infortuni continuano
+  a non essere nei dati**: quello e' il tetto vero.
+- **Il prezzo grezzo NON passa** (t = 0,77, sotto il suo MDE), quindi la
+  conclusione **dipende dalla forma** — ed e' la forma dichiarata in anticipo come
+  l'ipotesi vera (la gerarchia dentro il ruolo), non scelta dopo. **Il gate di E1
+  le separa da solo**: il grezzo deriva del 10,9% e non passa la soglia del 5%, il
+  percentile dell'1,4% e passa. La forma che funziona e' l'unica che non deriva.
+- **QI da solo e' PEGGIO del modello d'asta** (−0,18%): **e' un complemento, non
+  un sostituto**, e chi ne ricavasse «all'asta guarda solo il prezzo» leggerebbe
+  il contrario. Un test lo blocca.
+- **Meta' di QI e' gia' nel set** (R² 0,47 sulle tre quote di esposizione, corr
+  0,68 con `quota_minuti_prec`): il guadagno viene dall'altra meta', che e'
+  esattamente cio' che nessun dato evento puo' contenere — mercato estivo e
+  gerarchia dichiarata. Un test pretende `0,25 < R² < 0,75`, cioe' vieta **tutte e
+  due** le letture sbagliate.
+- **L'indicatrice `senza_quotazione_asta` non aggiunge niente, e il motivo e'
+  strutturale**: il 31,2% delle righe di `tabella_predittori` non ha QI (chi ha
+  giocato in t-1 e ha lasciato il campionato), ma la valutazione gira sul listone,
+  quindi **tutte e 2.678 le righe valutate hanno un QI** e la mancanza tocca solo
+  l'addestramento. Qui non e' *misurabile*, che e' un'altra cosa da «non e'
+  informativa».
+
+> **Trappola per le sessioni future.** Questo e' un risultato **positivo e
+> piccolo**, e le due parole vanno tenute insieme. Non va gonfiato — l'1,5% di un
+> divario che gli infortuni chiudono per la maggior parte non e' una soluzione
+> delle presenze — e non va esteso al FVM «visto che QI funziona»: il FVM e'
+> squalificato per una misura, non per cautela.
+
 ### Fase 9 — Blocco E3: la difesa ✅ (quattro strumenti che funzionano, una verifica che li boccia)
 
 `reports/fase9_e3_difesa.md`, da `scripts/run_fase9_e3.py`; modulo `sot/difesa.py`,
@@ -2132,11 +2367,11 @@ modello la difesa della squadra, con un modello di squadra validato per conto su
 
 **Perche' la verifica fallisce, ed e' la cosa piu' utile del blocco:**
 
-| soglia presenze attese | portieri | mai in campo | modello | + difesa E3 | sole presenze | **FVM** |
-|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 258 | 40% | 0.536 | 0.507 | 0.534 | 0.831 |
-| 15 | 177 | 37% | 0.720 | 0.623 | 0.714 | 0.869 |
-| 20 | 63 | 2% | **0.073** | −0.027 | −0.011 | **0.700** |
+| soglia presenze attese | portieri | mai in campo | modello | + difesa E3 | sole presenze | **QI** | ~~FVM~~ |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0 | 258 | 40% | 0.536 | 0.507 | 0.534 | **0.740** | ~~0.831~~ |
+| 15 | 177 | 37% | 0.720 | 0.623 | 0.714 | **0.798** | ~~0.869~~ |
+| 20 | 63 | 2% | **0.073** | −0.027 | −0.011 | **0.273** | ~~0.700~~ |
 
 1. **La premessa del blocco era falsa per la popolazione che conta.** «Un portiere
    titolare gioca quasi tutto» e' vero per il titolare e falso per i **quotati**: il
@@ -2145,14 +2380,33 @@ modello la difesa della squadra, con un modello di squadra validato per conto su
    intero — **sui portieri il modello e' gia' quasi solo un modello di presenze**.
 2. **Fra i probabili titolari non funziona piu' niente**: il modello crolla a 0.073,
    le sole presenze a −0.011, la difesa di E3 a −0.027.
-3. **Ma il FVM non crolla: 0.700.** E' il numero decisivo. Il vantaggio del FVM sui
+3. **La quotazione non crolla come il resto, e quella che conta e' QI**: fra i
+   probabili titolari fa **0.273**, l'unica cosa sopra lo zero li' dentro, ed e'
+   informazione disponibile **prima dell'asta**. Il vantaggio della quotazione sui
    portieri **non e' sapere chi gioca** (sopravvive dove le presenze sono note) e
    **non e' la forza difensiva della squadra** (e' quello che E3 ha provato).
 
+> **CORREZIONE del 2026-08-05 — il 0.700 era contaminato.** Questa sezione diceva
+> «ma il FVM non crolla: 0.700, ed e' il numero decisivo», e ne ricavava che il FVM
+> sapesse qualcosa di ignoto sui portieri. Il FVM della pagina archiviata **si muove
+> durante la stagione** (vedi «L'orologio delle quotazioni»). Il numero resta in
+> tabella, barrato: e' un errore di questo progetto e non si cancella.
+>
+> **Rifatto con QI, che e' pulito, il vantaggio regge ma si riduce di molto**: 0.273
+> invece di 0.700. E' la risposta alla domanda aperta n. 1, e sta in mezzo alle due
+> che ci si aspettava: **non era solo «sapeva come era andata la stagione»** — una
+> quotazione che non puo' saperlo sta comunque a 0.273 dove tutto il nostro sta a
+> zero — **ma la maggior parte di quel 0.700 era esattamente quello**. Un test
+> pretende entrambe le cose, cosi' che non si racconti solo la meta' comoda.
+
 > **Precisazione sui numeri di riferimento**: il «0 contro 0,667» del modello
 > d'asta e' la **precisione sui primi N**, non lo Spearman. Lo Spearman sui portieri
-> non era mai stato pubblicato e vale **0.465**. Un test riproduce entrambi i numeri
-> pubblicati, cosi' che il confronto non sia con quantita' ricalcolate diversamente.
+> non era mai stato pubblicato e vale **0.465**. Su quella metrica il divario con
+> QI **non e' misurabile**: QI fa 0.000 o 0.083 a seconda di come si sciolgono i
+> pari merito — e' un prezzo intero, in due stagioni su quattro ci sono pari merito
+> al confine dei primi tre, e con 3 posti per 4 stagioni la metrica ha passi da
+> 1/12. Le due implementazioni del repository danno i due valori per quella
+> ragione, ed e' **la risoluzione della metrica, non un risultato**.
 
 > **Trappola per le sessioni future.** La verifica negativa **non va "sistemata"**.
 > Il segno e' spiegato da un meccanismo misurato — le presenze dominano
@@ -2161,12 +2415,19 @@ modello la difesa della squadra, con un modello di squadra validato per conto su
 > spiegazione invece di trovarne una. **I quattro strumenti restano validi**: non
 > dipendono dall'esito della verifica, e sono cio' che il blocco consegna.
 
-**Quattro domande aperte**: (1) **che cosa sa il FVM sui portieri** — la domanda
-piu' stretta che il progetto abbia adesso, e non e' ne' le presenze ne' la difesa;
-(2) il voto del portiere modellato sui **tiri affrontati** e non solo sui gol
-subiti (`sot_conceded` c'e' gia'); (3) il modificatore con `rho` acceso, che **non
-e' stato ricalcolato** sulla lista d'asta — `run_asta_2627.py` gira ancora a
-`rho = 0`; (4) la forza difensiva delle **neopromosse**, che resta senza stima.
+**Cinque domande aperte**: (1) **che cosa sa la QUOTAZIONE sui portieri** — era
+formulata sul FVM, vale **0.273 e non 0.700**, e resta la domanda piu' stretta che
+il progetto abbia: non e' ne' le presenze ne' la difesa; (2) il voto del portiere
+modellato sui **tiri affrontati** e non solo sui gol subiti (`sot_conceded` c'e'
+gia'); (3) il modificatore con `rho` acceso, che **non e' stato ricalcolato** sulla
+lista d'asta — `run_asta_2627.py` gira ancora a `rho = 0`; (4) la forza difensiva
+delle **neopromosse**, che resta senza stima; (5) **un valore pre-stagione dalla
+fonte, per il FVM e per il numero di maglia insieme.** Sono la **stessa domanda**,
+non due — stessa forma, stessa fonte probabile, un valore d'agosto che i club e i
+listoni pubblicano e che il repository non ha: il FVM pulito renderebbe leale un
+concorrente oggi squalificato, il numero di maglia d'agosto proverebbe l'argomento
+per cui quella feature di E2 esisteva. **Vanno tenute appaiate**: se un giorno si
+risponde a una si risponde all'altra.
 
 **Due cose portate dentro, e chiuse:** (1) **l'xG non entra nel modello dei gol**,
 quindi il problema dei cinque fit non si pone — la parola non compare in
@@ -2184,6 +2445,254 @@ candidate ma un difetto di WhoScored da spiegare.
 > default `"sot"`. Le Fasi 1-6 non lo passano e ottengono cio' che ottenevano
 > prima; `modificatore.simula_linea` ha `rho` con default `0.0`, **identico bit per
 > bit** alla versione precedente. Tre test bloccano i default.
+
+### Fase 9 — coda di E3: la compensazione voto/malus, provata e confutata ✅
+
+Sezione 5-bis di `reports/fase9_e3_difesa.md`, da `difesa.componenti_portiere`,
+`pendenza_componenti`, `correlazione_componenti`, `pendenza_voto_dal_passato`,
+`collegamento_due_lati` e `qualita_componente_difensiva`; 7 test nuovi in
+`tests/test_fase9_e3.py` (34 in tutto). **Nessuna richiesta di
+rete, nessun numero pubblicato cambiato**, verificato rieseguendo: `run_phase1.py`
+ridà 4.034 / 4.432 / 3.637 / 5.105, `run_phase5.py` ridà Como 4.34 e
+5.03 / 191 / [151, 240], e tutti i numeri di E3 (5.52, 1.044, +0.0795, −0.2481,
+0.261, 0.465) sono invariati.
+
+**L'ipotesi era: dietro una difesa debole il portiere para di piu' e il voto sale,
+il malus scende, le due voci si compensano, il netto e' quasi piatto — e
+collegare la difesa a un lato solo peggiora.** Tre conseguenze misurate separate,
+con la soglia della seconda **dichiarata prima**: compensazione completa se nel
+netto sopravvive meno di **un terzo** del malus.
+
+| conseguenza | esito |
+|---|---|
+| 1. pendenza del voto positiva sul portiere | **regge** (+0.0795, t = +3.44, riprodotta da E3.3) |
+| 2. il netto e' quasi piatto | **cade**: sopravvive il **92,9%** del malus |
+| 3. componenti correlate negativamente fra portieri | **cade**: −0.003 e −0.012, cioe' scorrelate |
+| conseguenza operativa: collegare entrambi i lati | **non recupera**, nemmeno con la pendenza oracolo |
+| la difesa di E3 come stimatore | **e' il migliore dei due**, ed e' l'esclusione che la coda aggiunge |
+
+- **La compensazione esiste e vale il 7% del malus, non i due terzi che
+  servivano.** Malus −1.1153 per unita' di gol attesi, voto base +0.0795, netto
+  **−1.0357 con t = −14.0**. Dal p10 al p90 della forza difensiva attesa un
+  portiere perde 1.01 punti **per partita**: una trentina su una stagione da
+  titolare. Il netto non e' piatto, e' quasi tutto il malus.
+- **Meta' della risposta e' nel regolamento, non nei dati**: per il difensore
+  `comp_bonus` e' zero **per regolamento** (`lega.SOLO_PORTIERE`). Il difensore ha
+  **un canale**, il portiere **due**, e i due hanno segno opposto — che e' il modo
+  piu' stretto di dire cosa E3.3 aveva trovato.
+- **`corr_totali` sta in tabella per essere squalificata, non letta.** Sui totali
+  di stagione le due componenti fanno −0.380 e sembrerebbero la conferma cercata:
+  ma il totale del voto **cresce** con le presenze e quello del bonus **cala**,
+  quindi i totali si correlano **attraverso le presenze** anche se le componenti
+  fossero indipendenti. Sulle medie per presenza la correlazione svanisce. Un test
+  pretende **entrambe** le cose, cosi' che citare la prima da sola sia visibile.
+- **Nemmeno la pendenza ORACOLO recupera** (0.507 contro 0.536 del modello che non
+  collega nulla): la questione non e' la qualita' della stima della pendenza.
+- **L'esclusione, ed e' il contributo positivo della coda**: contro il bonus
+  difensivo per presenza realmente realizzato, la difesa di E3 fa **MAE 0.322 e
+  corr +0.500** contro 0.378 e +0.346 del bonus storico del portiere. **E' lo
+  stimatore migliore della cosa che stima, e sostituirla peggiora l'ordinamento lo
+  stesso.** Quindi «la difesa e' stimata male» e' falso.
+- **Due denominatori diversi, ed e' voluto** (difetto trovato e corretto in
+  stesura): la qualita' si misura sugli 85 portieri con abbastanza presenze da
+  avere un tasso, la `corr_con_presenze` su **tutti** i 258, che sono la
+  popolazione su cui la Spearman e' calcolata. Restringerla ai titolari
+  **rovesciava il segno**, perche' troncava proprio la variabile in questione.
+  Nel verso giusto vale +0.104 contro +0.035: coerente col meccanismo e **troppo
+  piccola per spiegare qualcosa**.
+- **Il malus lo alimenta la fonte dei VOTI** (`difesa.FONTE_MALUS`), non i gol
+  ricomposti da WhoScored. Non e' formalita': `voti_difensori` **sovrascrive**
+  `gol_subiti` con i gol di squadra (autogol compresi), le due colonne hanno lo
+  stesso nome e differiscono su **32 righe su 3.307**, sempre con WhoScored che ne
+  conta di piu'.
+
+> **Trappola per le sessioni future.** L'ipotesi della compensazione e' **chiusa**
+> e non va riaperta. Cio' che resta vero di E3.3 e' che il voto del portiere e'
+> giudicato **rispetto all'attesa**; cio' che e' falso e' che questo basti a
+> spiegare l'esito negativo di E3. **Perche' collegare la difesa peggiori
+> l'ordinamento dei portieri resta senza spiegazione misurata** — e ora si sa che
+> non e' perche' la difesa sia stimata male.
+
+### Fase 9 — Blocco E4: voto base e bonus ✅ (il divario da attaccare non era quello)
+
+`reports/fase9_e4_voto_bonus.md`, da `scripts/run_fase9_e4.py`; modulo
+`sot/voto_bonus.py`, test `tests/test_fase9_e4.py` (34). **Nessuna richiesta di
+rete.** **Nessun numero pubblicato e' cambiato**, verificato rieseguendo:
+`run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi,
+`run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240]. Chiude la Fase 9.
+
+| | esito |
+|---|---|
+| **il divario dei bonus** | **non e' 8,9 punti: e' 2,5**, ed e' la correzione piu' importante del blocco |
+| E4.0 `passFreekick` | **non contiene le punizioni**: e' `passCorner`, riga per riga |
+| E4.0 il qualifier `Penalty` | **non marca il rigorista**: marca il rigore, fallo compreso |
+| E4.2 i cinque fit di xG | **forma stabile, livello che si muove del 15,8%** — verifica chiusa |
+| E4.1 · E4.2 · E4.3 · E4.4 | **niente**: tre varianti su tre negative, dentro il rumore |
+| E4.5 QI da solo | **10,5% con t = 2,31** — l'unico che si muove, e **non passa Bonferroni** |
+| E4.4 autogol | **nessun effetto individuale**, verificato invece che assunto |
+
+**Il divario su cui E4 poggiava era sbagliato, e i difetti sono due.** Il numero
+pubblicato — «con i bonus noti il MAE scende da 61,4 a 52,5» — e' stato misurato
+per costruirci sopra il denominatore del blocco, e misurandolo si e' rotto:
+
+1. **il campione cambia.** «Bonus noti» gira su **2.204 righe** e non 2.678, e le
+   474 che cadono sono **le peggiori** — chi non ha mai giocato, dove il modello
+   predice punti a chi ne fara' zero. Sulle stesse 2.204 righe il modello completo
+   fa **55,01**;
+2. **«bonus noti» non era il bonus.** Costruito per differenza come
+   `punti/presenze - voto_atteso`, e' l'intero **tasso per presenza**, voto
+   compreso. Lo si e' scoperto da un'identita': costruendo allo stesso modo
+   l'oracolo del *voto* si ottiene lo stesso identico numero.
+
+Divari veri, componenti separate e campione fisso: **voto 1,24 · bonus 1,44 ·
+entrambi 2,51** contro i **55,86** delle presenze. **La lettura non cambia — le
+presenze sono il problema, i bonus no — e anzi si rafforza**; cambia la taglia del
+pezzo, che e' il **4%** dell'errore e non il 14,5%. `scomposizione_errore` ha ora
+la colonna `mae_stesse_righe`, che rende il confronto orizzontale invece che
+verticale, e la vecchia riga resta col nome che dice cos'era.
+
+**`passFreekick` e' la lezione di `StandingSave` un piano piu' su.** Li' il nome
+di un *qualifier* non era un identificatore; qui non lo e' il nome di una
+*colonna*. Misurato su 43.176 eventi: i 296 `True` di `passFreekick` coincidono
+riga per riga con `passCorner` e con i `CornerTaken`, e hanno intersezione
+**vuota** con gli 813 `FreekickTaken` veri. Chi l'avesse usata avrebbe ottenuto
+una tabella di battitori di punizioni dell'ordine di grandezza giusto in cui ogni
+riga era un battitore di corner. **E il gate non l'avrebbe fermata**: `passFreekick`
+lo passa a pieni voti, perche' un gate misura se una colonna si e' mossa fra le
+stagioni, non se si chiama come cio' che contiene. I piazzati si contano quindi
+**dai qualifier**, che E1 aveva gia' istruito e gia' ammesso (1,07-1,08).
+
+- **Il qualifier `Penalty` non marca il rigorista**, ed e' una seconda trappola
+  indipendente: sta sul `Foul` di chi il rigore l'ha concesso, sul `PenaltyFaced`
+  del portiere e sulla parata. Solo un quarto dei suoi eventi e' il tiro.
+  Ristretto a `isShot` coincide **riga per riga** con `penaltyScored |
+  penaltyMissed`, e la verifica passa con **scarto zero su tutte e cinque le
+  stagioni** — due derivazioni indipendenti che concordano. La conversione
+  76,4-78,3% riproduce il 76,4% della Fase 1.
+- **La ricerca per sottostringa e' protetta dalla forma completa** `'type': 'X'`:
+  col nome nudo, `FreekickTaken` matcherebbe dentro `IndirectFreekickTaken`.
+  `verifica_pattern` lo misura contro l'elenco vero dei qualifier del Blocco 0.
+- **Il test di quadratura dei rigoristi NON passa alla lettera**, e la diagnosi e'
+  misurata invece che addotta. La specifica si aspettava 1-2 rigoristi per
+  squadra-stagione nella grande maggioranza; contando chiunque ne abbia battuto
+  almeno uno sono 1-2 nel **47%** dei casi. Che non sia il parsing lo dice
+  `coerenza_rigori`, che e' un controllo **piu' forte**. Cio' che si rompe e' la
+  premessa: contando solo chi ne ha battuti almeno due l'attesa torna (91%), e la
+  **concentrazione** dice quanto «designato» sia solido — il primo battitore
+  mediano prende il **57,7%** dei rigori della sua squadra, i primi due l'83,3%.
+- **Il legame passaggio chiave → tiro non e' nei dati** e questa e' la sua
+  ricostruzione dichiarata: il `KeyPass` piu' vicino che precede un tiro
+  `Assisted` della stessa squadra, entro tre eventi. Lega il **98,9-99,2%**, e la
+  quota si conta invece di sparire.
+
+**I cinque fit di xG: la verifica rimandata due volte e' chiusa, e la risposta e'
+«si', ed e' grande».** E0 l'aveva dichiarata necessaria, E3 aveva potuto evitarla
+perche' il modello dei gol non usa l'xG; qui l'xG attraversa le stagioni sommato.
+Due misure che si completano:
+
+- **la forma e' la stessa**: un modello poolato con interazioni stagione × feature
+  **non batte** quello con la sola intercetta, fuori campione e coi fold
+  raggruppati per partita (0,24671 contro 0,24622). Correlazione fra i cinque
+  0,986-1,000 sugli stessi tiri;
+- **il livello no**: applicati agli **stessi** tiri i cinque fit danno xG medio da
+  0,0839 a 0,0984, cioe' **15,8% di escursione**, monotona e discendente — tre
+  volte la soglia del 5% di E1.
+
+Ne segue che **npxG non si somma fra stagioni in unita' grezze**, e che la regola
+di E1 e' esattamente il rimedio giusto. Ed e' anche il *perche'* di un verdetto
+che E1 aveva misurato senza potersi dare una spiegazione: `xg_per_90` era fra le
+cinque irriducibili.
+
+**Il gate di E1 rifatto sulle candidate nuove** (npxG, xA, piazzati: il loro
+verdetto non esisteva e non si eredita) ne separa cinque standardizzabili — `xa_per_90`
+3,6%, `passaggi_chiave_per_90` 1,9% — da cinque irriducibili, fra cui npxG. Ma
+**un effetto di stagione esplicito non e' usabile fuori campione**: la stagione
+bersaglio non e' fra quelle su cui si e' stimato. Entrano quindi in forma `_rel` e
+la conseguenza si **misura**: la variante «senza le irriducibili» rifa' tutto
+senza di loro e la conclusione non cambia.
+
+**La valutazione, sulle stesse quattro transizioni e sulle stesse 2.678 righe**
+(61,42 riprodotto, quindi campione identico):
+
+| variante | MAE punti | quota del divario | t appaiato | MDE |
+|---|---:|---:|---:|---:|
+| modello d'asta | 61,4246 | — | — | — |
+| E4 voto base | 61,4862 | **−6,00%** | −1,55 | 10,9% |
+| E4 bonus | 61,4434 | **−1,58%** | −0,31 | 14,3% |
+| E4 voto + bonus | 61,5192 | **−4,57%** | −1,09 | 11,8% |
+| E4 + QI | 61,3843 | +1,95% | +0,49 | 11,1% |
+| **SOLO QI**, senza feature evento | **61,2082** | **+10,46%** | **+2,31** | 12,7% |
+
+- **Le feature da dati evento non aggiungono niente e sono negative in tutte e tre
+  le varianti.** Nessuna si avvicina alla propria soglia. Il test **non** avrebbe
+  visto un effetto sotto l'11-14% di un divario gia' piccolo, e va letto cosi': non
+  dimostra che l'effetto sia zero.
+- **QI da solo e' l'unica cosa che si muove**, e le due parole vanno tenute
+  insieme: passa la soglia a due code del 5% e **non** passa Bonferroni su sei
+  varianti (serve |t| > 2,64). Suggestivo, non un risultato.
+- **Il contrasto con (b) e' il fatto piu' interessante.** Li' QI da solo era
+  *peggio* del modello completo (−0,18%) ed era un **complemento**; qui QI da solo
+  e' *meglio* di QI piu' le feature evento (10,5% contro 2,0%). **Le feature
+  evento non sono neutre: peggiorano.**
+- La conclusione **non dipende dal pavimento** di addestramento: stessa a 0, 5, 10
+  e 20 presenze.
+
+**E4.1 — il tetto del voto base e' dichiarato, e sta molto in basso.** In campione
+e al livello giocatore-stagione i regressori arrivano a R² 0,409; ma alla riga
+giocatore-partita **solo l'11-13% della varianza del voto sta FRA i giocatori**, e
+l'87-89% sta dentro lo stesso giocatore — la partita, l'avversario, la giornata.
+Nessun numero per giocatore puo' prenderla. E' la varianza residua che la specifica
+chiedeva di dichiarare, e sta accanto al numero e non in fondo.
+
+> **Il risultato di partita non e' un predittore, ed e' una questione di orologio.**
+> La specifica lo chiedeva fra i regressori del voto, ed e' giusto per la domanda
+> «quanto e' spiegabile»; ma il risultato di una partita di `t` non e' noto
+> all'asta. Entra nella tabella in campione e **non** in `FEATURE_VOTO`. La forza
+> di squadra e' il modo in cui quella stessa informazione entra legittimamente.
+
+**E4.3 — sul singolo giocatore l'assegnazione discreta vale piu' di tutto il
+resto del blocco.** Spostare il rigorista designato dal primo al secondo vale fino
+a **15 punti di stagione**, contro i 2,5 punti di MAE su cui E4 lavora in media.
+Il designato 2026-27 **e' un input**, non una stima: `punti_rigori(designato={...})`
+lo impone a mano. **I rigori attesi non vengono da E3.1**, e la precisazione non e'
+pedanteria: E3.1 modella i gol, i rigori assegnati sono un'altra grandezza (~0,28
+per partita contro ~1,4), e prenderli in prestito da li' sarebbe prendere in
+prestito la sua validazione.
+
+**E4.4 — gli autogol non hanno effetto individuale**, e il modello con l'effetto
+individuale non batte quello col solo tasso di ruolo (guadagno −0,0000). La fonte
+del malus resta quella dei **voti**, come gia' stabilito da E2 e E3: e' definitoria
+perche' e' quella che ha prodotto i `punti_osservati`. WhoScored resta predittore
+(`falli_per_90`), mai bersaglio.
+
+**Il ponte a `giocatore_id` perde il 22% delle righe e lo 0,13% dei minuti**: 878
+su 891 sono convocati mai scesi in campo, che la fonte dei voti non elenca perche'
+non hanno preso nessun voto. E' il quarto stato di E0 visto dall'altro lato.
+
+> **Trappola per le sessioni future.** I risultati negativi di E4 **non vanno
+> "sistemati"**, e in particolare non va gonfiato QI: l'unico numero positivo del
+> blocco non sopravvive alla correzione per molteplicita', ed e' stato scritto
+> cosi' apposta. **`[DECISO 2026-08-07]` QI sui bonus resta una NOTA, non una
+> feature attiva**: non entra in nessun modello pubblicato, e promuoverlo
+> vorrebbe una misura nuova, non una rilettura di questa. E' la stessa disciplina
+> gia' applicata a QI in (b), dove pero' il numero passava. Non va nemmeno riaperto il FVM «visto che QI fa qualcosa»: resta
+> squalificato per l'intera Fase 9 da una misura, non da una cautela. E **il
+> divario dei bonus non va ricitato come 8,9 punti**: quel numero e' riproducibile
+> ma misura un'altra cosa.
+
+**Cinque domande aperte**: (1) **il rating WhoScored non e' nel repository** —
+nessuna delle 259 colonne lo contiene e le pagine grezze non sono state
+conservate — ed e' la **terza** della stessa famiglia, da tenere appaiata al
+**numero di maglia d'agosto** (E2) e al **FVM pre-stagione** (E3): tre valori che
+la fonte pubblica, che si acquisirebbero, e che il repository non ha; (2) **perche'
+le feature evento peggiorino invece di essere neutre** non ha una spiegazione
+misurata — il sospetto e' la ridondanza col modello d'asta, ma qui, a differenza
+delle code di E2, non e' stata misurata; (3) **il divario corretto va riportato
+all'indietro** nei punti in cui il 61,4 → 52,5 e' citato come divario dei bonus;
+(4) **il designato dei rigori per il 2026-27**, che nessuna fonte acquisita
+contiene e che vale fino a 15 punti sul singolo; (5) **gli infortuni**, che dopo E4
+sono il limite dichiarato del progetto invece che uno fra tanti.
+
 
 ## Convenzioni
 

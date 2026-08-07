@@ -1,6 +1,6 @@
 # Fase 9 / Blocco E2 — le presenze
 
-> Generato da `scripts/run_fase9_e2.py` il 2026-08-04.
+> Generato da `scripts/run_fase9_e2.py` il 2026-08-07.
 > Nessuna richiesta di rete.
 
 **Il limite che non si aggira, e che vale per ogni numero di questo report: gli
@@ -19,6 +19,7 @@ contenuto.
 | predittori d'impiego da dati evento | **+0,20%** del divario, sotto l'MDE di 1,53% |
 | numero di maglia | **nessun contributo** distinguibile, e la versione utile non e' costruibile |
 | il cartellino come **predittore** (coda §4) | **±0,03%** del divario, con MDE 0,04-0,12%: confutato |
+| la **quotazione QI** come predittore (§5) | **+1.49%** del divario, t = 2.91: **il primo che passa** |
 | la regola delle squalifiche in se' | **verificata**, accordo 96-99% contro baseline 13-16% |
 | il pavimento di esposizione a zero | **confermato da una misura**, non da un'opinione |
 
@@ -381,6 +382,109 @@ gia' dentro, o perche' non c'e' segnale.
 chi prende cartellini gioca di piu', il modello d'asta gia' sottostima quei
 giocatori, e per questo la sottrazione allontana. Il fatto e' misurato e non
 cambia. Ma la quantita' che lo esprime era gia' nel modello sotto un altro nome.
+
+## 5. (b) — la quotazione QI come predittore di presenza
+
+**E' il primo predittore di presenze del progetto che superi il rumore**, e vale
+la pena dire subito perche' puo' riuscire dove le feature evento hanno fallito:
+tutte quelle vengono da **t-1**, perche' i dati evento di t non esistono ancora.
+**QI viene da t** — e' un prezzo della stagione bersaglio, pubblicato prima che
+cominci. E' l'unica cosa nel repository che guardi t senza guardarne l'esito.
+
+**Il FVM e' fuori, e non per prudenza**: sta sull'orologio di QA, cioe' si muove
+durante la stagione (§3-bis di `modello_asta.md`). QI e' la quotazione iniziale.
+Un test verifica che nessuna colonna contaminata entri qui, e la guardia e'
+sull'**elenco delle colonne ammesse**, non sul nome del suffisso.
+
+### Due forme, e il gate di E1 le separa da solo
+
+| colonna | stagioni | min | max | deriva | passa |
+|---|---:|---:|---:|---:|---:|
+| qi_asta | 4 | 7.9057 | 8.8768 | 0.1094 | no |
+| qi_pct_ruolo_asta | 4 | 0.5756 | 0.5834 | 0.0135 | si |
+
+Il **prezzo grezzo deriva dell'10.9%** fra le quattro stagioni e non passa la
+soglia del 5%; il **percentile dentro `(stagione, ruolo)` deriva dell'1.3%** e
+passa — com'e' giusto, perche' un rango dentro la stagione e' piatto per
+costruzione, ed e' anche il modo di far vedere che la guardia sa dire di si'.
+
+Le due forme sono **due ipotesi diverse**, non due parametrizzazioni: il grezzo
+dice quanto vale un giocatore in assoluto, il percentile dice dove sta nella
+gerarchia del suo ruolo. La seconda e' l'ipotesi vera — la gerarchia dichiarata
+dai club e' cio' che si suppone il mercato sappia e i dati evento no — e le scale
+dei ruoli sono incomparabili (un portiere costa 16, un attaccante 44) mentre il
+modello non ha un termine di ruolo.
+
+### Il risultato
+
+| variante | righe | mae_punti | mae_presenze | corr_presenze | divario_chiuso_pct |
+|---|---:|---:|---:|---:|---:|
+| impiego (senza maglia) | 2678 | 61.3150 | 9.9055 | 0.4613 | 0.1962 |
+| impiego + QI (prezzo grezzo) | 2678 | 61.1757 | 9.8352 | 0.4701 | 0.4457 |
+| impiego + QI (percentile di ruolo) | 2678 | 60.5923 | 9.7438 | 0.4805 | 1.4898 |
+| impiego + QI (percentile + indicatrice) | 2678 | 60.6115 | 9.7474 | 0.4810 | 1.4554 |
+| SOLO QI, senza le feature evento | 2678 | 61.5233 | 9.8882 | 0.4664 | -0.1766 |
+
+| variante | righe | delta_mae | se | t | mde_mae | mde_quota_divario_pct |
+|---|---:|---:|---:|---:|---:|---:|
+| impiego + QI (prezzo grezzo) | 2678 | 0.1393 | 0.1813 | 0.77 | 0.5079 | 0.9092 |
+| impiego + QI (percentile di ruolo) | 2678 | 0.7227 | 0.2485 | 2.91 | 0.6962 | 1.2464 |
+| impiego + QI (percentile + indicatrice) | 2678 | 0.7035 | 0.2444 | 2.88 | 0.6846 | 1.2256 |
+| SOLO QI, senza le feature evento | 2678 | -0.2083 | 0.3432 | -0.61 | 0.9616 | 1.7214 |
+
+**Il percentile di ruolo chiude l'1.49% del divario oracolo**, contro lo
+**0.196%** del set di E2.4 — cioe' **8 volte** quello che le feature da dati evento
+avevano prodotto. La differenza appaiata vale **t = 2.91**, contro un MDE del
+1.25% del divario: **e' il primo predittore d'impiego di questo progetto
+che stia sopra la propria soglia di rilevabilita'.** Con quattro varianti provate,
+la soglia di Bonferroni a due code sarebbe |t| > 2.50, e 2.91 la supera.
+
+Sul MAE delle presenze si passa da 9.906 a 9.744 e la correlazione da
+0.461 a 0.481: si muove il passaggio giusto, non solo il prodotto finale.
+
+**Tre cose che ridimensionano il risultato, e vanno lette insieme al numero:**
+
+1. **L'1.5% resta piccolo in assoluto.** Il MAE sui punti va da 61.32 a
+   60.59: sette decimi di punto su sessantuno. Le presenze restano il 91%
+   dell'errore, e questo ne intacca una frazione. **Gli infortuni continuano a non
+   essere nei dati**, e sono il tetto vero.
+2. **Il prezzo grezzo da solo NON passa** (0.45%, t = 0.77, sotto il proprio
+   MDE del 0.91%). Le due forme danno risposte diverse, quindi **la
+   conclusione dipende dalla forma** — ed e' la forma dichiarata in anticipo come
+   l'ipotesi vera, non quella scelta dopo aver visto i numeri. La coincidenza col
+   gate di E1 e' un argomento in piu': la forma che funziona e' anche l'unica che
+   non deriva.
+3. **QI da solo e' PEGGIO del modello d'asta** (-0.18%): senza le feature evento la
+   quotazione non basta. **E' un complemento, non un sostituto**, e chi ne
+   ricavasse "all'asta guarda solo il prezzo" leggerebbe il contrario di quello
+   che c'e' scritto.
+
+### Il nulla non e' ridondanza, e qui nemmeno il positivo lo e'
+
+| colonna | righe | r2_sulle_quote | corr_quota_minuti |
+|---|---:|---:|---:|
+| qi_asta | 1625 | 0.2845 | 0.5093 |
+| qi_pct_ruolo_asta | 1625 | 0.4744 | 0.6833 |
+
+QI e' **in buona parte gia' nel set**: il percentile ha R² 0.47 sulle tre quote di
+esposizione di t-1 e correla 0.68 con `quota_minuti_prec`. Circa meta' di cio' che
+il prezzo dice e' "ha giocato molto l'anno scorso", e quello lo sapevamo. **Il
+guadagno viene dall'altra meta'** — ed e' esattamente la parte che nessun dato
+evento puo' contenere, perche' e' il mercato estivo e la gerarchia dichiarata.
+
+### L'indicatrice, e perche' non aggiunge niente
+
+Il **31,2%** delle righe di `tabella_predittori` non ha QI: sono giocatori che
+hanno giocato in t-1 e non sono nel listone di t, cioe' hanno lasciato il
+campionato. Il riempimento a zero direbbe "il piu' economico", che e' un'altra
+cosa da "non c'e'", quindi `senza_quotazione_asta` esiste come indicatrice
+esplicita invece di lasciare che il riempimento decida in silenzio.
+
+Non cambia niente (1.46% contro 1.49%), **e il motivo e' strutturale**: la
+valutazione gira sul listone, quindi **tutte e 2678 le righe valutate hanno un
+QI** e la mancanza tocca solo l'addestramento. Riportarlo evita che qualcuno
+concluda che la mancanza non e' informativa: qui non e' *misurabile*, che e'
+un'altra cosa.
 
 ## Domande aperte
 

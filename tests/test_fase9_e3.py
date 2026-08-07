@@ -328,7 +328,11 @@ def test_i_numeri_di_riferimento_del_modello_d_asta_sono_riprodotti():
     s = DF.spearman_portieri()
     p = s[s["ruolo"] == "p"].set_index("candidato")
     assert float(p.loc["modello d'asta", "precisione_top"]) == 0.0
-    assert abs(float(p.loc["FVM della fonte", "precisione_top"]) - 2 / 3) < 0.01
+    assert abs(float(p.loc["FVM della fonte (CONTAMINATO)", "precisione_top"]) - 2 / 3) < 0.01
+    # ...e con il concorrente LEALE quel divario sparisce: QI sta a un pescaggio
+    # dal modello, cioe' dentro la risoluzione della metrica (3 posti x 4
+    # stagioni = passi da 1/12). Vedi il test sui pari merito qui sotto.
+    assert float(p.loc["quotazione iniziale QI", "precisione_top"]) <= 1 / 12 + 1e-9
 
 
 @serve_parquet
@@ -342,9 +346,207 @@ def test_la_premessa_del_blocco_e_falsa_sui_quotati():
     assert float(pr.loc[0, "quota_mai_in_campo"]) > 0.3
     # Fra i probabili titolari le presenze SONO risolte...
     assert float(pr.loc[20, "quota_mai_in_campo"]) < 0.05
-    # ...e li' nessuno dei nostri candidati sa piu' niente, mentre il FVM si'.
+    # ...e li' nessuno dei NOSTRI candidati sa piu' niente.
     assert float(pr.loc[20, "spearman_modello"]) < 0.3
-    assert float(pr.loc[20, "spearman_fvm"]) > 0.5
+    assert float(pr.loc[20, "spearman_sole_presenze_attese"]) < 0.1
+
+
+@serve_parquet
+def test_il_vantaggio_sui_portieri_regge_con_qi_ma_si_riduce():
+    """La correzione della domanda aperta n. 1, bloccata nei due sensi.
+
+    Il numero che il blocco citava (0,700 del FVM) era misurato su un concorrente
+    **contaminato**: la pagina archiviata del FVM si muove durante la stagione
+    (`quotazioni.orologio()`). Rifatto con QI, che e' pulito e noto prima
+    dell'asta, il vantaggio **regge** — quindi la risposta non era solo "sapeva
+    come era andata" — ma **si riduce di molto**, quindi buona parte di quel
+    numero era esattamente quello.
+
+    Il test pretende **entrambe** le cose, cosi' che non si possa raccontare solo
+    la meta' comoda in nessuna delle due direzioni.
+    """
+    pr = DF.premessa_portieri().set_index("soglia_presenze_attese")
+    qi = float(pr.loc[20, "spearman_qi"])
+    fvm = float(pr.loc[20, "spearman_fvm_CONTAMINATO"])
+    assert qi > float(pr.loc[20, "spearman_modello"]), "il vantaggio deve reggere"
+    assert qi > float(pr.loc[20, "spearman_sole_presenze_attese"])
+    assert qi < 0.6 * fvm, "e deve ridursi: gran parte del 0,700 era contaminazione"
+
+
+@serve_parquet
+def test_sui_portieri_la_precisione_non_ha_risoluzione():
+    """Perche' il confronto QI-contro-modello sulla precisione non si puo' fare.
+
+    QI e' un prezzo **intero**, e fra i portieri ci sono pari merito **al confine
+    dei primi tre in due stagioni su quattro** (2024-25 ha 15 e 15 al terzo e
+    quarto posto, 2025-26 ha quattro 16 per tre posti): li' quali tre entrano lo
+    decide il sorteggio che scioglie i pari, non la quotazione. Con 3 posti per 4
+    stagioni la metrica ha passi da 1/12, e le due implementazioni del repository
+    — `modello_asta` e `difesa` — sciolgono i pari in modo diverso e danno 0,000 e
+    0,083.
+
+    **Non e' un difetto da appianare: e' la risoluzione della metrica.** Il test
+    lo blocca cosi' che nessuno legga quella differenza come un risultato.
+    """
+    from sot import modello_asta as MA
+
+    wf = MA.walkforward()
+    ambigue = 0
+    for _, g in wf[wf["ruolo"] == "p"].groupby("stagione_prevista"):
+        x = pd.to_numeric(g["b_qi"], errors="coerce").dropna().nlargest(4)
+        ambigue += int(x.iloc[2] == x.iloc[3])
+    assert ambigue >= 2, (
+        "senza pari merito al confine questo test non descrive piu' i dati")
+
+    a = MA.precisione_top(wf)
+    a = float(a[(a["ruolo"] == "p")
+                & (a["candidato"] == "quotazione iniziale QI")]["precisione"].mean())
+    s = DF.spearman_portieri()
+    b = float(s[(s["ruolo"] == "p")
+                & (s["candidato"] == "quotazione iniziale QI")]["precisione_top"].iloc[0])
+    assert abs(a - b) <= 1 / 12 + 1e-9, (a, b)
+
+
+@serve_parquet
+def test_il_fvm_resta_in_tabella_e_resta_marcato():
+    """Un errore di questo progetto non si cancella: si marca e resta in vista.
+
+    Se qualcuno togliesse la colonna o le levasse il marchio, il confronto
+    tornerebbe a sembrare leale.
+    """
+    from sot import quotazioni as Q
+
+    assert "spearman_fvm_CONTAMINATO" in DF.premessa_portieri().columns
+    s = DF.spearman_portieri()
+    nomi = set(s["candidato"])
+    assert "FVM della fonte (CONTAMINATO)" in nomi
+    assert "FVM della fonte" not in nomi
+    assert "fvm_classic" in Q.COLONNE_CONTAMINATE
+
+
+# --------------------------------------------------------------------------
+# E3.5 — la coda: l'ipotesi della compensazione, e la sua confutazione
+# --------------------------------------------------------------------------
+
+@serve_parquet
+def test_e35_riproduce_la_pendenza_di_e33():
+    """Le componenti stanno sulla stessa popolazione di E3.3, non su un'altra.
+
+    Senza questo controllo, una differenza fra E3.3 ed E3.5 potrebbe essere un
+    risultato oppure un campione diverso, e non si saprebbe quale delle due.
+    """
+    a = DF.pendenza_voto().set_index(["ruolo", "regressore"])
+    b = DF.pendenza_componenti().set_index(["ruolo", "componente"])
+    for ruolo in ("p", "d"):
+        assert abs(float(a.loc[(ruolo, "lam_subiti (previsto)"), "pendenza"])
+                   - float(b.loc[(ruolo, "comp_voto"), "pendenza"])) < 1e-9
+        assert (int(a.loc[(ruolo, "lam_subiti (previsto)"), "righe"])
+                == int(b.loc[(ruolo, "comp_voto"), "righe"]))
+
+
+@serve_parquet
+def test_il_difensore_non_ha_la_componente_del_malus():
+    """Zero **per regolamento**, non per approssimazione.
+
+    E' meta' del meccanismo di E3.5: il difensore ha un canale, il portiere due.
+    Se un giorno questa componente diventasse non nulla sui difensori, il barema
+    di lega sarebbe cambiato e il test deve accorgersene.
+    """
+    from sot import lega as L
+
+    assert "gol_subiti" in L.SOLO_PORTIERE
+    assert "porta_inviolata" in L.SOLO_PORTIERE
+    b = DF.pendenza_componenti().set_index(["ruolo", "componente"])
+    assert float(b.loc[("d", "comp_bonus"), "pendenza"]) == 0.0
+    # e quindi netto e voto coincidono sul difensore
+    assert (float(b.loc[("d", "comp_netto"), "pendenza"])
+            == float(b.loc[("d", "comp_voto"), "pendenza"]))
+
+
+@serve_parquet
+def test_la_compensazione_non_regge_e_la_soglia_e_dichiarata():
+    """Il risultato della coda: il netto NON e' piatto.
+
+    La soglia e' una costante letterale del modulo, non un numero ricavato dai
+    dati: si controlla che sia dichiarata **e** che il verdetto la usi.
+    """
+    assert DF.SOGLIA_COMPENSAZIONE == 1 / 3
+    out = DF.pendenza_componenti()
+    quota = out.attrs["quota_malus_superstite"]
+    assert quota > DF.SOGLIA_COMPENSAZIONE
+    assert out.attrs["compensazione"] is False
+    # il netto ha lo stesso segno del malus e non e' distinguibile da esso
+    p = out[out["ruolo"] == "p"].set_index("componente")
+    assert float(p.loc["comp_netto", "pendenza"]) < 0
+    assert abs(float(p.loc["comp_netto", "t"])) > 5
+
+
+@serve_parquet
+def test_i_totali_non_sono_leggibili_come_compensazione():
+    """La trappola che questa coda ha evitato, bloccata perche' non ritorni.
+
+    Sui totali di stagione le due componenti risultano correlate negativamente
+    **attraverso le presenze**, e sembrerebbe la conferma cercata. Sulle medie per
+    presenza — la grandezza giusta — la correlazione svanisce. Il test pretende
+    entrambe le cose, cosi' che citare la prima da sola sia un errore visibile.
+    """
+    c = DF.correlazione_componenti().set_index("pavimento_presenze")
+    assert float(c.loc[10, "corr_totali"]) < -0.2
+    assert abs(float(c.loc[10, "corr_medie"])) < 0.1
+    assert abs(float(c.loc[19, "corr_medie"])) < 0.1
+
+
+@serve_parquet
+def test_collegare_entrambi_i_lati_non_recupera_nemmeno_con_l_oracolo():
+    """La conseguenza operativa dell'ipotesi, misurata e negativa.
+
+    Se recuperasse, l'ipotesi avrebbe avuto ragione in modo utile pur essendo
+    sbagliata nel meccanismo. Non recupera, e **nemmeno con la pendenza stimata
+    sulla stagione bersaglio**: quindi non e' un problema di stima.
+    """
+    d = DF.collegamento_due_lati()
+    p = d[d["soglia_presenze_attese"] == 0].set_index("candidato")["spearman"]
+    base = float(p["modello d'asta (nessun lato)"])
+    assert float(p["entrambi i lati"]) < base
+    assert float(p["entrambi i lati (pendenza ORACOLO)"]) < base
+    # e il FVM resta davanti a tutti, che e' la domanda che il blocco lascia
+    assert float(p["FVM della fonte (CONTAMINATO)"]) > base
+
+
+@serve_parquet
+def test_la_difesa_di_e3_stima_meglio_di_cio_che_ha_sostituito():
+    """L'esclusione che la coda aggiunge, ed e' il suo contributo positivo.
+
+    La spiegazione comoda — "la difesa e' stimata male" — e' falsa: contro il
+    bonus difensivo realmente realizzato, E3 batte il bonus storico del portiere
+    su MAE **e** su correlazione. Il peggioramento dell'ordinamento va spiegato
+    altrove, e non lo e' ancora.
+    """
+    q = DF.qualita_componente_difensiva().set_index("stimatore")
+    e3 = q.loc["difesa E3 (modello di squadra)"]
+    sto = q.loc["bonus storico del portiere (il modello d'asta)"]
+    assert float(e3["mae"]) < float(sto["mae"])
+    assert float(e3["corr"]) > float(sto["corr"])
+    # I due denominatori sono diversi ED E' VOLUTO: restringere la correlazione
+    # con le presenze ai soli titolari troncherebbe la variabile in questione.
+    assert int(e3["portieri_tutti"]) > int(e3["portieri_qualita"])
+
+
+@serve_parquet
+def test_il_malus_e_alimentato_dalla_fonte_dei_voti():
+    """Quale delle due fonti produce il malus, dichiarato e verificato.
+
+    `voti_difensori` sovrascrive `gol_subiti` con i gol di squadra ricomposti da
+    WhoScored: stesso nome, altra grandezza. Il malus deve venire dalla fonte
+    definitoria — quella che ha prodotto i `punti_osservati` — e le due devono
+    divergere su poche righe ma **non zero**, altrimenti la distinzione sarebbe
+    finta e nessuno se ne accorgerebbe piu'.
+    """
+    assert DF.FONTE_MALUS == "voti"
+    c = DF.componenti_portiere()
+    assert "gol_subiti_voti" in c.columns
+    n = c.attrs["righe_gol_subiti_discordi"]
+    assert 0 < n < 0.05 * int((c["ruolo"] == "p").sum())
 
 
 # --------------------------------------------------------------------------

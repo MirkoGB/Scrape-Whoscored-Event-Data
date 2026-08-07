@@ -81,6 +81,12 @@ def main() -> None:
     cart = IM.contributo_cartellini()
     ridond = IM.ridondanza_cartellini()
 
+    print("(b): la quotazione QI come predittore di presenza...")
+    deriva_q = IM.deriva_qi()
+    ridond_q = IM.ridondanza_qi()
+    qi = IM.contributo_qi()
+    tab_qi = IM.con_quotazione()
+
     for nome, df in (("fase9_e2_squalifiche", riep_sq),
                      ("fase9_e2_squalifiche_verifica", ver),
                      ("fase9_e2_cartellini_due_fonti", fonti),
@@ -92,8 +98,19 @@ def main() -> None:
                      ("fase9_e2_primo_anno", primo_anno),
                      ("fase9_e2_cartellini_deriva", deriva_c),
                      ("fase9_e2_cartellini_contributo", cart["tabella"]),
-                     ("fase9_e2_cartellini_mde", cart["mde"])):
+                     ("fase9_e2_cartellini_mde", cart["mde"]),
+                     ("fase9_e2_qi_deriva", deriva_q),
+                     ("fase9_e2_qi_ridondanza", ridond_q),
+                     ("fase9_e2_qi_contributo", qi["tabella"]),
+                     ("fase9_e2_qi_mde", qi["mde"])):
         df.to_csv(config.REPORTS / f"{nome}.csv", index=False)
+
+    q_tab = qi["tabella"].set_index("variante")
+    q_mde = qi["mde"].set_index("variante")
+    q_rid = ridond_q.set_index("colonna")
+    q_der = deriva_q.set_index("colonna")
+    VINCE = "impiego + QI (percentile di ruolo)"
+    BASE_Q = "impiego (senza maglia)"
 
     n_multi = int((nm["n_numeri"] > 1).sum())
     multi = nm[nm["n_numeri"] > 1][["stagione", "teamId", "playerId", "jersey",
@@ -122,6 +139,7 @@ contenuto.
 | predittori d'impiego da dati evento | **+0,20%** del divario, sotto l'MDE di 1,53% |
 | numero di maglia | **nessun contributo** distinguibile, e la versione utile non e' costruibile |
 | il cartellino come **predittore** (coda §4) | **±0,03%** del divario, con MDE 0,04-0,12%: confutato |
+| la **quotazione QI** come predittore (§5) | **+{float(q_tab.loc[VINCE, 'divario_chiuso_pct']):.2f}%** del divario, t = {float(q_mde.loc[VINCE, 't']):.2f}: **il primo che passa** |
 | la regola delle squalifiche in se' | **verificata**, accordo 96-99% contro baseline 13-16% |
 | il pavimento di esposizione a zero | **confermato da una misura**, non da un'opinione |
 
@@ -399,6 +417,94 @@ gia' dentro, o perche' non c'e' segnale.
 chi prende cartellini gioca di piu', il modello d'asta gia' sottostima quei
 giocatori, e per questo la sottrazione allontana. Il fatto e' misurato e non
 cambia. Ma la quantita' che lo esprime era gia' nel modello sotto un altro nome.
+
+## 5. (b) — la quotazione QI come predittore di presenza
+
+**E' il primo predittore di presenze del progetto che superi il rumore**, e vale
+la pena dire subito perche' puo' riuscire dove le feature evento hanno fallito:
+tutte quelle vengono da **t-1**, perche' i dati evento di t non esistono ancora.
+**QI viene da t** — e' un prezzo della stagione bersaglio, pubblicato prima che
+cominci. E' l'unica cosa nel repository che guardi t senza guardarne l'esito.
+
+**Il FVM e' fuori, e non per prudenza**: sta sull'orologio di QA, cioe' si muove
+durante la stagione (§3-bis di `modello_asta.md`). QI e' la quotazione iniziale.
+Un test verifica che nessuna colonna contaminata entri qui, e la guardia e'
+sull'**elenco delle colonne ammesse**, non sul nome del suffisso.
+
+### Due forme, e il gate di E1 le separa da solo
+
+{_tab(deriva_q, {"min": 4, "max": 4, "deriva": 4})}
+
+Il **prezzo grezzo deriva dell'{100 * float(q_der.loc['qi_asta', 'deriva']):.1f}%** fra le quattro stagioni e non passa la
+soglia del 5%; il **percentile dentro `(stagione, ruolo)` deriva dell'{100 * float(q_der.loc['qi_pct_ruolo_asta', 'deriva']):.1f}%** e
+passa — com'e' giusto, perche' un rango dentro la stagione e' piatto per
+costruzione, ed e' anche il modo di far vedere che la guardia sa dire di si'.
+
+Le due forme sono **due ipotesi diverse**, non due parametrizzazioni: il grezzo
+dice quanto vale un giocatore in assoluto, il percentile dice dove sta nella
+gerarchia del suo ruolo. La seconda e' l'ipotesi vera — la gerarchia dichiarata
+dai club e' cio' che si suppone il mercato sappia e i dati evento no — e le scale
+dei ruoli sono incomparabili (un portiere costa 16, un attaccante 44) mentre il
+modello non ha un termine di ruolo.
+
+### Il risultato
+
+{_tab(q_tab.reset_index(), {"mae_punti": 4, "mae_presenze": 4,
+                            "corr_presenze": 4, "divario_chiuso_pct": 4})}
+
+{_tab(qi["mde"], {"delta_mae": 4, "se": 4, "t": 2, "mde_mae": 4,
+                  "mde_quota_divario_pct": 4})}
+
+**Il percentile di ruolo chiude l'{float(q_tab.loc[VINCE, 'divario_chiuso_pct']):.2f}% del divario oracolo**, contro lo
+**{float(q_tab.loc[BASE_Q, 'divario_chiuso_pct']):.3f}%** del set di E2.4 — cioe' **{float(q_tab.loc[VINCE, 'divario_chiuso_pct']) / float(q_tab.loc[BASE_Q, 'divario_chiuso_pct']):.0f} volte** quello che le feature da dati evento
+avevano prodotto. La differenza appaiata vale **t = {float(q_mde.loc[VINCE, 't']):.2f}**, contro un MDE del
+{float(q_mde.loc[VINCE, 'mde_quota_divario_pct']):.2f}% del divario: **e' il primo predittore d'impiego di questo progetto
+che stia sopra la propria soglia di rilevabilita'.** Con quattro varianti provate,
+la soglia di Bonferroni a due code sarebbe |t| > 2.50, e {float(q_mde.loc[VINCE, 't']):.2f} la supera.
+
+Sul MAE delle presenze si passa da {float(q_tab.loc[BASE_Q, 'mae_presenze']):.3f} a {float(q_tab.loc[VINCE, 'mae_presenze']):.3f} e la correlazione da
+{float(q_tab.loc[BASE_Q, 'corr_presenze']):.3f} a {float(q_tab.loc[VINCE, 'corr_presenze']):.3f}: si muove il passaggio giusto, non solo il prodotto finale.
+
+**Tre cose che ridimensionano il risultato, e vanno lette insieme al numero:**
+
+1. **L'{float(q_tab.loc[VINCE, 'divario_chiuso_pct']):.1f}% resta piccolo in assoluto.** Il MAE sui punti va da {float(q_tab.loc[BASE_Q, 'mae_punti']):.2f} a
+   {float(q_tab.loc[VINCE, 'mae_punti']):.2f}: sette decimi di punto su sessantuno. Le presenze restano il 91%
+   dell'errore, e questo ne intacca una frazione. **Gli infortuni continuano a non
+   essere nei dati**, e sono il tetto vero.
+2. **Il prezzo grezzo da solo NON passa** ({float(q_tab.loc['impiego + QI (prezzo grezzo)', 'divario_chiuso_pct']):.2f}%, t = {float(q_mde.loc['impiego + QI (prezzo grezzo)', 't']):.2f}, sotto il proprio
+   MDE del {float(q_mde.loc['impiego + QI (prezzo grezzo)', 'mde_quota_divario_pct']):.2f}%). Le due forme danno risposte diverse, quindi **la
+   conclusione dipende dalla forma** — ed e' la forma dichiarata in anticipo come
+   l'ipotesi vera, non quella scelta dopo aver visto i numeri. La coincidenza col
+   gate di E1 e' un argomento in piu': la forma che funziona e' anche l'unica che
+   non deriva.
+3. **QI da solo e' PEGGIO del modello d'asta** ({float(q_tab.loc['SOLO QI, senza le feature evento', 'divario_chiuso_pct']):.2f}%): senza le feature evento la
+   quotazione non basta. **E' un complemento, non un sostituto**, e chi ne
+   ricavasse "all'asta guarda solo il prezzo" leggerebbe il contrario di quello
+   che c'e' scritto.
+
+### Il nulla non e' ridondanza, e qui nemmeno il positivo lo e'
+
+{_tab(ridond_q, {"r2_sulle_quote": 4, "corr_quota_minuti": 4})}
+
+QI e' **in buona parte gia' nel set**: il percentile ha R² {float(q_rid.loc['qi_pct_ruolo_asta', 'r2_sulle_quote']):.2f} sulle tre quote di
+esposizione di t-1 e correla {float(q_rid.loc['qi_pct_ruolo_asta', 'corr_quota_minuti']):.2f} con `quota_minuti_prec`. Circa meta' di cio' che
+il prezzo dice e' "ha giocato molto l'anno scorso", e quello lo sapevamo. **Il
+guadagno viene dall'altra meta'** — ed e' esattamente la parte che nessun dato
+evento puo' contenere, perche' e' il mercato estivo e la gerarchia dichiarata.
+
+### L'indicatrice, e perche' non aggiunge niente
+
+Il **31,2%** delle righe di `tabella_predittori` non ha QI: sono giocatori che
+hanno giocato in t-1 e non sono nel listone di t, cioe' hanno lasciato il
+campionato. Il riempimento a zero direbbe "il piu' economico", che e' un'altra
+cosa da "non c'e'", quindi `senza_quotazione_asta` esiste come indicatrice
+esplicita invece di lasciare che il riempimento decida in silenzio.
+
+Non cambia niente ({float(q_tab.loc['impiego + QI (percentile + indicatrice)', 'divario_chiuso_pct']):.2f}% contro {float(q_tab.loc[VINCE, 'divario_chiuso_pct']):.2f}%), **e il motivo e' strutturale**: la
+valutazione gira sul listone, quindi **tutte e {int(q_tab.loc[VINCE, 'righe'])} le righe valutate hanno un
+QI** e la mancanza tocca solo l'addestramento. Riportarlo evita che qualcuno
+concluda che la mancanza non e' informativa: qui non e' *misurabile*, che e'
+un'altra cosa.
 
 ## Domande aperte
 

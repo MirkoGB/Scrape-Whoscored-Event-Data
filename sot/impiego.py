@@ -26,8 +26,14 @@ bersaglio scritto in un'altra colonna.
 stessa ragione. Il costo e' reale e va dichiarato: chi cambia club perde
 esattamente cio' che rendeva la feature interessante, cioe' il caso del giocatore
 appena arrivato. **Il numero d'agosto sarebbe acquisibile** — e' pubblicato dai
-club e sta nei listoni — ma non e' nel repository, ed e' una domanda aperta con
-una risposta nota, non un limite dei dati evento.
+club — ma non e' nel repository, ed e' una domanda aperta con una risposta nota,
+non un limite dei dati evento.
+
+**Correzione del 2026-08-07**: questa riga diceva anche "e sta nei listoni", ed
+era falso. Il listone 2025-26 non contiene nessuna colonna di maglia — le sole
+esposte sono `sq`, `c_qi`, `c_qa`, `c_fvm` e le `m_*` — e nemmeno le pagine dei
+voti. La fonte sarebbe una **terza** pagina, le rose di club, che non e' stata
+individuata: la domanda e' aperta e costa piu' di quanto sembrasse.
 
 TUTTO CIO' CHE SI STIMA, SI STIMA SUL SOLO PASSATO
 --------------------------------------------------
@@ -665,6 +671,202 @@ def contributo_cartellini(pavimento: int = PAVIMENTO, alpha: float = ALPHA,
     # Il divario e' quello gia' pubblicato: 61,42 del modello d'asta completo
     # contro 5,56 dell'oracolo. Ricalcolarlo su un altro campione renderebbe le
     # percentuali non confrontabili con la tabella di E2.4.
+    completo = float((d["punti_previsti"] - d["punti_osservati"]).abs().mean())
+    pavim = float((d["presenze_osservate"] * tasso - d["punti_osservati"]).abs().mean())
+    out["divario_chiuso_pct"] = 100 * (completo - out["mae_punti"]) / (completo - pavim)
+
+    base = "pres_impiego (senza maglia)"
+    mde = pd.DataFrame([{"variante": nome,
+                         **potenza_mde(d, f"pres_{nome}", riferimento=base)}
+                        for nome in varianti if nome != "impiego (senza maglia)"])
+    return {"tabella": out, "mde": mde, "dettaglio": d}
+
+
+# --------------------------------------------------------------------------
+# (b) — LA QUOTAZIONE COME PREDITTORE DI PRESENZA
+#
+# PERCHE' QI E NON IL FVM
+# ------------------------
+# Il FVM e' fuori, e non per prudenza: `quotazioni.orologio()` ha misurato che il
+# FVM della pagina archiviata sta sull'orologio di **QA**, cioe' si muove durante
+# la stagione. Usarlo per prevedere la stagione da cui proviene sarebbe leakage
+# (vincolo 1). **QI e' la quotazione iniziale**, pubblicata prima dell'asta: e'
+# esattamente l'informazione che si ha in mano al momento della decisione. Un test
+# verifica che nessuna colonna contaminata entri qui.
+#
+# QI NON E' UNA FEATURE `_prec`, ED E' IL PUNTO
+# ----------------------------------------------
+# Tutte le feature di E2 vengono da t-1, perche' vengono dai dati evento e i dati
+# evento di t non esistono ancora. QI viene da t: e' un prezzo **della stagione
+# bersaglio**, noto prima che cominci. E' l'unica cosa in tutto il repository che
+# guardi t senza guardarne l'esito, ed e' la ragione per cui questo test puo' dare
+# qualcosa dove le feature evento non hanno dato niente. Il suffisso e' `_asta` e
+# non `_prec` apposta — ma **la guardia non e' sul nome**: e' l'elenco
+# `COLONNE_LISTONE_AMMESSE`, perche' un nome che dice "noto all'asta" resterebbe
+# vero anche mettendoci dentro QA, e sarebbe falso.
+#
+# DUE FORME, PERCHE' SONO DUE IPOTESI
+# ------------------------------------
+# Il **prezzo grezzo** dice quanto vale il giocatore in assoluto; il **percentile
+# dentro (stagione, ruolo)** dice dove sta nella gerarchia del suo ruolo, ed e'
+# l'ipotesi vera — la gerarchia dichiarata dai club e' cio' che si suppone il
+# mercato sappia e i dati evento no. Le scale dei ruoli sono incomparabili (un
+# portiere costa 16, un attaccante 44) e il modello non ha un termine di ruolo,
+# quindi il grezzo da solo mescolerebbe "e' forte" con "gioca in attacco".
+#
+# LA MANCANZA E' INFORMAZIONE, E NON VA CONFUSA CON "COSTA POCO"
+# --------------------------------------------------------------
+# Chi ha giocato in t-1 e non e' nel listone di t ha lasciato il campionato. Con
+# la sola colonna numerica il riempimento a zero direbbe "il piu' economico", che
+# e' un'altra cosa. Percio' esiste `senza_quotazione_asta`, indicatrice esplicita,
+# e la si prova come variante a se' invece di lasciare che il riempimento decida
+# in silenzio.
+# --------------------------------------------------------------------------
+
+#: Le colonne del listone che questo blocco puo' usare. **Non e' una convenzione
+#: di stile**: e' il gate di `quotazioni` applicato al punto d'uso.
+COLONNE_LISTONE_AMMESSE = ("qi_classic",)
+
+
+def quotazione_asta(quote: pd.DataFrame = None) -> pd.DataFrame:
+    """QI della stagione bersaglio, grezzo e in percentile dentro `(stagione, ruolo)`.
+
+    Il percentile usa il **ruolo del listone** e non quello posizionale di
+    WhoScored: e' il listone a fissare la scala del prezzo, e sono due grandezze
+    diverse che il progetto tiene separate dalla Fase 8.
+    """
+    from . import quotazioni as Q
+
+    for c in COLONNE_LISTONE_AMMESSE:
+        if c in Q.COLONNE_CONTAMINATE:
+            raise ValueError(f"{c} e' una colonna contaminata: vedi Q.orologio()")
+
+    quote = Q.carica() if quote is None else quote
+    d = quote[["stagione", "giocatore_id", "ruolo_classic", "qi_classic"]].copy()
+    d = d.dropna(subset=["qi_classic"])
+    d["qi_asta"] = d["qi_classic"].astype(float)
+    d["qi_pct_ruolo_asta"] = (d.groupby(["stagione", "ruolo_classic"])["qi_asta"]
+                              .rank(pct=True))
+    return d[["stagione", "giocatore_id", "qi_asta", "qi_pct_ruolo_asta"]]
+
+
+def con_quotazione(tab: pd.DataFrame = None,
+                   quote: pd.DataFrame = None) -> pd.DataFrame:
+    """`tabella_predittori` piu' le colonne del listone della stagione bersaglio.
+
+    Il join e' su `(stagione, giocatore_id)` dove `stagione` e' gia' quella
+    **bersaglio**: e' la stessa chiave con cui `previsione_presenze` separa
+    passato e presente, quindi le righe di addestramento prendono il QI della
+    *loro* stagione e non quello della stagione prevista.
+    """
+    tab = tabella_predittori() if tab is None else tab
+    n = len(tab)
+    out = tab.merge(quotazione_asta(quote), on=["stagione", "giocatore_id"],
+                    how="left")
+    assert len(out) == n, "il join del listone ha moltiplicato le righe"
+    out["senza_quotazione_asta"] = out["qi_asta"].isna().astype(float)
+    return out
+
+
+FEATURE_QI = {
+    "impiego + QI (prezzo grezzo)": FEATURE + ("qi_asta",),
+    "impiego + QI (percentile di ruolo)": FEATURE + ("qi_pct_ruolo_asta",),
+    "impiego + QI (percentile + indicatrice)": FEATURE + ("qi_pct_ruolo_asta",
+                                                          "senza_quotazione_asta"),
+    "SOLO QI, senza le feature evento": ("qi_pct_ruolo_asta",
+                                         "senza_quotazione_asta"),
+}
+
+
+def ridondanza_qi(tab: pd.DataFrame = None) -> pd.DataFrame:
+    """Quanto QI e' gia' spiegato dalle feature evento del set di E2.4.
+
+    E' la misura che distingue **«e' gia' nel set»** da **«non c'e' segnale»**, ed
+    e' la lezione della coda sui cartellini: senza, un risultato nullo sarebbe
+    ambiguo. Se QI fosse quasi interamente prevedibile dalle quote di esposizione
+    di t-1, il mercato non starebbe dicendo niente che non sappiamo gia'.
+    """
+    tab = con_quotazione(tab)
+    quote = ["quota_minuti_prec", "quota_titolare_prec", "quota_convocato_prec"]
+    righe = []
+    for col in ("qi_asta", "qi_pct_ruolo_asta"):
+        d = tab.dropna(subset=[col] + quote)
+        X = np.column_stack([np.ones(len(d))]
+                            + [d[q].astype(float).to_numpy() for q in quote])
+        y = d[col].to_numpy(dtype=float)
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        res = y - X @ b
+        r2 = 1 - float((res ** 2).sum() / ((y - y.mean()) ** 2).sum())
+        righe.append({"colonna": col, "righe": len(d), "r2_sulle_quote": r2,
+                      "corr_quota_minuti": float(
+                          d[col].corr(d["quota_minuti_prec"]))})
+    return pd.DataFrame(righe)
+
+
+def deriva_qi(tab: pd.DataFrame = None) -> pd.DataFrame:
+    """Il gate di E1 applicato alle due forme: la deriva fra stagioni.
+
+    Il percentile e' **piatto per costruzione** — e' un rango dentro la stagione —
+    e sta qui per far vedere che la guardia sa dire anche di si'. Il prezzo grezzo
+    no, e la sua deriva va guardata: il budget di lega e' fisso, quindi ci si
+    aspetta poco, ma "ci si aspetta" non e' una misura.
+    """
+    from . import features_giocatore as FG
+
+    tab = con_quotazione(tab)
+    righe = []
+    for col in ("qi_asta", "qi_pct_ruolo_asta"):
+        m = tab.groupby("stagione")[col].mean().dropna()
+        deriva = (float((m.max() - m.min()) / abs(m.max())) if len(m) > 1
+                  else float("nan"))
+        righe.append({"colonna": col, "stagioni": len(m), "min": float(m.min()),
+                      "max": float(m.max()), "deriva": deriva,
+                      "passa": bool(deriva < FG.SOGLIA_DERIVA)})
+    return pd.DataFrame(righe)
+
+
+def contributo_qi(pavimento: int = PAVIMENTO, alpha: float = ALPHA) -> dict:
+    """Il contributo di QI come predittore d'impiego. Stesso disegno della coda E2.
+
+    Stesse quattro transizioni, stesse righe, stesso divario oracolo: il numero da
+    battere e' lo **0,196%** di `impiego (senza maglia)`, cioe' quello che le
+    feature da dati evento non hanno scalfito.
+    """
+    from . import fantapunti as FP, modello_asta as MA
+
+    ps = FP.per_giocatore_stagione()
+    oss = ps[["stagione", "giocatore_id", "presenze"]]
+    tab = con_quotazione()
+    wf = MA.walkforward(per_stagione=ps)
+
+    d = wf.copy()
+    tasso = d["voto_atteso"] + d["bonus_per_presenza_atteso"]
+    varianti = {"impiego (senza maglia)": FEATURE, **FEATURE_QI}
+
+    righe = []
+    for nome, feat in varianti.items():
+        pezzi = []
+        for st in MA.STAGIONI_VALUTABILI:
+            p = previsione_presenze(st, tab, oss, feat, alpha, pavimento)
+            pezzi.append(tab.loc[p.index, ["stagione", "giocatore_id"]].assign(pred=p))
+        k = (pd.concat(pezzi, ignore_index=True)
+             .set_index(["stagione", "giocatore_id"])["pred"])
+        pres = pd.Series([k.get((s, g), np.nan) for s, g
+                          in zip(d["stagione_prevista"], d["giocatore_id"])],
+                         index=d.index).fillna(d["presenze_attese"])
+        d[f"pres_{nome}"] = pres
+        punti = pres * tasso
+        ok = punti.notna()
+        righe.append({
+            "variante": nome, "righe": int(ok.sum()),
+            "mae_punti": float((punti[ok] - d["punti_osservati"][ok]).abs().mean()),
+            "mae_presenze": float((pres - d["presenze_osservate"]).abs().mean()),
+            "corr_presenze": float(pres.corr(d["presenze_osservate"])),
+        })
+
+    out = pd.DataFrame(righe)
+    # Il divario e' quello gia' pubblicato: 61,42 contro 5,56. Ricalcolarlo su un
+    # altro campione renderebbe le percentuali non confrontabili con E2.4.
     completo = float((d["punti_previsti"] - d["punti_osservati"]).abs().mean())
     pavim = float((d["presenze_osservate"] * tasso - d["punti_osservati"]).abs().mean())
     out["divario_chiuso_pct"] = 100 * (completo - out["mae_punti"]) / (completo - pavim)
