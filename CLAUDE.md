@@ -22,8 +22,8 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
-ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0, R1 e R2
-della Fase 10**, che aprono il ramo G1.** Dettaglio ed esiti nella
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0, R1, R2 e
+la coda R2-bis (calibrazione) della Fase 10**, che aprono il ramo G1.** Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
@@ -52,7 +52,7 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
-| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R3** (R0 ✅, R1 ✅, R2 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+| **Fase 10** (R0 → R1 → R2 → R2-bis → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R3** (R0 ✅, R1 ✅, R2 ✅, R2-bis ✅) | E3 + aggancio Fase 8, **gia' in casa** |
 
 **La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
 dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
@@ -99,7 +99,7 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 626 test, ~340 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 734 test, ~405 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -183,6 +183,12 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # soglia, calibrazione, contro cinque baseline composti con la STESSA congiunta
 # (~1 min). NON stima nessun parametro nuovo e NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase10_r2.py
+
+# Fase 10 / coda R2-bis: la calibrazione su 1X2. De-compressione del divario come
+# parametro, controllo diretto sui gol, ricalibrazione walk-forward (temperatura,
+# Platt, isotonica) e l'identita' di dispersione della classifica (~1 min).
+# A differenza di R2 questo blocco STIMA. NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase10_r2bis.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -415,6 +421,19 @@ sot/
                    dichiarato e tocca **una** riga — senza, la log-loss di
                    `media squadra` sarebbe infinita. `dispersione_somma()` e'
                    la misura che ha corretto la spiegazione dell'over/under
+  ricalibrazione.py Fase 10 / R2-bis. **L'UNICO modulo della Fase 10 che stima**,
+                   e sta separato da `esiti.py` per questo: li' un test vieta
+                   `minimize`. Tiene separate due domande che e' facile
+                   confondere — **da dove viene** la sotto-sicurezza
+                   (de-compressione del divario come parametro `k`, in tre modi
+                   dichiarati) e **se si toglie** (ricalibrazione walk-forward).
+                   Che la seconda funzioni **non e' una conferma della prima**.
+                   Il criterio di adozione (`CRITERIO_ADOZIONE`) e' scritto prima
+                   di guardare i numeri e `verdetto()` lo applica meccanicamente.
+                   `identita_punti()` porta la domanda al livello di R3 — la
+                   classifica si disperde quanto il modello dice? — ed e'
+                   verificata su esiti **generati dal modello**, dove la risposta
+                   e' nota
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -441,7 +460,7 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_fase9_e4.py, run_fase10_r0.py, run_fase10_r1.py,
           run_fase10_r2.py,
           tiri_in_porta.py
-tests/    conftest + 31 moduli
+tests/    conftest + 32 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -2987,6 +3006,139 @@ circa 10.700 partite per distinguerli, cioe' **la prima domanda del progetto in
 cui G2 avrebbe un uso diretto e quantificato**; (3) nessuna valutazione di valore
 atteso e' possibile senza quote reali; (4) le due partite disallineate restano
 fuori per decisione dell'utente.
+
+
+### Fase 10 — coda R2-bis: la calibrazione, prima di R3 ✅ (l'ipotesi cade, il sintomo si toglie)
+
+`reports/fase10_r2bis_calibrazione.md`, da `scripts/run_fase10_r2bis.py`; modulo
+`sot/ricalibrazione.py`, test `tests/test_fase10_r2bis.py` (36). **Nessuna
+richiesta di rete.** **A differenza di R2 questo blocco STIMA** — la
+ricalibrazione ha parametri, e sono walk-forward. **Nessun numero pubblicato e'
+cambiato**, verificato rieseguendo: `run_phase1.py` ridà 4.034 / 4.432 / 3.637 /
+5.105 su 562.672 eventi, `run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240],
+e R2 resta 1.638 partite, RPS 0,2041, pendenza 1,223.
+
+**Fatto prima di R3 su richiesta dell'utente, e la ragione e' l'accumulo**: un
+errore di calibrazione su una partita sola resta locale, ma R3 somma le stesse
+probabilita' su 38 turni e pubblica due **code** — scudetto e retrocessione.
+
+| | esito |
+|---|---|
+| il `k` che calibra 1X2 | **1,209 e 1,302**, contro gli **1,316** che l'ipotesi prevede: verso giusto, taglia quasi giusta |
+| il controllo diretto **sui gol** | **rifiuta l'ipotesi a z = −8,07**, e non per mancanza di potenza |
+| ricalibrazione **Platt** walk-forward | **adottata**: z da +3,42 a +1,89 sulla `2`, RPS non peggiora |
+| temperatura · isotonica | **bocciate** dal criterio dichiarato prima |
+| la classifica al livello di R3 | **sotto-dispersa di un fattore 2,0**, e la ricalibrazione **non** la chiude |
+
+**Il blocco tiene separate due domande che e' facile confondere, ed e' il suo
+contenuto metodologico**: «da dove viene» (§2) e «se si toglie» (§3). **Che la
+ricalibrazione funzioni non e' una conferma dell'ipotesi** — una mappa monotona
+corregge il sintomo qualunque sia la causa, e non sa da dove l'errore venga.
+
+- **La de-compressione e' costruita come l'inverso della ridge, in tre modi
+  dichiarati**, e conserva `lam_c * lam_t` a ogni cifra nel modo primario: la
+  penalita' comprime `attacco` e `difesa` e **non tocca `mu`**. Tre identita'
+  esatte la verificano (`k = 1` e' l'identita', il divario e' scalato per `k`
+  esatto, il prodotto non si muove). **La conclusione non dipende da quale pezzo
+  si applica**: `divario`, `divario_netto` (che lascia fermo il vantaggio del
+  campo) e `pieno` (l'inverso **letterale**, che allarga anche la somma dei due
+  lati) danno lo stesso `k` entro 0,03.
+- **La meta' del risultato va A FAVORE dell'ipotesi e va detta**: il `k` che
+  calibra le classi `1` e `2` — cercato come **radice**, non letto dal minimo di
+  una griglia — vale 1,209 e 1,302 contro l'1,316 della 6A. **Fermandosi qui
+  l'ipotesi sarebbe confermata.**
+- **Il controllo che la esclude viene da E3 e non da qui**, ed e' la pendenza di
+  calibrazione **sui gol**: la relazione e' esatta — lambda compressi di `c`
+  danno pendenza `1/c` — quindi l'ipotesi non prevede genericamente «sopra 1»,
+  prevede **1,316**. Si osserva **0,898 ± 0,052**, cioe' z = −1,97 contro 1.0 (se
+  mai, i lambda sono troppo **estremi**) e **z = −8,07 contro il valore che
+  l'ipotesi prevede**. **Non e' mancanza di potenza**: una compressione fino a
+  0,873 sarebbe stata vista con probabilita' 80%, e la 6A ne dichiara una del 24%.
+- **La stessa trasformazione che calibra l'esito scalibra la grandezza da cui
+  l'esito e' costruito**: al `k` del riferimento la pendenza sui gol passa da
+  0,898 (z = −1,97) a 0,749 (z = −6,01). Non e' un pareggio fra due
+  diagnostiche: e' una che si sistema e una che si rompe. **L'ipotesi della
+  compressione va abbandonata come CAUSA, pur restando una buona descrizione del
+  sintomo** — coincidere in taglia non e' spiegare.
+- **Cio' che il blocco propone al suo posto e' un indizio, non una misura**: il
+  modello dichiara 0,2507 di pareggi contro 0,2674 osservati, cioe' 27 pareggi
+  mancanti — ma sono **1,5 errori standard** e il segno cambia in due stagioni su
+  cinque. E' la firma della composizione (due Poisson indipendenti fanno pochi
+  pareggi) e **si incastra con R1**, che aveva misurato `rho = 0` e uno
+  scostamento di forma «meno 0-0 e piu' 1-1» che **nessun `rho` puo' produrre**.
+  Non e' stato corretto: inventare qui una seconda forma di dipendenza su 1.638
+  partite sarebbe adattarsi al rumore.
+- **La ricalibrazione e' walk-forward** (vincolo 1): il mappatore della stagione
+  `s` si addestra sulle stagioni precedenti e su nient'altro. La **2021-2022 non
+  ha un passato e resta non ricalibrata**, marcata e non riempita — il confronto
+  gira sulle **1.315** righe marcate. Due test guastano i dati: rovesciare
+  l'ultima stagione non deve muovere **nessun** parametro, rovesciare la prima
+  deve muovere i successivi.
+- **Il criterio di adozione e' scritto PRIMA di guardare i numeri**
+  (`CRITERIO_ADOZIONE`) e `verdetto()` lo applica meccanicamente. **Platt e'
+  l'unico che passa**: z 0,31 / −0,89 / 1,89, RPS −0,00090 con t = −1,79 contro
+  un MDE di 0,00141. **La temperatura non basta** (z 2 resta a +3,23) — ed e' il
+  secondo argomento contro §2: se il difetto fosse «tutte le probabilita' troppo
+  vicine al centro», una manopola che le allarga tutte insieme lo toglierebbe.
+  **L'isotonica sovra-corregge** (z 1 = −4,63) e peggiora l'RPS; sulla `X` la sua
+  pendenza **non e' nemmeno identificata**, lo stesso `nan` dichiarato di
+  `media campionato`.
+- **Cosa fa Platt, si legge dai coefficienti**: l'intercetta sulla `X` e'
+  **positiva in tre stagioni su quattro**, cioe' il mappatore passa il tempo ad
+  **aggiungere pareggi** — §2.3 letto dall'altro lato. E **compra calibrazione,
+  non accuratezza**: una mappa monotona non riordina niente.
+
+**§4 — la misura al livello di R3, ed e' il numero piu' importante del blocco.**
+La domanda non e' la pendenza per partita ma «**la classifica simulata si
+disperde quanto il modello dice?**», in forma falsificabile:
+`var(punti osservati fra le squadre) = var(punti ATTESI) + media(varianza di
+campionamento)`.
+
+| | |
+|---|---|
+| rapporto `osservata / (attesa + campionamento)` | **1,99 in media, sopra 1 in tutte e cinque le stagioni** |
+| in unita' leggibili | **19 punti** di dispersione su 38 giornate contro **13** dichiarati |
+| solo 2a meta' (dove R3 lavora) | scende a **1,42** e **non si chiude** |
+| dopo Platt | da 2,06 a **1,79**: riduce, non chiude |
+
+- **La misura e' verificata su dati in cui la risposta e' nota**: generando gli
+  esiti **dalle probabilita' del modello** — dove per costruzione e' calibrato —
+  il rapporto torna attorno a 1. E' l'unico modo di distinguere un difetto del
+  modello da un difetto della misura, e un test lo pretende.
+- **Il burn-in ne spiega una parte e non tutta**, ed e' il controllo che impedisce
+  di attribuire alla calibrazione cio' che e' apprendimento mancante.
+- **Non e' un difetto di calibrazione e non va chiamato cosi'**: e' la parte
+  delle differenze **vere** fra squadre che il modello non ha catturato, piu'
+  qualunque shock che duri piu' di una partita. Una mappa monotona sulle
+  probabilita' di partita non puo' restituirla — sposta massa dentro ogni riga,
+  non aggiunge separazione fra le squadre.
+
+**Cosa consegna a R3**: (1) le probabilita' **ricalibrate con Platt**, con la
+2021-2022 contata come non ricalibrata; (2) **il prezzo dichiarato** — dopo Platt
+le tre probabilita' 1X2 non escono piu' dalla **stessa** congiunta che produce
+l'over/under, quindi il modello **non e' piu' internamente coerente** fra le due
+domande: R3 usa solo l'esito e non lo paga, un blocco che volesse entrambe si';
+(3) **la sotto-dispersione della classifica va DICHIARATA accanto ai numeri**
+(vincolo 5), perche' senza, le code di scudetto e retrocessione escono troppo
+grasse.
+
+> **Trappola per le sessioni future.** L'ipotesi della compressione della ridge e'
+> **chiusa in negativo** e non va riaperta ritoccando lo shrinkage finche' la
+> pendenza torna a 1.0: §2 mostra che quella strada paga la calibrazione
+> dell'esito con quella dei gol. E la ricalibrazione **non** va venduta come
+> spiegazione: corregge il sintomo e non sa da dove venga.
+
+**Quattro domande aperte**: (1) **la causa della sotto-sicurezza resta ignota** —
+la domanda n. 1 di R2 e' **cambiata, non chiusa**: non e' piu' «e' la ridge?» ma
+«quale forma di dipendenza produce meno 0-0 e piu' 1-1», che su 1.638 partite non
+si cerca senza adattarsi al rumore (e' la n. 2 di R1, quella per cui G2 avrebbe la
+massa); (2) **la sotto-dispersione della classifica non e' spiegata** e le due
+candidate — varianza vera fra squadre non catturata, shock correlati lungo la
+stagione — non sono state separate, il che vuole un modello con un effetto di
+squadra persistente; (3) il criterio «non peggiora l'RPS» ha **MDE 0,00141**,
+cioe' esclude peggioramenti grandi e non piccoli; (4) la ricalibrazione ha
+granularita' **di stagione** e non e' stato misurato quanto costi non rifittarla
+per giornata.
 
 
 ## Convenzioni

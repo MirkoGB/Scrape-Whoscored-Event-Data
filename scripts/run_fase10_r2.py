@@ -311,6 +311,13 @@ che la composizione non e' sbilanciata su una classe.
    e' compatibile ma non e' stato misurato: servirebbe rifare la composizione con
    i lambda de-compressi e vedere se la pendenza va a 1.0. E' un blocco a se',
    e **non va fatto ritoccando lo shrinkage finche' il numero torna gradevole**.
+
+   > **`[FATTO 2026-08-08]` — vedi `reports/fase10_r2bis_calibrazione.md`.** La
+   > de-compressione e' stata misurata: il `k` che calibra il 1X2 sta vicino a
+   > quello che la 6A prevede, **ma il controllo diretto sui gol rifiuta
+   > l'ipotesi a otto errori standard** e la stessa trasformazione scalibra i
+   > gol. La causa resta ignota; il **sintomo** si toglie con una
+   > ricalibrazione Platt walk-forward, che R3 usa.
 2. **Il confronto con `media squadra + campo` non e' concluso, e' senza potenza.**
    L'MDE su RPS vale {a_rps.loc['media squadra + campo', 'MDE (80%)']:.5f} contro
    una differenza osservata di {abs(a_rps.loc['media squadra + campo', 'differenza']):.5f}:
