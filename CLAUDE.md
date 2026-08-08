@@ -22,8 +22,8 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
-ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0, R1, R2 e
-la coda R2-bis (calibrazione) della Fase 10**, che aprono il ramo G1.** Dettaglio ed esiti nella
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e **tutta la Fase 10**:
+R0, R1, R2, la coda R2-bis (calibrazione) e R3. **Il ramo G1 e' chiuso.** Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
@@ -52,7 +52,7 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
-| **Fase 10** (R0 → R1 → R2 → R2-bis → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R3** (R0 ✅, R1 ✅, R2 ✅, R2-bis ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+| **Fase 10** (R0 → R1 → R2 → R2-bis → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **chiusa** (R0 ✅, R1 ✅, R2 ✅, R2-bis ✅, R3 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
 
 **La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
 dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
@@ -99,7 +99,7 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 734 test, ~405 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 759 test, ~525 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -189,6 +189,12 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # Platt, isotonica) e l'identita' di dispersione della classifica (~1 min).
 # A differenza di R2 questo blocco STIMA. NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase10_r2bis.py
+
+# Fase 10 / Blocco R3: la classifica. Simula il RESTO di una stagione dalla
+# giornata k, data la classifica vera a k — non si simula da zero (R0). Copertura
+# e PIT sui punti finali, quattro varianti a confronto (~5 min, Monte Carlo).
+# NON stima nessun parametro nuovo e NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase10_r3.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -434,6 +440,16 @@ sot/
                    classifica si disperde quanto il modello dice? — ed e'
                    verificata su esiti **generati dal modello**, dove la risposta
                    e' nota
+  classifica.py    Fase 10 / R3. Simula il **resto** di una stagione dalla
+                   giornata k: R0 vieta di simularne una da zero, e la classifica
+                   a k entra come **costante** perche' e' la storia. Si estrae
+                   prima l'esito con la probabilita' ricalibrata di R2-bis, poi il
+                   punteggio **dentro la classe estratta** — e' cosi' che il
+                   prezzo di Platt non si paga sui punti. La validazione sono i
+                   **punti finali** (venti realizzazioni per stagione), non le
+                   probabilita' di scudetto (una). `affidabilita_claim()` porta
+                   apposta la colonna `media dichiarata` per squalificarla: e'
+                   uguale alla frequenza vera **per costruzione**
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -460,7 +476,7 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_fase9_e4.py, run_fase10_r0.py, run_fase10_r1.py,
           run_fase10_r2.py,
           tiri_in_porta.py
-tests/    conftest + 32 moduli
+tests/    conftest + 33 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -3139,6 +3155,127 @@ squadra persistente; (3) il criterio «non peggiora l'RPS» ha **MDE 0,00141**,
 cioe' esclude peggioramenti grandi e non piccoli; (4) la ricalibrazione ha
 granularita' **di stagione** e non e' stato misurato quanto costi non rifittarla
 per giornata.
+
+
+### Fase 10 — Blocco R3: la classifica ✅ (e il modello, qui, batte il baseline)
+
+`reports/fase10_r3_classifica.md`, da `scripts/run_fase10_r3.py`; modulo
+`sot/classifica.py`, test `tests/test_fase10_r3.py` (25). **Nessuna richiesta di
+rete. Nessun parametro nuovo**: i lambda vengono da E3.1, le probabilita'
+ricalibrate da R2-bis, il calendario dalla fonte dei voti. Questo blocco
+**simula**. **Nessun numero pubblicato e' cambiato.** Chiude la Fase 10.
+
+**Il vincolo che struttura il blocco viene da R0 e non si aggira: non si simula
+una stagione da zero.** La prima giornata piena e' la sesta o la settima, mai
+prima. Si simula il **resto** di una stagione dalla giornata `k`, **data la
+classifica vera a `k`**. Giornate di partenza dichiarate: **10a, 19a, 28a**.
+
+| | esito |
+|---|---|
+| MAE sui punti finali dalla 19a | **3,8 punti** su una stagione intera, bias +0,04 |
+| copertura 50/80/95% | **62 / 86 / 97** — **sopra** il nominale, non sotto |
+| contro `media squadra + campo` | **il modello vince**: −0,78 punti, t = −3,21 per stagione (p = 0,033) |
+| contro il modello **non ricalibrato** | −0,16 punti, t = −2,4 per stagione: R2-bis paga |
+| la sotto-dispersione di R2-bis | **1,27 → 1,12 → 1,05** al crescere di `k`, non 2,0 |
+| probabilita' di scudetto | **non validate, e non validabili**: cinque realizzazioni |
+
+**Il risultato che conta e' il primo del genere nella Fase 10: sulla classifica
+il modello si distingue da un baseline informativo, e su 1X2 non ci riusciva.**
+Su una partita sola il margine su `media squadra + campo` valeva t = −1,10, cioe'
+dentro il rumore; **su diciannove giornate lo stesso margine si accumula** e
+diventa 0,78 punti di MAE con t = −3,21 sull'unita' onesta. **I due `t` si
+riportano sempre in coppia**: quello su squadra-stagione (n = 100) e' ottimista
+perche' venti squadre si dividono un monte punti quasi fisso, quello per stagione
+(n = 5) e' onesto e quasi cieco.
+
+- **La costruzione che tiene insieme R2-bis e la differenza reti**: si estrae
+  prima l'**esito** con la probabilita' ricalibrata, poi il **punteggio** dentro
+  la classe estratta, con `P(gc, gt | esito)` dalla congiunta di R1. Cosi' il
+  prezzo dichiarato da R2-bis — dopo Platt le 1X2 non escono piu' dalla stessa
+  congiunta — **non si paga sui punti**. Un test verifica che le tre condizionali
+  vivano davvero dentro la propria classe.
+- **La classifica non ha buchi**, ed e' il punto che R1 aveva anticipato: delle
+  12 partite che WhoScored non ha, il risultato si legge dall'altra fonte. Il
+  buco sta negli **ingressi**, non nel bersaglio. Le partite del futuro senza
+  previsione (**al massimo 5 per stagione**, tutte nelle due annate bucate)
+  ricevono un **ripiego dichiarato e contato**: i lambda medi della loro
+  stagione.
+- **La domanda aperta n. 4 di R0 ha una misura**: `k` e' **ordinale** («tutte le
+  partite con `giornata <= k`»), e **l'1,3% delle partite si gioca dopo che la
+  giornata successiva e' cominciata**. La convenzione e' dichiarata, non
+  dimostrata equivalente alla lettura in tempo reale.
+- **Le identita' del calendario sono falsificabili e passano**: 380 partite, 20
+  squadre, 38 partite a testa di cui 19 in casa, e la somma dei punti che vale
+  `3n − pareggi`. I test le pretendono **in ogni replica** e non in media: ogni
+  replica distribuisce fra 760×2 e 760×3 punti, e `gf − gs` sommato sulle venti
+  squadre fa zero.
+- **Il caso limite in cui la risposta e' nota**: simulando dalla 38a, cioe' senza
+  partite da giocare, la simulazione **deve** restituire la classifica finale
+  vera a ogni cifra. Un test lo pretende.
+- **Lo scioglimento dei pari merito e' una semplificazione dichiarata** (punti,
+  differenza reti, gol fatti, estrazione col seme) contro gli **scontri diretti**
+  del regolamento vero, e **non e' trascurabile**: un pari merito compare al
+  confine dell'Europa nel **13,9%** delle repliche e a quello della retrocessione
+  nel **15,6%**. Misurato, non dichiarato irrilevante.
+
+**§4 — il danno che R2-bis prevedeva e' molto piu' piccolo, e il perche' si
+misura.** R2-bis aveva trovato la classifica sotto-dispersa di un fattore **2,0**
+sulle probabilita' di partita e ne aveva tratto code troppo grasse. Sui punti
+finali il rapporto vale **1,27 alla 10a, 1,12 alla 19a, 1,05 alla 28a**. **Il
+meccanismo e' aritmetico**: la classifica a `k` porta dentro la separazione
+**vera** fra le squadre, e la compressione tocca solo la parte ancora da giocare.
+**E' una correzione della lettura di R2-bis, non dei suoi numeri** — il 2,0
+tornerebbe intero a chi simulasse da giornata zero, che e' cio' che R0 vieta per
+un'altra ragione.
+
+- **Dove la compressione sopravvive e' agli estremi**: l'ultima in classifica fa
+  in media **20 punti veri contro 27 attesi**. Stesso segno gia' misurato in Fase
+  3, Fase 4 e 6A, e **non va corretto ritoccando lo shrinkage**.
+- **La copertura e' SOPRA il nominale, non sotto**, cioe' l'opposto di cio' che
+  la sotto-dispersione faceva temere. Le due cose convivono ed e' la firma dello
+  shrinkage: previsioni tirate verso il centro **e** incertezza abbondante
+  attorno a ciascuna.
+- **Il chi2 sulla PIT non e' un test qui**, e il report lo dice invece di
+  stamparne il `p`: venti squadre di una stagione si dividono un monte punti
+  quasi fisso, quindi le cento righe sono correlate per costruzione. Si riporta la
+  **forma** delle dieci fasce, che e' rumorosa e non permette di concludere.
+- **`media campionato` si rompe sulla calibrazione e non solo sull'accuratezza**:
+  copertura 33 / 57 / 79 contro il nominale, MAE 7,55. Non sapendo distinguere le
+  squadre, sottostima quanto la classifica possa allontanarsi dalla sua previsione
+  piatta.
+
+**§6 — le probabilita' di classifica sono una DESCRIZIONE e non una
+validazione**, ed e' R0 a imporlo: uno scudetto ha **una realizzazione per
+stagione**. Il Brier batte il tasso base su tutte e tre le affermazioni e a tutte
+e tre le giornate, ed e' l'unica colonna che dica qualcosa.
+
+> **`media dichiarata` = `frequenza vera` e' un'IDENTITA', non calibrazione.** In
+> ogni replica c'e' esattamente un campione, quattro squadre nei primi quattro
+> posti e tre retrocesse: le probabilita' sommano a quei numeri **per
+> costruzione**. Chi leggesse quella colonna come «il modello e' calibrato»
+> leggerebbe un vincolo contabile, e un test blocca il fatto perche' resti
+> leggibile come tale.
+
+**La stagione vetrina (2025-26 dalla 19a) letta onestamente**: Inter 88% di
+scudetto e ha vinto; le retrocesse vere avevano **89%, 88% e 8%** — due su tre
+erano le piu' alte, **la terza no**, e la squadra con la terza probabilita' piu'
+alta (Lecce, 40%) si e' salvata. Il **Como** aveva **45%** di finire nei primi
+quattro ed e' arrivato quarto, con 67,9 punti attesi contro 71 veri.
+
+> **Trappola per le sessioni future.** Le probabilita' di scudetto **non sono
+> validate** e nessuna quantita' di repliche Monte Carlo puo' validarle: le
+> realizzazioni sono cinque. G2 le porterebbe a 25 — **sottile, non
+> sufficiente**, come R0 aveva gia' scritto. E la compressione agli estremi non
+> va "sistemata": sarebbe la quarta volta che il progetto rifiuta quella strada.
+
+**Quattro domande aperte**: (1) le **probabilita' di classifica restano non
+validate**, e chi volesse validarle deve portare campionati, non repliche;
+(2) gli **scontri diretti non sono simulati** e la semplificazione tocca il
+13-16% delle repliche al confine — il costo **non e' stato misurato**, servirebbe
+tenere la matrice degli incroci in ogni replica; (3) **la compressione agli
+estremi resta**, ed e' l'unica parte della sotto-dispersione di R2-bis che
+sopravvive alla partenza dalla classifica vera; (4) **la convenzione ordinale su
+`k`** e' dichiarata e non dimostrata equivalente alla lettura in tempo reale.
 
 
 ## Convenzioni
