@@ -22,7 +22,7 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
-ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0 e R1
+ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e i blocchi **R0, R1 e R2
 della Fase 10**, che aprono il ramo G1.** Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
@@ -52,7 +52,7 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 |---|---|---|---|
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
-| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R2** (R0 ✅, R1 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+| **Fase 10** (R0 → R1 → R2 → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **R3** (R0 ✅, R1 ✅, R2 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
 
 **La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
 dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
@@ -178,6 +178,11 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # i due lati) a marginali FISSATE e ne dichiara la potenza (~1 min; con
 # --repliche si cambia la precisione della potenza). NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase10_r1.py
+
+# Fase 10 / Blocco R2: 1X2 e over/under, valutati. RPS, log-loss, Brier per
+# soglia, calibrazione, contro cinque baseline composti con la STESSA congiunta
+# (~1 min). NON stima nessun parametro nuovo e NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase10_r2.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -399,6 +404,17 @@ sot/
                    E3 non varrebbe piu' per il modello che R2 usa — un test lo
                    blocca. `verifica_marginali()` e' la verifica falsificabile
                    del blocco, e ha corretto la docstring che la descriveva
+  esiti.py         Fase 10 / R2. 1X2 e over/under **valutati**. Non stima niente:
+                   `rho = 0` viene da R1, i lambda da E3.1. **La metrica
+                   principale e' l'RPS e non la log-loss** perche' l'esito e'
+                   ORDINALE — fra `1` e `2` c'e' `X` — e un test lo dimostra su
+                   due previsioni che la log-loss non sa distinguere. Ogni
+                   baseline e' composto con la **stessa** `risultato.congiunta`
+                   del modello: comporre diversamente misurerebbe la
+                   composizione invece del lambda. `PAVIMENTO_LAMBDA` e'
+                   dichiarato e tocca **una** riga — senza, la log-loss di
+                   `media squadra` sarebbe infinita. `dispersione_somma()` e'
+                   la misura che ha corretto la spiegazione dell'over/under
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -423,8 +439,9 @@ scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
           run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
           run_fase9_e4.py, run_fase10_r0.py, run_fase10_r1.py,
+          run_fase10_r2.py,
           tiri_in_porta.py
-tests/    conftest + 30 moduli
+tests/    conftest + 31 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -2900,6 +2917,76 @@ guardare; (3) **`rho` e' assunto costante fra partite** e potrebbe dipendere dal
 divario di forza; (4) la correzione originale ha un **decadimento temporale**, qui
 assente perche' i lambda di E3.1 ce l'hanno gia' dentro, e che i due debbano
 essere lo stesso non e' ovvio ne' verificato.
+
+### Fase 10 — Blocco R2: 1X2 e over/under, valutati ✅
+
+`reports/fase10_r2_esiti.md`, da `scripts/run_fase10_r2.py`; modulo
+`sot/esiti.py`, test `tests/test_fase10_r2.py` (28). **Nessuna richiesta di rete.
+Nessun parametro nuovo**: `rho = 0` da R1, i lambda da E3.1. **Nessun numero
+pubblicato e' cambiato**, verificato rieseguendo.
+
+`[DECISO 2026-08-08]` dall'utente: **il burn-in NON si allinea alla giornata**,
+le due partite disallineate di R0 restano fuori. Il perimetro resta **1.638**.
+
+| | esito |
+|---|---|
+| 1X2 contro i baseline **non informativi** | **vince**, t fra −10,4 e −10,9 |
+| 1X2 contro **`media squadra + campo`** | **t = −1,10, dentro il rumore** (MDE 0,00424) |
+| over/under contro la **media di campionato** | **perde** (t = +0,90, non distinguibile) |
+| over/under contro i **baseline di squadra** | **vince**, t = −4,38 |
+| calibrazione su 1X2 | **sotto-sicuro**: pendenza 1,22 e 1,32, z +2,3 e +3,2 |
+
+- **Il vantaggio misurato sui gol NON sopravvive alla proiezione su 1X2.** E3
+  batteva il baseline migliore per t = 5,52; qui vale t = −1,10. Due cause che si
+  sommano: le righe passano da 3.278 a 1.638 (una partita, non due
+  squadre-partita) e l'esito a tre classi **butta via** informazione — 3-0 e 1-0
+  sono lo stesso `1`. **E' la stessa forma delle Fasi 2 e 4** (t = 1,86 sui tiri).
+- **Su over/under l'ordine dei baseline si ROVESCIA**, ed e' il risultato non
+  previsto: un 1X2 dipende dalla **differenza** dei lambda, un over/under dalla
+  loro **somma**. I baseline di squadra sono forti sulla prima e pessimi sulla
+  seconda; la media di campionato l'opposto.
+- **Il fatto che spiega il rovesciamento e' stato misurato dopo aver scritto una
+  spiegazione sbagliata**: la frase «le medie di squadra sommate disperdono piu'
+  del vero» e' **falsa** (0,691 contro 1,569 dell'osservato).
+  `dispersione_somma()` dice la cosa vera, ed e' piu' forte: **il totale di gol
+  di una partita e' quasi imprevedibile per tutti** — la correlazione migliore
+  fra somma prevista e totale vero e' **0,099**, ed e' del modello. Con un legame
+  cosi' debole ogni dispersione in piu' e' varianza pagata a vuoto, e su una
+  metrica quadratica vince chi ne mette meno.
+- **Il modello e' l'unico candidato decente su ENTRAMBE le domande**, e questo —
+  non l'accuratezza su una metrica sola — e' l'argomento con cui si giustifica.
+  E' la stessa forma dell'argomento della Fase 4 sulla calibrazione. Un test lo
+  blocca: nessun baseline deve essere vicino al modello su RPS **e** su O2.5.
+- **Sulla calibrazione il segno e' OPPOSTO a quello della Fase 4.** Li' i
+  baseline informativi erano sotto 1.0 (troppo estremi) e il modello era l'unico
+  compatibile con 1.0; qui il modello e' **sopra** 1.0 (sotto-sicuro) e
+  `media squadra + campo` e' meglio calibrato di lui. La spiegazione compatibile
+  e' la compressione della ridge quantificata dalla 6A (pendenza 0,760), ma
+  **non e' stata misurata** ed e' la prima domanda aperta. `media campionato`
+  non e' identificata, come in Fase 4 e per la stessa ragione.
+- **Un difetto trovato e corretto prima di pubblicare**: il tasso base dell'over
+  era stimato sull'intero campione mentre quello 1X2 era gia' walk-forward —
+  vincolo 1. Ora entrambi usano il solo passato, e due test di leakage lo
+  bloccano guastando la coda della stagione.
+- **Il pavimento sui lambda e' dichiarato** e tocca **una riga**: `media squadra`
+  predice esattamente 0 mentre quella squadra segna, e senza pavimento la sua
+  log-loss sarebbe infinita. Stesso caso della frequenza storica grezza di E3,
+  stesso trattamento.
+
+> **Vincolo 3.** Nessuna valutazione di scommessa e nessuna quota: non ci sono
+> prezzi di mercato nel repository, e le uniche ottenibili sarebbero generate da
+> questo stesso modello. Un test vieta che una quota compaia in `sot/esiti.py`.
+> Finche' non ci sono quote di chiusura reali, **«il modello e' meglio del
+> mercato» non e' una frase che questo progetto possa pronunciare.**
+
+**Quattro domande aperte**: (1) la **sotto-sicurezza su 1X2 non e' spiegata**, e
+il legame con la compressione della ridge e' compatibile ma non misurato —
+**non va "sistemata" ritoccando lo shrinkage finche' la pendenza torna a 1.0**;
+(2) il confronto con `media squadra + campo` **e' senza potenza**: servirebbero
+circa 10.700 partite per distinguerli, cioe' **la prima domanda del progetto in
+cui G2 avrebbe un uso diretto e quantificato**; (3) nessuna valutazione di valore
+atteso e' possibile senza quote reali; (4) le due partite disallineate restano
+fuori per decisione dell'utente.
 
 
 ## Convenzioni

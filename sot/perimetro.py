@@ -62,8 +62,21 @@ def _walkforward() -> pd.DataFrame:
     return difesa.walkforward_gol()
 
 
-def partite(stagioni=None) -> pd.DataFrame:
+#: I baseline dei gol prodotti dal walk-forward di E3, da ruotare accanto al
+#: modello. Stanno qui perche' R2 deve comporli **con la stessa procedura** del
+#: modello: se il modello passasse per la congiunta e i baseline no, il confronto
+#: misurerebbe la composizione invece del lambda (vincolo 6).
+BASELINE = ("media campionato", "media casa/trasferta",
+            "media squadra", "media squadra + campo")
+
+
+def partite(stagioni=None, con_baseline: bool = False) -> pd.DataFrame:
     """Una riga per PARTITA, con i due lambda affiancati e l'esito osservato.
+
+    `con_baseline` aggiunge le quattro colonne di `BASELINE` ruotate allo stesso
+    modo, in coppie `<nome>_casa` / `<nome>_trasferta`. **Il default e' `False` e
+    l'uscita a `False` e' identica a quella di R0**, con un test che lo blocca:
+    R2 non deve poter cambiare i conteggi che R0 ha pubblicato.
 
     La rotazione da squadra-partita a partita e' il contributo del blocco. Due
     controlli la accompagnano, e nessuno dei due e' decorativo:
@@ -108,6 +121,11 @@ def partite(stagioni=None) -> pd.DataFrame:
         "gol_casa": c["gol_fatti"],
         "gol_trasferta": t["gol_fatti"],
     })
+
+    if con_baseline:
+        for col in BASELINE:
+            out[f"{col}_casa"] = c[col]
+            out[f"{col}_trasferta"] = t[col]
 
     # `lam_subiti` di E3 e' il lambda dell'avversario nella stessa partita: dopo
     # la rotazione dev'essere ridondante, e verificarlo e' gratis. Se non lo
