@@ -23,7 +23,9 @@ Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
 ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e **tutta la Fase 10**:
-R0, R1, R2, la coda R2-bis (calibrazione) e R3. **Il ramo G1 e' chiuso.** Dettaglio ed esiti nella
+R0, R1, R2, la coda R2-bis (calibrazione) e R3. **Il ramo G1 e' chiuso.** Dalla
+richiesta dell'utente del 2026-08-11 c'e' anche il **blocco S1 della Fase 11**
+(le soglie di tiri in porta del Como 2026-27 partita per partita). Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
 descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
@@ -189,6 +191,13 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # Platt, isotonica) e l'identita' di dispersione della classifica (~1 min).
 # A differenza di R2 questo blocco STIMA. NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase10_r2bis.py
+
+# Fase 11 / Blocco S1: le soglie di tiri in porta del Como 2026-27, partita per
+# partita. Il ponte `lambda(Como, avversario, campo)` che non esisteva, P(Over)
+# per sei linee, quota di pareggio e guadagno atteso come FUNZIONE della quota.
+# Scrive anche reports/fase11_s1_simulatore.html, la pagina locale interattiva
+# (~2 min). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase11_s1.py
 
 # Fase 10 / Blocco R3: la classifica. Simula il RESTO di una stagione dalla
 # giornata k, data la classifica vera a k — non si simula da zero (R0). Copertura
@@ -450,6 +459,22 @@ sot/
                    probabilita' di scudetto (una). `affidabilita_claim()` porta
                    apposta la colonna `media dichiarata` per squalificarla: e'
                    uguale alla frequenza vera **per costruzione**
+  soglie_2627.py   Fase 11 / S1. **IL PONTE `lambda(Como, avversario, campo)` PER
+                   IL 2026-27**, che non esisteva: `monte_carlo` dava solo il
+                   totale stagionale, con un lambda costante sulle 38 giornate,
+                   senza avversario e senza campo. La struttura relativa viene dal
+                   modello di squadra, il **livello dall'ancora** (Fase 6A), e la
+                   media dei 38 vale l'ancora a precisione macchina — da cui segue
+                   che lo **scenario sulle promosse non sposta il livello**, solo
+                   la distribuzione fra le partite. `difese_avversari()`
+                   **solleva** su una squadra sconosciuta invece di lasciarla
+                   scivolare a coefficiente 0 come farebbe `model_team._design`.
+                   `verifica_calendario()` e' la guardia che ha **rifiutato** il
+                   calendario raccolto dal web, che elencava il Como fra i propri
+                   avversari. `identita_circolare()` sta qui per essere
+                   **squalificata**: con margine proporzionale il guadagno atteso
+                   vale `1/overround - 1` identicamente, su ogni partita e ogni
+                   linea, e non contiene una sola informazione sul Como
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -3277,6 +3302,134 @@ estremi resta**, ed e' l'unica parte della sotto-dispersione di R2-bis che
 sopravvive alla partenza dalla classifica vera; (4) **la convenzione ordinale su
 `k`** e' dichiarata e non dimostrata equivalente alla lettura in tempo reale.
 
+
+### Fase 11 — Blocco S1: le soglie del Como 2026-27, partita per partita ✅
+
+`reports/fase11_s1_soglie_como.md` + `reports/fase11_s1_soglie_como.csv` (228
+righe: 38 partite x 6 linee) + **`reports/fase11_s1_simulatore.html`**, da
+`scripts/run_fase11_s1.py` (+ `scripts/pagina_s1.py` per la sola pagina); modulo
+`sot/soglie_2627.py`, test `tests/test_fase11_s1.py` (45). **Nessuna richiesta di
+rete** dal codice. **Nessun numero pubblicato e' cambiato**, verificato
+rieseguendo: `run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672
+eventi, `run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240].
+
+**Richiesto dall'utente il 2026-08-11**: 1 EUR su ogni partita del Como 2026-27,
+per ogni fascia di over tiri in porta da 2.5 a 7.5, guadagno atteso.
+
+**Il guadagno atteso e' `P x quota - 1`, e di quei due fattori il repository puo'
+produrre solo il primo.** `[DECISO 2026-08-11]` dall'utente: si pubblica `P` e la
+**quota di pareggio** `1/P`, e il guadagno come **funzione della quota fornita**.
+
+| | esito |
+|---|---|
+| il ponte `lambda(Como, avversario, campo)` | **costruito**: non esisteva |
+| `P(Over)` per sei linee, due forme | 0.835 (2.5) → 0.154 (7.5) |
+| quota di pareggio di stagione | **1.20 · 1.45 · 1.89 · 2.67 · 4.03 · 6.48** |
+| validazione sul 2025-26 | il modello **batte il tasso base su tutte e sei**, tutte **dentro l'MDE** |
+| la quota generata dal modello | **identita' contabile**, non una misura |
+
+- **Che cosa mancava**: `project_2627.monte_carlo` produce **solo il totale
+  stagionale**, con un `lam` costante sulle 38 giornate, senza avversario e senza
+  campo. Il ponte per partita non c'era.
+- **La struttura relativa viene dal modello, il livello dall'ancora** (Fase 6A):
+  `lam_i = lam_modello_i / media(lam_modello) x ancora`, con
+  `ancora = 4.90 x 1.01014 = 4.9497`. La media dei 38 vale l'ancora **a
+  precisione macchina**, e un test lo blocca: e' cio' che rende la tabella
+  coerente con la proiezione pubblicata invece di essere una seconda proiezione
+  che le somiglia. Da 3.467 (Juventus in trasferta) a 6.272 (Sassuolo in casa).
+- **Ne segue che lo scenario sulle promosse NON sposta il livello**, solo la
+  distribuzione fra le partite — coerente con la decisione della 6E, dove
+  applicare il fattore di calendario all'ancora sarebbe un doppio conteggio. Su
+  `P(Over 4.5)` media i quattro scenari stanno in **0.5274-0.5289**, mentre il
+  lambda contro una promossa in casa va da 5.48 a 6.32: **lo scenario
+  ridistribuisce, non aggiunge**.
+- **La fonte esterna e' verificata per la meta' verificabile**: le tre promosse
+  (Venezia, Frosinone, Monza) non sono controllabili in casa, ma le tre
+  retrocesse arrivano dalla **stessa pagina** e coincidono con quelle che
+  `calendar_2627.retrocesse()` ricava dai gol. Se divergessero, anche le promosse
+  andrebbero rimesse in discussione.
+- **Il calendario vero c'e', ed e' costato quattro fonti.**
+  `verifica_calendario` ne ha **rifiutate tre** (il Como fra i propri avversari;
+  la stessa squadra tre volte; due volte in casa). La quarta — ESPN — ha
+  struttura perfetta ma dava **37 righe su 38**. **La riga mancante non e' stata
+  indovinata: e' determinata** — Napoli compariva solo in trasferta, quindi
+  l'unica partita compatibile e' `Como-Napoli in casa`; l'unica cosa presa da
+  fuori e' la sua **giornata** (la 21a), che concorda su due fonti indipendenti.
+  Corroborazione non usata per costruirlo: **le prime tre giornate sono tutte in
+  trasferta**, ed e' cio' che le fonti riportano a parte per i lavori al
+  Sinigaglia. `CALENDARIO_2627` e `NOMI_FONTE` sono dichiarati nel modulo — al
+  livello di squadra **il nome non e' una chiave** (Fase 8), e una mappa
+  incompleta solleva invece di produrre un `NaN`.
+- **Il calendario resta un comodo, non una dipendenza, e un test lo blocca**: con
+  e senza giornate i lambda e le probabilita' sono gli stessi, perche' l'ordine
+  non entra in nessuna somma. Le **date** restano nulle: le fonti discordano.
+- **L'integrazione sull'incertezza di livello ingrassa le code nel verso
+  dichiarato prima**: sulla 7.5 `P` sale da 0.1542 a 0.1772, sulla 2.5 scende da
+  0.8353 a 0.8343. **Non sapere quanto tirera' il Como non e' neutro: rende gli
+  estremi piu' probabili**, e la quota di pareggio sulla 7.5 passa da 6.48 a 5.64.
+- **Si integra SOLO il livello, mai il campionamento**: `sampling` e' gia' dentro
+  `p_over`, e tenerlo acceso conterebbe le code **due volte**, in silenzio. Un
+  test lo pretende.
+- **La dispersione fra le partite non e' un dettaglio**: sulla 4.5 `P` va da
+  0.274 a 0.720. Una quota unica per la stagione conviene su alcune partite e non
+  su altre — per questo il CSV esce a 38 righe per linea e non come media.
+- **La validazione e' walk-forward** (vincolo 1) sulle 33 partite valutabili del
+  Como 2025-26: il modello batte il tasso base su tutte e sei le linee
+  (differenze da −0.004 a −0.043), ma **tutte dentro il proprio MDE**. Esclude
+  divari grandi, non divari piccoli — lezione della 6D. Pendenza di calibrazione
+  0.602 ± 0.516 (z = −0.77): compatibile con 1.0, e con una squadra sola vuol dire
+  poco.
+- **Le linee 6.5 e 7.5 sono un'estrapolazione dichiarata**: `validate.LINES` si
+  ferma a 5.5, e su quelle due `r` conta molto di piu' (sensibilita' relativa
+  all'IC95% di profilo). Un test pretende che l'avvertenza stia accanto alla
+  costante `LINEE`.
+
+**L'appendice che squalifica il conto letterale** (`identita_circolare`): se la
+quota la genera il modello stesso con margine **proporzionale**, il guadagno
+atteso vale `1/overround - 1` — **lo stesso numero su ogni partita e su ogni
+linea, dispersione zero**. Non contiene una sola informazione sul Como: e' il
+margine scritto al contrario, e un test lo verifica a precisione macchina. Col
+margine a **potenza** varia con `p` e sembra una misura, ma varia **dodici volte
+di piu' fra le linee che fra gli overround**, perche' `p^(1-1/k) - 1` e' funzione
+della sola `p`: la trasformazione penalizza le probabilita' piccole, e di Como li'
+dentro non c'e' niente.
+
+**La pagina locale** (`reports/fase11_s1_simulatore.html`, generata da
+`scripts/pagina_s1.py`): linea, quota, puntata e forma della `P` sono comandi;
+le 38 quote sono **modificabili riga per riga**, per incollarci i prezzi veri
+quando ci saranno. E' **autonoma** — nessun CDN, nessun font remoto, nessuna
+richiesta di rete — e un test lo pretende, perche' «pagina locale» vuol dire che
+funziona offline. **La quota e' un ingresso dell'utente, mai un output**: il
+default dello slider e' la quota di **pareggio**, cioe' il punto in cui il
+guadagno e' zero, che e' il default piu' neutro possibile e non una previsione di
+prezzo. I numeri della pagina coincidono con quelli del report (a `q = 3.00`
+sulla 4.5 entrambi danno **+22.24**).
+
+> **Trappola per le sessioni future.** «Quanto si guadagna» **non e' rispondibile
+> con i dati in casa**, e non per prudenza: manca il secondo fattore. §3 e §4 del
+> report danno tutto il necessario per rispondere nel momento in cui esiste un
+> prezzo vero. **Non si ricostruisca una quota dal modello per chiudere il
+> cerchio**: e' il codice in `legacy/`, ed e' archiviato per questo — e la pagina
+> non deve iniziare a proporne una.
+
+**Un difetto latente trovato di rimbalzo, e non e' stato corretto dove sta**: la
+guardia del vincolo 3 di `tests/test_fase10_r2.py:275` (e delle gemelle in R2-bis
+e R3) cerca **sottostringhe**, quindi `roi` scatta dentro `proiezione` e
+`bankroll` **non** scatta dentro `calcola_bankroll` — falsi positivi e falsi
+negativi insieme. In `tests/test_fase11_s1.py` e' corretta con un confine di
+**lettera** (non `\b`, perche' `_` e' un carattere di parola) e un test che
+verifica entrambe le direzioni. **Nei tre moduli di Fase 10 non e' stata
+toccata**: cambiare un test che oggi passa non era in questo blocco.
+
+**Cinque domande aperte**: (1) i **prezzi di mercato reali** restano l'unica cosa
+che manca, e servirebbero **quote di chiusura pre-partita** — quote correnti
+erediterebbero lo stesso difetto di orologio che ha squalificato il FVM; (2) il
+**calendario vero** non serve a queste tabelle ma servirebbe alle giornate dopo un
+turno di Champions, dove `CAL.LIMITE_CONGESTIONE` dichiara un effetto di segno
+noto e negativo mai stimato — su quelle partite queste probabilita' sono
+**ottimistiche**; (3) la difesa delle promosse resta uno **scenario**, e qui pesa
+meno di quanto si temesse; (4) la 6.5 e la 7.5 non hanno una validazione propria;
+(5) la guardia del vincolo 3 di Fase 10, sopra.
 
 ## Convenzioni
 

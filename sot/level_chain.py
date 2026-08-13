@@ -107,6 +107,12 @@ USI_DEL_RIFERIMENTO = (
      "misura del limite di calendario (6E): NON applicato alla proiezione"),
     ("sot/calendar_2627.py", "equivalente_in_rho",
      "converte un fattore di calendario nello spostamento di rho equivalente"),
+    ("sot/soglie_2627.py", "ancora_pubblicata -> stima_compositiva(4.90, ...)",
+     "il LIVELLO dei 38 lambda per partita del blocco S1: la struttura relativa "
+     "viene dal modello di squadra, il livello da qui, e la media dei 38 vale "
+     "l'ancora a precisione macchina"),
+    ("scripts/run_fase11_s1.py", "riga dell'ancora nel report di S1",
+     "citato come riferimento, uso corretto"),
 )
 
 
