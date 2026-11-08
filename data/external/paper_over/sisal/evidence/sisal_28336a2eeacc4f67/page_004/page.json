@@ -1,0 +1,18 @@
+{
+  "source_url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/francia/ligue-1/tolosa-le-havre",
+  "observed_at": "2026-09-19T11:22:09.792Z",
+  "transport": "chrome_extension",
+  "events": [
+    {
+      "away": "Le Havre",
+      "home": "Tolosa",
+      "kickoff": "2026-09-19T18:45:00.000Z"
+    }
+  ],
+  "headings": [],
+  "times": [],
+  "blocks": [],
+  "frame_hosts": [
+    "www.sisal.it"
+  ]
+}

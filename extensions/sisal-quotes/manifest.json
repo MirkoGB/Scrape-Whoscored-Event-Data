@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Quote Sisal — raccolta locale",
+  "version": "0.3.0",
+  "description": "Raccoglie i mercati tiri visibili nelle pagine Sisal e li esporta per il report locale.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_popup": "popup.html", "default_title": "Quote Sisal — raccolta locale"},
+  "content_scripts": [{
+    "matches": ["https://www.sisal.it/scommesse-matchpoint", "https://sisal.it/scommesse-matchpoint", "https://www.sisal.it/scommesse-matchpoint/*", "https://sisal.it/scommesse-matchpoint/*"],
+    "exclude_matches": ["https://*/scommesse-matchpoint/blog/*"],
+    "js": ["core.js", "reader.js", "content.js"],
+    "run_at": "document_idle"
+  }]
+}

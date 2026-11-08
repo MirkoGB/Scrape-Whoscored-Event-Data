@@ -1,0 +1,14 @@
+{
+  "source_url": "https://www.sisal.it/scommesse-matchpoint",
+  "observed_at": "2026-09-20T09:24:35.892Z",
+  "transport": "chrome_extension",
+  "events": [],
+  "headings": [],
+  "times": [],
+  "blocks": [],
+  "frame_hosts": [
+    "betting.sisal.it",
+    "www.sisal.it",
+    "insight.adsrvr.org"
+  ]
+}

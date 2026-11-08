@@ -1,0 +1,396 @@
+{
+  "source_url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/spagna/liga/celta-vigo-racing-santander",
+  "observed_at": "2026-09-19T11:21:48.519Z",
+  "transport": "chrome_extension",
+  "events": [
+    {
+      "away": "Racing Santander",
+      "home": "Celta Vigo",
+      "kickoff": "2026-09-19T16:30:00.000Z"
+    }
+  ],
+  "headings": [],
+  "times": [],
+  "blocks": [
+    {
+      "label": "U/O 10.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.60"
+        }
+      ]
+    },
+    {
+      "label": "U/O 11.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.60"
+        }
+      ]
+    },
+    {
+      "label": "U/O 12.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 5.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 13.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 7.50"
+        }
+      ]
+    },
+    {
+      "label": "U/O 14.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 11.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 15.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 17.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 16.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 25.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.02"
+        }
+      ]
+    },
+    {
+      "label": "U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.08"
+        }
+      ]
+    },
+    {
+      "label": "U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.18"
+        }
+      ]
+    },
+    {
+      "label": "U/O 7.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.33"
+        }
+      ]
+    },
+    {
+      "label": "U/O 8.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.60"
+        }
+      ]
+    },
+    {
+      "label": "U/O 9.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 10.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 16.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 2.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.10"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 3.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.27"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.57"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.10"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.10"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 7.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.50"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 8.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 7.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 9.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 12.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 2.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.27"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 3.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.65"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.40"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 6.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 7.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 10.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 8.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 16.00"
+        }
+      ]
+    }
+  ],
+  "frame_hosts": [
+    "www.sisal.it"
+  ]
+}

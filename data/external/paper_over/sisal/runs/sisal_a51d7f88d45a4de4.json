@@ -1,0 +1,22 @@
+{
+  "id": "sisal_a51d7f88d45a4de4",
+  "started_at": "2026-09-17T15:20:47.784711+00:00",
+  "bookmaker": "Sisal",
+  "status": "access_failed",
+  "catalogue_matches": 50,
+  "pages": [
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/monza-sassuolo",
+      "status": "blocked",
+      "evidence_file": "sisal\\evidence\\sisal_a51d7f88d45a4de4\\page_000\\page.json",
+      "evidence_sha256": "175cabfe51a1976c48343633d7ccd0dc92b7952a2efa41a623249d833a8bdd29"
+    }
+  ],
+  "observations": [],
+  "excluded": [],
+  "discovered_events": 1,
+  "live_parser_verified": false,
+  "note": "Parser verificato su fixture; convalida sul DOM live ancora necessaria.",
+  "finished_at": "2026-09-17T15:20:53.134041+00:00",
+  "sha256": "8fc734fb9fc666e732d29ce8f91a9a2eab47d5abe02a6777668ea3574bd7c959"
+}

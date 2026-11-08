@@ -1,0 +1,271 @@
+{
+  "id": "sisal_92e4b1865f674463",
+  "started_at": "2026-09-20T09:10:13.801846+00:00",
+  "bookmaker": "Sisal",
+  "status": "collected",
+  "transport": "chrome_extension",
+  "input_sha256": "535b4f658276e6e2855e36c416bcb17ffea23e89dfb4deb3d819364cb20a8510",
+  "catalogue_matches": 20,
+  "pages": [
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "status": "read",
+      "evidence_file": "sisal\\evidence\\sisal_92e4b1865f674463\\page_000\\page.json",
+      "evidence_sha256": "b73d1e6ce0770893d0c6514c95d9015c5f240ebe5fc8a26c953c6f1f056960c6"
+    }
+  ],
+  "observations": [
+    "sisal_quote_209211dc99754d41",
+    "sisal_quote_62528eac68ca48ea",
+    "sisal_quote_8ce8d80213c04708",
+    "sisal_quote_4e2ca60dd8434ab2",
+    "sisal_quote_bcce9140042f404b",
+    "sisal_quote_8eb1e58f469d446d",
+    "sisal_quote_f9ef138356234e4f",
+    "sisal_quote_cc5afe5f01f549de",
+    "sisal_quote_8d2d02460b5942a1"
+  ],
+  "excluded": [
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 10.5,
+      "over_odds": 2.8,
+      "under_odds": null,
+      "market_label": "U/O 10.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 11.5,
+      "over_odds": 3.75,
+      "under_odds": null,
+      "market_label": "U/O 11.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 12.5,
+      "over_odds": 5.5,
+      "under_odds": null,
+      "market_label": "U/O 12.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 13.5,
+      "over_odds": 8.0,
+      "under_odds": null,
+      "market_label": "U/O 13.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 14.5,
+      "over_odds": 13.0,
+      "under_odds": null,
+      "market_label": "U/O 14.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 15.5,
+      "over_odds": 20.0,
+      "under_odds": null,
+      "market_label": "U/O 15.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 4.5,
+      "over_odds": 1.03,
+      "under_odds": null,
+      "market_label": "U/O 4.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "sot",
+      "scope": "total",
+      "side": "total",
+      "line": 5.5,
+      "over_odds": 1.1,
+      "under_odds": null,
+      "market_label": "U/O 5.5 TIRI IN PORTA",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 17.5,
+      "over_odds": 1.02,
+      "under_odds": null,
+      "market_label": "U/O 17.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 18.5,
+      "over_odds": 1.03,
+      "under_odds": null,
+      "market_label": "U/O 18.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 19.5,
+      "over_odds": 1.05,
+      "under_odds": null,
+      "market_label": "U/O 19.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 21.5,
+      "over_odds": 1.12,
+      "under_odds": null,
+      "market_label": "U/O 21.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 23.5,
+      "over_odds": 1.24,
+      "under_odds": null,
+      "market_label": "U/O 23.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 25.5,
+      "over_odds": 1.42,
+      "under_odds": null,
+      "market_label": "U/O 25.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 27.5,
+      "over_odds": 1.72,
+      "under_odds": null,
+      "market_label": "U/O 27.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 29.5,
+      "over_odds": 2.15,
+      "under_odds": null,
+      "market_label": "U/O 29.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 30.5,
+      "over_odds": 2.5,
+      "under_odds": null,
+      "market_label": "U/O 30.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 31.5,
+      "over_odds": 2.9,
+      "under_odds": null,
+      "market_label": "U/O 31.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 32.5,
+      "over_odds": 3.4,
+      "under_odds": null,
+      "market_label": "U/O 32.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 33.5,
+      "over_odds": 4.0,
+      "under_odds": null,
+      "market_label": "U/O 33.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    },
+    {
+      "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli",
+      "target": "shots",
+      "scope": "total",
+      "side": "total",
+      "line": 34.5,
+      "over_odds": 4.75,
+      "under_odds": null,
+      "market_label": "U/O 34.5 TIRI TOTALI",
+      "reason": "nessuna previsione anteriore per questa esatta linea"
+    }
+  ],
+  "discovered_events": 1,
+  "live_parser_verified": true,
+  "parser_verification": {
+    "date": "2026-09-19",
+    "format": "STATS MATCH",
+    "url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/fiorentina-napoli"
+  },
+  "note": "Formato STATS MATCH verificato su Fiorentina–Napoli; copertura degli altri formati non attestata.",
+  "finished_at": "2026-09-20T09:10:13.823280+00:00",
+  "sha256": "496373e4ed7878c28a338becf58cf06590d553ebd3fcb23127a48249999d9072"
+}

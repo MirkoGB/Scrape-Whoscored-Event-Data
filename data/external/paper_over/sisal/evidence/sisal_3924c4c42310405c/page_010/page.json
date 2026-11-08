@@ -1,0 +1,1048 @@
+{
+  "source_url": "https://www.sisal.it/scommesse-matchpoint/evento/calcio/inghilterra/premier-league/manchester-city-sunderland",
+  "observed_at": "2026-09-20T09:27:00.482Z",
+  "transport": "chrome_extension",
+  "events": [
+    {
+      "away": "Sunderland",
+      "home": "Manchester City",
+      "kickoff": "2026-09-20T13:00:00.000Z"
+    }
+  ],
+  "headings": [],
+  "times": [],
+  "blocks": [
+    {
+      "label": "U/O 10.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.45"
+        }
+      ]
+    },
+    {
+      "label": "U/O 11.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.25"
+        }
+      ]
+    },
+    {
+      "label": "U/O 12.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.50"
+        }
+      ]
+    },
+    {
+      "label": "U/O 13.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 6.50"
+        }
+      ]
+    },
+    {
+      "label": "U/O 14.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 10.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 15.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 15.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 16.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 25.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.02"
+        }
+      ]
+    },
+    {
+      "label": "U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.07"
+        }
+      ]
+    },
+    {
+      "label": "U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.17"
+        }
+      ]
+    },
+    {
+      "label": "U/O 7.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.30"
+        }
+      ]
+    },
+    {
+      "label": "U/O 8.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.55"
+        }
+      ]
+    },
+    {
+      "label": "U/O 9.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.90"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 10.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 9.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 11.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 15.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 2.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.03"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 3.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.10"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.27"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.52"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.95"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 7.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 8.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 9.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 5.50"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 2.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.62"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 3.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.40"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 4.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 5.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 7.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 6.5 TIRI IN PORTA",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 12.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 17.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.02"
+        }
+      ]
+    },
+    {
+      "label": "U/O 18.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.03"
+        }
+      ]
+    },
+    {
+      "label": "U/O 19.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.05"
+        }
+      ]
+    },
+    {
+      "label": "U/O 20.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.09"
+        }
+      ]
+    },
+    {
+      "label": "U/O 21.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.13"
+        }
+      ]
+    },
+    {
+      "label": "U/O 22.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.18"
+        }
+      ]
+    },
+    {
+      "label": "U/O 23.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.25"
+        }
+      ]
+    },
+    {
+      "label": "U/O 24.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.33"
+        }
+      ]
+    },
+    {
+      "label": "U/O 25.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.45"
+        }
+      ]
+    },
+    {
+      "label": "U/O 26.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.57"
+        }
+      ]
+    },
+    {
+      "label": "U/O 27.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.75"
+        }
+      ]
+    },
+    {
+      "label": "U/O 28.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.95"
+        }
+      ]
+    },
+    {
+      "label": "U/O 29.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.25"
+        }
+      ]
+    },
+    {
+      "label": "U/O 30.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.50"
+        }
+      ]
+    },
+    {
+      "label": "U/O 31.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 32.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.50"
+        }
+      ]
+    },
+    {
+      "label": "U/O 33.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.00"
+        }
+      ]
+    },
+    {
+      "label": "U/O 34.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 5.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 11.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.04"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 12.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.08"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 13.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.15"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 14.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.22"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 15.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.33"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 16.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.48"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 17.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.65"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 18.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.90"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 19.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.20"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 20.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.60"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 21.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.10"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 22.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 23.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.50"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 1: U/O 24.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 5.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 10.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.25"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 11.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 2.90"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 12.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 3.75"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 13.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 4.50"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 14.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 6.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 15.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 7.50"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 16.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 10.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 17.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 15.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 18.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 20.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 19.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 33.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 20.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 50.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 21.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 50.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 22.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 50.00"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 4.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.03"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 5.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.08"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 6.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.18"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 7.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.33"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 8.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.52"
+        }
+      ]
+    },
+    {
+      "label": "SQUADRA 2: U/O 9.5 TIRI TOTALI",
+      "outcomes": [
+        {
+          "disabled": true,
+          "text": "UNDER"
+        },
+        {
+          "disabled": false,
+          "text": "OVER 1.85"
+        }
+      ]
+    }
+  ],
+  "frame_hosts": [
+    "betting.sisal.it",
+    "www.sisal.it",
+    "insight.adsrvr.org"
+  ]
+}

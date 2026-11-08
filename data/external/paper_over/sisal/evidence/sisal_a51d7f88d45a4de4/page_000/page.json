@@ -1,0 +1,14 @@
+{
+  "blocks": [],
+  "events": [],
+  "headings": [
+    "This site can’t be reached"
+  ],
+  "links": [],
+  "source_url": "chrome-error://chromewebdata/",
+  "text": "This site can’t be reached\n\nThe webpage at https://www.sisal.it/scommesse-matchpoint/evento/calcio/serie-a/monza-sassuolo might be temporarily down or it may have moved permanently to a new web address.\n\nERR_HTTP2_PROTOCOL_ERROR",
+  "times": [],
+  "title": "www.sisal.it",
+  "observed_at": "2026-09-17T15:20:50.872589+00:00",
+  "blocked": true
+}

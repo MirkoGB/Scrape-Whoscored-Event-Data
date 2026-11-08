@@ -1,0 +1,10 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Quote Sisal — raccolta locale</title><link rel="stylesheet" href="popup.css"></head>
+<body><header><small>RACCOLTA LOCALE</small><h1>Quote Sisal</h1><p>Apri STATS MATCH nella pagina della partita per leggere tiri e tiri in porta.</p></header>
+<label class="toggle"><input type="checkbox" id="enabled"> Raccogli automaticamente le pagine aperte</label>
+<p id="status" role="status" aria-live="polite">Collegamento alla scheda…</p>
+<button id="read">Leggi questa pagina</button>
+<p>Anteprima completa delle linee Over riconosciute:</p><div id="preview"></div>
+<div class="archive"><strong id="count">Archivio locale</strong><p>Ultima lettura di ogni pagina, fino a 50 partite. Le quote conservano l’orario in cui sono state lette.</p><button id="export">Esporta per il report</button> <button id="clear" class="secondary">Svuota archivio</button></div>
+<p id="feedback" role="status"></p>
+<footer>Legge gli Over tiri e tiri in porta di squadra e partita. Mercati giocatore, 1X2, combo e singoli tempi non rientrano nel modello. Apri i gruppi U/O che vuoi conservare: una nuova lettura sostituisce la precedente della stessa pagina. Nessuna puntata viene inviata.</footer>
+<script src="core.js"></script><script src="connection.js"></script><script src="popup.js"></script></body></html>
