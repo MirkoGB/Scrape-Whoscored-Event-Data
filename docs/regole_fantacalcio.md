@@ -496,3 +496,56 @@ Tre fatti nuovi sulla fonte, emersi acquisendo e non leggendo:
 Decisioni ancora aperte: vedi sezione 0. **Le quotazioni del listone non sono
 state acquisite** (pagina diversa, `/quotazioni-fantacalcio`): la D2 del
 Blocco 0 resta aperta ed e' la verifica principale del progetto.
+
+### 7.2 Decisioni della Fase 13 / G2 (2026-08-14)
+
+Prese dall'utente aprendo il ramo **G2** (gli altri campionati), che la Fase 10
+teneva chiuso dietro una **condizione bloccante di autorizzazione** registrata
+in `CLAUDE.md` su richiesta dell'utente del 2026-08-07. La condizione diceva che
+estendere WhoScored oltre la Serie A e' «una decisione dell'utente, che verra'
+presa se e quando si arriva a G2, e non prima». **Si e' arrivati a G2 e la
+decisione e' stata presa.**
+
+| # | decisione | effetto |
+| --- | --- | --- |
+| 1 | **autorizzazione WhoScored estesa** a Premier League, Liga, Bundesliga e Ligue 1 | rimuove la condizione bloccante di `CLAUDE.md`; l'acquisizione dei quattro campionati puo' partire |
+| 2 | perimetro **cinque stagioni per campionato**, come la Serie A | ~7.000 partite, ~18 GB. E' l'unico perimetro che renda i cinque campionati confrontabili stagione per stagione |
+| 3 | bersaglio **gol segnati** | il modello esiste gia' ed e' validato su Serie A (E3.1, `sot/difesa.py`): t = 5,52 sul baseline migliore |
+| 4 | **passaggio progressivo** = avanzamento in x >= 10 m **e riuscito** | 88,9 per squadra-partita sulla 2025-26. Le altre due letture restano calcolate come colonne affiancate, mai fuse (vincolo 7) |
+| 5 | metriche nuove da dati evento: **tocchi per zona** (campo in 5 zone, aree di rigore incluse) e famiglia dei progressivi | `endX`/`endY` sono gia' in `events_slim` al 100%: non costano una rilettura dei 1.889 CSV |
+
+**Quattro conseguenze che non erano nella richiesta e che valgono per i blocchi
+successivi:**
+
+1. **L'autorizzazione riguarda un soggetto, e il soggetto e' il mirror.** Vale
+   qui la stessa avvertenza della decisione 3 di §7.1: lo scraper si rivolge a
+   `1xbet.whoscored.com` (`acquisition/whoscored/main.py:60`), non a
+   `www.whoscored.com`. L'estensione a quattro campionati **eredita** quella
+   distinzione senza risolverla: se l'autorizzazione ottenuta copre WhoScored ma
+   non il mirror, il dominio va cambiato per tutti e cinque insieme.
+2. **L'autorizzazione non produce da sola gli URL.** Tutti e quattro i
+   campionati hanno `whoscored: None` in `config.LEAGUE_CODES`, cioe' la terna
+   `(regione, torneo, slug)` non e' accertata per nessuno.
+   `acquisition/whoscored/target.py:63` **solleva** invece di comporre un URL,
+   ed e' voluto: un URL inventato porta a un'altra competizione senza dirlo.
+   Le terne vanno **accertate sulla fonte e dichiarate**, mai indovinate.
+3. **I cinque campionati non si poolano.** E' la regola di E1, e R0 l'aveva
+   gia' scritta in anticipo proprio su G2: poolare i campionati e' «l'errore che
+   E1 vieta e che E4 ha quantificato». Fra sole stagioni dello stesso
+   campionato E4 ha misurato che il livello dell'xG interno si muove del 15,8%;
+   fra campionati diversi non c'e' ragione di aspettarsi meno. O cinque fit
+   separati, o il campionato entra come **effetto esplicito**.
+4. **Il calendario non e' 380 partite per tutti.** Bundesliga ha 18 squadre
+   (306 partite) e Ligue 1 e' passata da 20 a 18 squadre dalla 2023-24. I
+   denominatori si **contano dai dati**, mai assunti — e' la stessa trappola
+   che l'acquisizione della Serie A ha gia' pagato con l'Atalanta a 35 partite
+   e il playout a 39.
+
+> **I predittori da dati evento sono gia' stati scartati tre volte** — Fase 2
+> (tiri in porta), 6D (regimi acerbi), V3 (tentativi, il piu' potente in termini
+> relativi). Le metriche della decisione 5 sono in parte genuinamente nuove, e
+> il bersaglio **e' diverso** (i gol, dove E3 ha mostrato che l'avversario conta
+> molto di piu' che sui tiri): c'e' una ragione seria per aspettarsi un esito
+> diverso. Ma «tocchi in area» **e' gia' fra le otto bocciate**, e il test va
+> disegnato con la **potenza dichiarata prima**, altrimenti un quarto negativo
+> non si distinguerebbe da un test cieco.

@@ -36,10 +36,29 @@ LEAGUE_CODES = {
         "football_data": "I1",
         "whoscored": {"regione": 108, "torneo": 5, "slug": "italy-serie-a"},
     },
-    "ENG-premier-league":  {"football_data": "E0",  "whoscored": None},
-    "ESP-la-liga":         {"football_data": "SP1", "whoscored": None},
-    "GER-bundesliga":      {"football_data": "D1",  "whoscored": None},
-    "FRA-ligue-1":         {"football_data": "F1",  "whoscored": None},
+    # Le quattro terne sotto sono state ACCERTATE sulla fonte il 2026-08-14 da
+    # `acquisition/whoscored/verifica_terne.py`, non ricavate a memoria: si
+    # carica la pagina e si pretende che il `canonical` rimandi indietro gli
+    # STESSI id e lo slug della competizione attesa. La verifica porta con se'
+    # un controllo positivo (la Serie A, gia' accertata) e due negativi (un nome
+    # sbagliato, e id inesistenti) — senza i quali un "confermata" non
+    # significherebbe niente. Esito in `reports/fase13_terne_whoscored.json`.
+    "ENG-premier-league":  {
+        "football_data": "E0",
+        "whoscored": {"regione": 252, "torneo": 2, "slug": "england-premier-league"},
+    },
+    "ESP-la-liga":         {
+        "football_data": "SP1",
+        "whoscored": {"regione": 206, "torneo": 4, "slug": "spain-laliga"},
+    },
+    "GER-bundesliga":      {
+        "football_data": "D1",
+        "whoscored": {"regione": 81, "torneo": 3, "slug": "germany-bundesliga"},
+    },
+    "FRA-ligue-1":         {
+        "football_data": "F1",
+        "whoscored": {"regione": 74, "torneo": 22, "slug": "france-ligue-1"},
+    },
 }
 
 # Perimetro pubblicato delle Fasi 0-6. Le altre coppie campionato-stagione
@@ -64,6 +83,21 @@ SEASONS_STORICHE = (
     "2024-2025",
     "2025-2026",
 )
+
+# La stagione IN CORSO (Fase 14), cioe' quella che l'aggiornamento settimanale
+# scarica e su cui si fa la previsione.
+#
+# **Non entra in SEASONS_STORICHE, ed e' la decisione che tiene in piedi tutto il
+# resto.** Quelle sono le stagioni FINITE su cui poggia ogni numero pubblicato
+# dalle Fasi 0-13, e sono il default di mezzo repository — `previsione` usa
+# `SEASONS_STORICHE[-1]`, `tentativi.universo` la usa quando `stagioni is None`,
+# `volume.walkforward_tiri` pure. Allungare quella tupla sposterebbe in silenzio
+# ogni numero gia' validato, e nessun test se ne accorgerebbe perche' tutti
+# leggono la costante invece del suo valore.
+#
+# Una stagione in corso ha inoltre una proprieta' che nessuna delle cinque ha:
+# **cresce fra un'esecuzione e l'altra**. Cio' che la usa deve saperlo.
+SEASON_CORRENTE = "2026-2027"
 
 # --------------------------------------------------------------------------
 # Percorsi
@@ -153,6 +187,20 @@ def match_dir(league: str = None, season: str = None) -> Path:
 def matches_json(league: str = None, season: str = None) -> Path:
     """Calendario di WhoScored: e' l'unico posto in cui esistono i NOMI."""
     return raw_dir("whoscored", league, season) / "matches.json"
+
+
+def calendario_json(league: str = None, season: str = None) -> Path:
+    """Le partite ANCORA DA GIOCARE. **File separato da `matches.json`**.
+
+    La separazione non e' organizzativa, e' funzionale: `matches.json` e' il
+    criterio di arresto dello scraper (`target.report_completeness`) e il
+    denominatore di `target.avanzamento`. Mettendoci dentro le partite future,
+    `partite_viste` smetterebbe di significare "giocate" e la quota di
+    avanzamento andrebbe a 1,00 dal giorno zero; e `aggiorna_stagione`
+    proverebbe a scaricare gli eventi di partite che non esistono ancora,
+    fallendo a ogni giro.
+    """
+    return raw_dir("whoscored", league, season) / "calendario.json"
 
 
 def _processed_file(nome: str, league: str = None, season: str = None) -> Path:

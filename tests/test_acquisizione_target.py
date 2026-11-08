@@ -151,12 +151,59 @@ def test_stagione_mal_formata_rifiutata(cattiva):
         T.Target(season=cattiva)
 
 
-def test_campionato_senza_codici_whoscored_rifiutato():
-    """Per gli altri quattro campionati regione e torneo non sono stati
-    verificati. Un URL inventato porterebbe a un'altra competizione **senza
-    dirlo**, e i CSV finirebbero in una cartella col nome sbagliato."""
+def test_campionato_senza_codici_whoscored_rifiutato(monkeypatch):
+    """Un campionato con `whoscored: None` solleva invece di comporre un URL.
+
+    Un URL inventato porterebbe a un'altra competizione **senza dirlo**, e i CSV
+    finirebbero in una cartella col nome sbagliato.
+
+    **Questo test e' scritto sulla PROPRIETA', non sul fatto**, e la differenza
+    e' costata un rosso: fino al 2026-08-14 asseriva che `ENG-premier-league`
+    non avesse codici, il che era vero finche' nessuno li aveva accertati. Il
+    giorno in cui `verifica_terne.py` li ha accertati — cioe' un progresso, non
+    una regressione — il test e' diventato rosso segnalando un fatto **innocuo**
+    invece della proprieta' che deve sorvegliare. E' la terza volta in questo
+    repository (dopo il gate sui qualifier e `test_v1_scrive_una_sola_cache`):
+    una guardia legata a una forma invece che a una proprieta' da' un falso
+    positivo appena la forma cambia.
+    """
+    monkeypatch.setitem(
+        config.LEAGUE_CODES, "ITA-serie-a",
+        {"football_data": "I1", "whoscored": None},
+    )
     with pytest.raises(ValueError, match="non sono stati verificati"):
-        T.Target(league="ENG-premier-league")
+        T.Target(league="ITA-serie-a")
+
+
+def test_terne_whoscored_accertate_hanno_le_tre_chiavi():
+    """Ogni terna dichiarata porta regione, torneo e slug: mai una parziale.
+
+    Una terna incompleta non solleverebbe in `__post_init__` (che controlla solo
+    `is None`) e romperebbe piu' tardi dentro `percorso_competizione`, cioe'
+    lontano dalla causa.
+    """
+    for league, codici in config.LEAGUE_CODES.items():
+        ws = codici["whoscored"]
+        if ws is None:
+            continue
+        assert set(ws) == {"regione", "torneo", "slug"}, league
+        assert isinstance(ws["regione"], int) and ws["regione"] > 0, league
+        assert isinstance(ws["torneo"], int) and ws["torneo"] > 0, league
+        assert ws["slug"] and ws["slug"] == ws["slug"].lower(), league
+
+
+def test_terne_whoscored_sono_distinte():
+    """Due campionati non possono condividere la coppia (regione, torneo).
+
+    Sarebbe la firma di un copia-incolla: due cartelle diverse che scaricano la
+    stessa competizione, e nessun controllo a valle se ne accorgerebbe — i CSV
+    sarebbero validi, solo del campionato sbagliato.
+    """
+    coppie = [
+        (c["whoscored"]["regione"], c["whoscored"]["torneo"])
+        for c in config.LEAGUE_CODES.values() if c["whoscored"] is not None
+    ]
+    assert len(coppie) == len(set(coppie)), coppie
 
 
 def test_campionato_ignoto_rifiutato():
@@ -309,9 +356,27 @@ def test_lo_stage_si_seleziona_con_il_ripiego_su_javascript():
     """La 2022-2023 si e' persa qui: `select_by_index` fallisce con
     ElementClickInterceptedException quando un banner copre il menu. Il ripiego
     e' lo stesso gia' usato da `_click_prev_day`."""
-    corpo = _sorgente_scraper().split("def _select_stage")[1].split("\ndef ")[0]
+    src = _sorgente_scraper()
+
+    # **Scritto sulla PROPRIETA', non sulla forma.** Fino al 2026-08-28 questo
+    # test pretendeva `execute_script` dentro il corpo di `_select_stage`, ed e'
+    # diventato rosso quando il ripiego e' stato spostato in un helper condiviso
+    # — cioe' quando il difetto e' stato corretto MEGLIO: lo stesso banner aveva
+    # nel frattempo colpito anche `<select id="seasons">`, costando la Premier
+    # 2023-2024 intera. Un test legato al punto d'uso invece che alla classe di
+    # difetto da' un falso positivo appena si generalizza il rimedio. E' la
+    # QUINTA volta in questo repository, dopo il gate sui qualifier,
+    # `test_v1_scrive_una_sola_cache`, le guardie a sottostringa del vincolo 3
+    # e i codici WhoScored di `LEAGUE_CODES`.
+    corpo = src.split("def _seleziona_con_ripiego")[1].split("\ndef ")[0]
     assert "ElementClickInterceptedException" in corpo
     assert "execute_script" in corpo
+
+    # ENTRAMBI i menu passano dal ripiego: e' il punto della generalizzazione,
+    # e senza questo controllo l'helper potrebbe esistere e non essere usato.
+    for funzione in ("_select_stage", "_select_season"):
+        b = src.split(f"def {funzione}")[1].split("\ndef ")[0]
+        assert "_seleziona_con_ripiego" in b, funzione
     assert "change" in corpo, (
         "senza l'evento 'change' la pagina resta sullo stage precedente e si "
         "rileggono le stesse partite"
@@ -335,7 +400,14 @@ def test_una_stagione_che_fallisce_non_ferma_le_altre():
     corpo = _sorgente_scraper().split("def main(")[1]
     ciclo = corpo.split("for target in bersagli:")[1].split("print(")[0]
     assert "except Exception" in ciclo
-    assert "esiti[str(target)]" in ciclo
+    # La PROPRIETA' e': l'eccezione di una stagione viene catturata e registrata
+    # come esito, invece di propagarsi e fermare il ciclo. **Non** si pretende la
+    # forma della chiave: fino al 2026-08-28 qui c'era `esiti[str(target)]`, e il
+    # test e' diventato rosso quando la chiave e' passata al `Target` stesso —
+    # che toglie un round-trip su stringa, cioe' e' un miglioramento.
+    assert "esiti[" in ciclo and "] = " in ciclo
+    assert "scarica(target, args)" in ciclo
+    assert "raise" not in ciclo, "il ciclo non deve propagare: fermerebbe le altre"
 
 
 def test_la_concatenazione_non_finisce_sotto_raw():

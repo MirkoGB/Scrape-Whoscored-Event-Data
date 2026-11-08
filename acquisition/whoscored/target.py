@@ -90,6 +90,17 @@ class Target:
         return config.raw_dir("whoscored", self.league, self.season) / "matches.json"
 
     @property
+    def cache_calendario(self) -> Path:
+        """Le partite ANCORA DA GIOCARE, in un file **separato** da `matches.json`.
+
+        Il perche' della separazione sta in `config.calendario_json`, ed e'
+        misurabile: `report_completeness` usa `matches.json` come criterio di
+        arresto e `avanzamento` come denominatore di "partite viste". Mescolarci
+        le future romperebbe entrambi in silenzio.
+        """
+        return config.calendario_json(self.league, self.season)
+
+    @property
     def file_unito(self) -> Path:
         """Concatenazione dei CSV: derivata, quindi sotto `processed/`.
 
@@ -125,6 +136,7 @@ def parser() -> argparse.ArgumentParser:
   scrape_season.py                              tutte e cinque le stagioni
   scrape_season.py --season 2021-2022           una sola
   scrape_season.py --season 2021-2022 2022-2023 due, in ordine
+  scrape_season.py --season 2026-2027 --in-corso  la stagione ancora aperta
 """,
     )
     p.add_argument(
@@ -144,6 +156,22 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--refresh-urls", action="store_true",
         help="ri-scansiona il calendario anche se la cache e' gia' completa",
+    )
+    p.add_argument(
+        "--in-corso", action="store_true",
+        help="la stagione non e' finita: una sola passata sul calendario, cache "
+             "sempre rinfrescata, e l'incompletezza non e' un difetto",
+    )
+    p.add_argument(
+        "--calendario", action="store_true",
+        help="raccoglie ANCHE le partite ancora da giocare, navigando il "
+             "calendario in avanti, e le scrive in calendario.json (file "
+             "separato da matches.json, che resta il criterio di arresto)",
+    )
+    p.add_argument(
+        "--solo-calendario", action="store_true",
+        help="raccoglie SOLO il calendario delle partite da giocare, senza "
+             "scaricare nessun evento",
     )
     p.add_argument(
         "--merge", action="store_true",
@@ -186,6 +214,54 @@ def stato(target: Target) -> dict:
 # nessun browser, nessuna rete, quindi verificabile dai test come il resto
 # di questo modulo. Nello scraper era controllabile solo eseguendolo.
 # --------------------------------------------------------------------------
+
+def avanzamento(matches):
+    """A che punto e' una stagione ANCORA IN CORSO. Logica pura, come la gemella.
+
+    **Non e' `report_completeness` con un flag, ed e' voluto.** Quella risponde
+    «il calendario e' completo?» con un booleano che lo scraper usa come criterio
+    di arresto. Una stagione in corso e' incompleta **per definizione**: farle
+    dire `True` significherebbe far dire «completo» a un calendario che non lo e',
+    e chi legge il log non avrebbe modo di distinguere i due casi. Farle dire
+    `False` costerebbe `MAX_URL_PASSES` passate di navigazione a ogni esecuzione,
+    a cercare partite che non esistono ancora perche' non si sono giocate.
+
+    Quindi la domanda cambia: non «manca qualcosa?» ma «quante se ne sono
+    giocate?». Il denominatore si **deduce dalle squadre viste**, mai assunto a
+    38: la Bundesliga e la Ligue 1 ne hanno 34 (18 squadre), ed e' lo stesso
+    motivo per cui `report_completeness` non ha un 38 scritto dentro.
+
+    Attenzione al limite dichiarato: finche' una squadra non e' mai comparsa, il
+    conteggio delle squadre e' sottostimato e con lui il numero atteso di
+    partite. Alla prima giornata i numeri sono grezzi; dalla seconda in poi tutte
+    le squadre hanno giocato e il denominatore e' quello vero.
+    """
+    per_team = {}
+    for match in matches:
+        for team in (match['home'], match['away']):
+            per_team[team] = per_team.get(team, 0) + 1
+
+    squadre = len(per_team)
+    per_squadra = (squadre - 1) * 2 if squadre else 0
+    attese = squadre * per_squadra // 2 if squadre else 0
+    giocate = len(matches)
+
+    info = {
+        "squadre": squadre,
+        "partite_viste": giocate,
+        "partite_attese": attese,
+        "per_squadra_attese": per_squadra,
+        "per_squadra_min": min(per_team.values()) if per_team else 0,
+        "per_squadra_max": max(per_team.values()) if per_team else 0,
+        "quota": giocate / attese if attese else 0.0,
+    }
+    print("")
+    print(f"Stagione in corso: {squadre} squadre | {giocate} partite giocate "
+          f"su {attese} del calendario ({info['quota']:.0%}) | "
+          f"per squadra {info['per_squadra_min']}-{info['per_squadra_max']} "
+          f"su {per_squadra}")
+    return info
+
 
 def report_completeness(matches):
     """Il calendario e' completo? In Serie A ogni squadra gioca 38 partite.

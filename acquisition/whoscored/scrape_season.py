@@ -37,10 +37,15 @@ bersagli, percorsi e stato di avanzamento senza aprire niente.
 
 Nota: main.py, scrape_matches.py e target.py devono essere nella stessa cartella.
 
-**I termini d'uso di WhoScored non sono mai stati verificati**
-(`docs/regole_fantacalcio.md` §7.1, terza conseguenza): l'autorizzazione
-ottenuta riguarda Fantacalcio.it e non si estende a questa fonte. Va accertato
-prima di lanciare lo scraper sulle stagioni arretrate.
+**Autorizzazione**: dichiarata dall'utente per WhoScored il 2026-07-31
+(`docs/regole_fantacalcio.md` §7.1, terza conseguenza) ed **estesa il 2026-08-14
+a Premier League, Liga, Bundesliga e Ligue 1** (§7.2, decisione 1). Il
+repository registra la dichiarazione, non conserva il documento.
+
+Fino al 2026-08-14 questa docstring diceva che i termini d'uso non erano mai
+stati verificati: era vero quando fu scritta e ha smesso di esserlo con §7.1,
+restando indietro per due fasi. **Una nota di cautela che invecchia senza
+accorgersene e' peggio della sua assenza**, perche' sembra ancora una misura.
 """
 
 import json
@@ -78,8 +83,8 @@ from main import getMatchData, main_url
 # Campionato, stagione e percorsi non sono piu' globali del modulo: sono un
 # `Target`, che li tiene insieme e li rende immutabili. Finche' erano cinque
 # variabili globali, una stagione alla volta era l'unica cosa possibile.
-from target import (Target, parser, report_completeness, stato,  # noqa: E402
-                    targets)
+from target import (Target, avanzamento, parser, report_completeness,  # noqa: E402
+                    stato, targets)
 import pagina  # noqa: E402
 
 
@@ -123,10 +128,13 @@ def _select_season(driver, season):
 
     wanted = season.replace(' ', '')
     short = wanted.replace('/20', '/')            # 2025/2026 -> 2025/26
-    for label in available:
+    for i, label in enumerate(available):
         normalized = label.replace(' ', '')
         if normalized in (wanted, short):
-            select.select_by_visible_text(label)
+            # Per INDICE e non per testo: il ripiego JavaScript puo' agire solo
+            # su `selectedIndex`, e avere due strade che scelgono l'opzione con
+            # criteri diversi e' il modo di scoprire tardi che divergono.
+            _seleziona_con_ripiego(driver, driver.find_element(By.ID, 'seasons'), i)
             time.sleep(5)
             return label
 
@@ -186,15 +194,30 @@ def _sort_matches(matches):
     return [m for _, m in valid] + undated
 
 
-def _click_prev_day(driver):
-    """Clicca il bottone 'giorno precedente'. Restituisce False quando non c'e' piu'.
+#: I due bottoni di navigazione fra i giorni del calendario.
+#:
+#: `-next` **e' stato accertato il 2026-09-03** da
+#: `verifica_calendario.py`: esiste, non e' disabilitato e muove la pagina. Fino
+#: ad allora non compariva in nessun punto del repository, e che ci fosse era
+#: un'ipotesi — per questo la verifica e' venuta prima di questo codice.
+#: Ritorno a capo per le stampe di avanzamento sulla stessa riga.
+CR = chr(13)
 
-    WhoScored piazza banner pubblicitari sopra il bottone: il click nativo di
-    Selenium fallisce con ElementClickInterceptedException, quindi si ripiega
-    sul click via JavaScript, che ignora gli elementi sovrapposti.
+BTN_PREV = 'dayChangeBtn-prev'
+BTN_NEXT = 'dayChangeBtn-next'
+
+
+def _click_day(driver, id_bottone):
+    """Clicca un bottone di navigazione. False quando non si puo' andare oltre.
+
+    **Sta in un posto solo per i due versi**, ed e' la lezione di
+    `_seleziona_con_ripiego`: il ripiego JS sul banner pubblicitario e' gia'
+    costato due stagioni intere quando era stato applicato al punto d'uso invece
+    che alla classe di difetto. Averne una copia per `prev` e una per `next`
+    vorrebbe dire poterle far divergere in silenzio.
     """
     try:
-        btn = driver.find_element(By.ID, 'dayChangeBtn-prev')
+        btn = driver.find_element(By.ID, id_bottone)
     except NoSuchElementException:
         return False
 
@@ -210,6 +233,16 @@ def _click_prev_day(driver):
         except WebDriverException:
             return False
     return True
+
+
+def _click_prev_day(driver):
+    """Il giorno precedente. E' la navigazione dell'acquisizione degli eventi."""
+    return _click_day(driver, BTN_PREV)
+
+
+def _click_next_day(driver):
+    """Il giorno successivo. E' la navigazione del CALENDARIO delle partite future."""
+    return _click_day(driver, BTN_NEXT)
 
 
 def _page_signature(driver):
@@ -255,8 +288,38 @@ def _force_render(driver, max_scrolls=15):
     time.sleep(0.3)
 
 
-def _parse_visible_fixtures(driver):
-    """Legge tutte le partite presenti nella pagina di calendario corrente."""
+#: Il discriminante fra una partita GIOCATA e una da giocare, **accertato** il
+#: 2026-09-03 da `verifica_calendario.py` e non assunto: su 30 righe di una
+#: stagione conclusa il criterio le da' tutte giocate e tutte presenti in
+#: `matches.json`; su 30 righe future le da' tutte da giocare e nessuna presente.
+#: Una partita futura ha `/show/` nell'href (non `/preview/`, che era la
+#: congettura) e mostra `-:-` al posto del punteggio.
+SEGMENTO_GIOCATA = '/live/'
+
+
+def _e_giocata(href):
+    """Una definizione in un posto solo: la usano il parser e i test."""
+    return SEGMENTO_GIOCATA in (href or '')
+
+
+def _parse_visible_fixtures(driver, includi_future=False):
+    """Legge le partite della pagina di calendario corrente.
+
+    `includi_future=False` e' il comportamento storico e **non cambia di un
+    bit**: si tengono le sole righe giocate, che e' cio' di cui l'acquisizione
+    degli eventi ha bisogno. Un test lo blocca.
+
+    Con `includi_future=True` si tengono anche le righe da giocare, e allora
+    valgono due regole che non sono cosmetiche:
+
+    - **`score` NON viene scritto per una partita da giocare.** Il campo esiste
+      per contenere un risultato; su una riga futura il sito mostra `-:-`, e su
+      altre localizzazioni potrebbe mostrare l'orario. `20:45` ha esattamente la
+      forma di un punteggio, quindi metterlo li' produrrebbe un dato ambiguo
+      **per costruzione**, che nessun controllo a valle saprebbe piu' separare.
+    - **la riga porta `giocata`**, cioe' il fatto, invece di lasciarlo dedurre
+      dalla forma di un altro campo.
+    """
     found = []
 
     for dates in driver.find_elements(By.CLASS_NAME, 'Accordion-module_accordion__UuHD0'):
@@ -270,7 +333,8 @@ def _parse_visible_fixtures(driver):
         for row in rows:
             try:
                 href = row.find_element(By.TAG_NAME, 'a').get_attribute('href') or ''
-                if 'live' not in href:
+                giocata = _e_giocata(href)
+                if not giocata and not includi_future:
                     continue
                 element = soup(row.get_attribute('innerHTML'), features='lxml')
             except (NoSuchElementException, StaleElementReferenceException):
@@ -281,13 +345,19 @@ def _parse_visible_fixtures(driver):
             if teams_tag is None or link_tag is None:
                 continue
 
-            found.append({
+            riga = {
                 'date':  date_text,
                 'home':  teams_tag.find_all('a')[0].text,
                 'away':  teams_tag.find_all('a')[1].text,
                 'score': ':'.join([t.text for t in link_tag.find_all('span')]),
                 'url':   link_tag['href'],
-            })
+            }
+            if includi_future:
+                riga['giocata'] = giocata
+                if not giocata:
+                    # mai un orario dentro `score`: sarebbe ambiguo per forma
+                    riga['score'] = None
+            found.append(riga)
 
     return found
 
@@ -335,6 +405,134 @@ def _scrape_current_fixtures(driver):
     return _sort_matches(matches)
 
 
+def _get_calendario_futuro(driver, max_pages=40):
+    """Naviga il calendario IN AVANTI e raccoglie le partite da giocare.
+
+    E' il gemello di `_get_fixture_data`, con tre differenze dichiarate:
+
+    1. va in **avanti** (`BTN_NEXT`), che e' cio' che
+       `verifica_calendario.py` ha accertato esistere;
+    2. legge anche le righe non giocate (`includi_future=True`);
+    3. **si ferma quando smette di trovare partite da giocare**, non quando la
+       pagina non si muove: oltre l'ultima giornata il calendario continua a
+       esistere e a scorrere, vuoto, per sempre.
+
+    `max_pages` e' un tetto, non il criterio di arresto: senza, un bottone che
+    resta abilitato all'infinito farebbe girare lo scraper per sempre.
+    """
+    trovate = {}
+    vuote_di_seguito = 0
+
+    for page in range(1, max_pages + 1):
+        _force_render(driver)
+        signature = _page_signature(driver)
+
+        nuove = 0
+        for match in _parse_visible_fixtures(driver, includi_future=True):
+            if match.get('giocata'):
+                continue                      # le giocate stanno in matches.json
+            if match['url'] not in trovate:
+                trovate[match['url']] = match
+                nuove += 1
+
+        vuote_di_seguito = 0 if nuove else vuote_di_seguito + 1
+        print(f"{CR}  calendario, pagina {page}: "
+              f"{len(trovate)} partite da giocare",
+              end='', flush=True)
+
+        # Tre pagine consecutive senza niente di nuovo: la stagione e' finita.
+        # Il numero e' un margine per i turni infrasettimanali vuoti, non una
+        # soglia stimata.
+        if vuote_di_seguito >= 3:
+            break
+        if not _click_next_day(driver):
+            break
+        if not _wait_page_change(driver, signature):
+            if not _click_next_day(driver) or not _wait_page_change(driver, signature):
+                break
+
+    print()
+    return _sort_matches(list(trovate.values()))
+
+
+def verifica_calendario_futuro(righe):
+    """Controlli di struttura che valgono su un calendario PARZIALE.
+
+    Non si puo' pretendere 38 giornate: la Bundesliga ne ha 34, la Ligue 1 pure
+    dalla 2023-24, e un calendario della stagione in corso e' incompleto per
+    definizione (i denominatori si **contano**, mai si assumono — §7.2). Cio' che
+    vale comunque e' piu' debole ma falsificabile:
+
+    - nessuna squadra gioca contro se stessa;
+    - nessuna squadra compare due volte nella stessa data;
+    - nessun accoppiamento ordinato (casa, trasferta) compare piu' di una volta;
+    - nessuna riga ha un punteggio.
+
+    Ritorna un dizionario di violazioni: **vuoto** significa che i controlli
+    passano. Non solleva: il chiamante decide se un calendario storto va
+    scartato o riportato, e questa funzione non deve poterlo nascondere.
+    """
+    problemi = {}
+
+    stesse = [r for r in righe if r['home'] == r['away']]
+    if stesse:
+        problemi['squadra_contro_se_stessa'] = [r['url'] for r in stesse]
+
+    per_data = {}
+    for r in righe:
+        for squadra in (r['home'], r['away']):
+            per_data.setdefault((r['date'], squadra), []).append(r['url'])
+    doppie = {f"{d} / {sq}": u for (d, sq), u in per_data.items() if len(u) > 1}
+    if doppie:
+        problemi['squadra_due_volte_nello_stesso_giorno'] = doppie
+
+    coppie = {}
+    for r in righe:
+        coppie.setdefault((r['home'], r['away']), []).append(r['url'])
+    ripetute = {f"{a} - {b}": u for (a, b), u in coppie.items() if len(u) > 1}
+    if ripetute:
+        problemi['accoppiamento_ripetuto'] = ripetute
+
+    con_punteggio = [r['url'] for r in righe if r.get('score')]
+    if con_punteggio:
+        problemi['partita_futura_con_punteggio'] = con_punteggio
+
+    return problemi
+
+
+def raccogli_calendario(driver, target: Target, max_pages=40):
+    """Il calendario delle partite da giocare, in un file SEPARATO.
+
+    Non tocca `matches.json`, e la ragione sta in `config.calendario_json`: quel
+    file e' il criterio di arresto dello scraper e il denominatore di
+    `avanzamento`, e mescolarci le partite future romperebbe entrambi in
+    silenzio.
+    """
+    _apri_calendario(driver, target)
+    righe = _get_calendario_futuro(driver, max_pages=max_pages)
+    problemi = verifica_calendario_futuro(righe)
+
+    out = target.cache_calendario
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({
+        'campionato': target.league,
+        'stagione': target.season,
+        'raccolto': dt.now().isoformat(timespec='seconds'),
+        'fonte': target.url_competizione(main_url),
+        'criterio_giocata': f"una partita e' giocata se l'href contiene "
+                            f"{SEGMENTO_GIOCATA!r} (accertato da "
+                            f"verifica_calendario.py il 2026-09-03)",
+        'partite': len(righe),
+        'verifica_struttura': problemi or 'nessuna violazione',
+        'righe': righe,
+    }, indent=2, ensure_ascii=False), encoding='utf-8')
+
+    print(f"  calendario: {len(righe)} partite da giocare -> {out}")
+    if problemi:
+        print(f"  ATTENZIONE, la struttura non torna: {sorted(problemi)}")
+    return righe, problemi
+
+
 def _script_di(driver):
     """Il tag <script> con i dati partita, o None se non c'e'.
 
@@ -346,6 +544,39 @@ def _script_di(driver):
             By.XPATH, '//*[@id="layout-wrapper"]/script[1]').get_attribute('innerHTML')
     except WebDriverException:
         return None
+
+
+def _seleziona_con_ripiego(driver, el, index):
+    """Sceglie l'opzione `index` di un `<select>`, aggirando i banner sovrapposti.
+
+    **Sta in un posto solo perche' e' gia' costato due stagioni intere.**
+    WhoScored piazza banner pubblicitari sopra i controlli e il click nativo di
+    Selenium fallisce con `ElementClickInterceptedException`:
+
+      - la prima volta sul menu `stages`, e costo' la 2022-2023 della Serie A
+        (documentato in CLAUDE.md, acquisizione WhoScored 2021-2026);
+      - la seconda sul menu `seasons`, e costo' la 2023-2024 della Premier
+        League: `<select id="seasons"> is not clickable at point (539,173)
+        because another element <div class="a__sc-np32r2-0 ..."> obscures it`.
+
+    La prima volta il rimedio fu applicato **al solo `stages`**, cioe' al punto
+    in cui si era manifestato invece che alla classe di difetto. Ecco perche' e'
+    tornato su un altro menu: un rimedio locale a un problema generale aspetta
+    solo il prossimo punto d'uso.
+
+    Il click via JavaScript ignora gli elementi sovrapposti, ma **non fa
+    scattare da solo il ricaricamento**: serve l'evento `change` esplicito,
+    altrimenti la pagina resta sull'opzione precedente e si rileggono gli stessi
+    dati credendo di averne cambiati.
+    """
+    try:
+        Select(el).select_by_index(index)
+    except (ElementClickInterceptedException, StaleElementReferenceException,
+            WebDriverException):
+        driver.execute_script(
+            "arguments[0].selectedIndex = arguments[1];"
+            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+            el, index)
 
 
 def _select_stage(driver, index):
@@ -362,25 +593,30 @@ def _select_stage(driver, index):
     da solo il ricaricamento: serve l'evento 'change' esplicito, altrimenti la
     pagina resta sullo stage precedente e si rileggono le stesse partite.
     """
-    el = driver.find_element(By.ID, 'stages')
-    try:
-        Select(el).select_by_index(index)
-    except (ElementClickInterceptedException, StaleElementReferenceException,
-            WebDriverException):
-        driver.execute_script(
-            "arguments[0].selectedIndex = arguments[1];"
-            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
-            el, index)
+    _seleziona_con_ripiego(driver, driver.find_element(By.ID, 'stages'), index)
+
+
+def _apri_calendario(driver, target: Target):
+    """Apre la pagina della competizione e seleziona la stagione chiesta.
+
+    **Sta in un posto solo perche' i chiamanti sono due**: l'acquisizione degli
+    eventi (`get_match_urls`) e la raccolta del calendario futuro
+    (`raccogli_calendario`). Averne due copie e' esattamente il difetto che ha
+    prodotto un calendario vuoto la prima volta che `--solo-calendario` e' stato
+    eseguito: quel ramo salta `load_match_urls`, quindi nessuno apriva la
+    pagina, e lo scraper leggeva `about:blank` senza accorgersene.
+    """
+    driver.get(target.url_competizione(main_url))
+    time.sleep(5)
+    _accept_cookies(driver)
+    label = _select_season(driver, target.stagione_sito)
+    print(f"Stagione selezionata: {label}")
+    return label
 
 
 def get_match_urls(driver, target: Target):
     """Restituisce la lista di dict {date, home, away, score, url} della stagione."""
-    driver.get(target.url_competizione(main_url))
-    time.sleep(5)
-    _accept_cookies(driver)
-
-    label = _select_season(driver, target.stagione_sito)
-    print(f"Stagione selezionata: {label}")
+    _apri_calendario(driver, target)
 
     all_urls = []
     try:
@@ -406,23 +642,44 @@ def get_match_urls(driver, target: Target):
     return _sort_matches(list(unique.values()))
 
 
-def load_match_urls(driver, target: Target, refresh=False):
+def load_match_urls(driver, target: Target, refresh=False, in_corso=False):
+    """Il calendario della stagione, dalla cache o dalla rete.
+
+    `in_corso` cambia **due** cose, e nessuna delle due e' cosmetica.
+
+    1. **Una passata sola invece di quattro.** Il criterio di arresto normale e'
+       `report_completeness`, cioe' «tutte le squadre hanno il loro numero di
+       partite». Una stagione che si sta giocando non lo soddisfa mai, quindi
+       ogni esecuzione pagherebbe `MAX_URL_PASSES` navigazioni complete del
+       calendario per cercare partite che non esistono ancora — settimana dopo
+       settimana, verso una fonte di cui si e' ospiti.
+    2. **La cache si rinfresca sempre.** E' l'esatto contrario del caso normale:
+       li' una cache completa e' la risposta definitiva, qui e' vecchia di sette
+       giorni per costruzione. Saltarla nasconderebbe proprio le partite nuove,
+       che sono l'unica ragione per cui si sta rilanciando.
+
+    Cio' che **non** cambia e' che le partite gia' in cache non si perdono mai:
+    `merged` parte da loro e la passata nuova ci si somma. Una navigazione che
+    non arrivasse fino a settembre non cancellerebbe settembre.
+    """
     cache = target.cache_url
     cached = []
     if cache.exists():
         cached = json.loads(cache.read_text(encoding='utf-8'))
         print(f"Lista partite dalla cache: {len(cached)} match ({cache})")
-        if not refresh and report_completeness(cached):
+        if not in_corso and not refresh and report_completeness(cached):
             return cached
-        print('\nRiscansione del calendario per recuperare le partite mancanti...')
+        if not in_corso:
+            print('Riscansione del calendario per le partite mancanti...')
 
     # la navigazione del calendario puo' perdere qualche pagina: si ripassa
     # finche' il calendario e' completo, sommando i risultati alla cache
     merged = {m['url']: m for m in cached}
     urls = _sort_matches(list(merged.values()))
 
-    for attempt in range(1, MAX_URL_PASSES + 1):
-        print(f"\n--- Passata {attempt}/{MAX_URL_PASSES} sul calendario ---")
+    passate = 1 if in_corso else MAX_URL_PASSES
+    for attempt in range(1, passate + 1):
+        print(f"--- Passata {attempt}/{passate} sul calendario ---")
         found = get_match_urls(driver, target)
 
         new = [m for m in found if m['url'] not in merged]
@@ -435,6 +692,9 @@ def load_match_urls(driver, target: Target, refresh=False):
         print(f"Trovate {len(found)} partite in questa passata ({len(new)} nuove) "
               f"-> {len(urls)} totali in {cache.name}")
 
+        if in_corso:
+            avanzamento(urls)
+            break
         if report_completeness(urls):
             break
         if not new:
@@ -533,6 +793,28 @@ def match_id_from_url(url):
     return parts[-1]
 
 
+# Firme di un browser MORTO, non di una partita che non si scarica. Selenium le
+# riporta come normali eccezioni per-partita, e senza distinguerle lo scraper
+# cicla sul resto della stagione fallendo tutto in pochi secondi: e' successo
+# alla Ligue 1 2025-2026, dove lo spegnimento del PC ha ucciso geckodriver a
+# quota 70 e le **236 partite rimanenti** sono state marcate ritentabili una per
+# una. Nessun dato perso — erano tutte ritentabili davvero — ma il log diventa
+# illeggibile e il riepilogo dice "236 da ritentare" dove la causa e' UNA.
+FIRME_DRIVER_MORTO = (
+    'without establishing a connection',
+    'invalid session id',
+    'session deleted',
+    'browser has closed',
+    'connection refused',
+    'unable to connect',
+)
+
+
+def _driver_morto(exc: Exception) -> bool:
+    testo = str(exc).lower()
+    return any(f in testo for f in FIRME_DRIVER_MORTO)
+
+
 def scarica_partite(driver, target: Target, match_urls, sleep=7.0):
     """Scarica gli eventi delle partite non ancora su disco.
 
@@ -571,6 +853,18 @@ def scarica_partite(driver, target: Target, match_urls, sleep=7.0):
                 progress.update('ok')
 
             except Exception as exc:
+                # Un browser morto non e' un problema DI QUESTA partita: e' la
+                # fine della passata. Si ferma qui e si lascia il resto alla
+                # ripresa, invece di marcare ritentabili centinaia di partite
+                # mai davvero tentate.
+                if _driver_morto(exc):
+                    progress.write(
+                        f"  STOP {label}: browser non piu' raggiungibile "
+                        f"({str(exc).splitlines()[0][:80]}). "
+                        f"Interrompo la stagione: le rimanenti restano da fare.")
+                    failed.append((match_url, f"browser caduto: {exc}"))
+                    break
+
                 # `substring not found` puo' voler dire due cose opposte: un
                 # difetto di lettura, oppure che la fonte non ha i dati. Si
                 # guarda la pagina invece di indovinare — vedi pagina.py.
@@ -609,7 +903,7 @@ def merge_matches(target: Target):
 # ──────────────────────────────────────────────
 #  MAIN
 # ──────────────────────────────────────────────
-def _stampa_dry_run(bersagli):
+def _stampa_dry_run(bersagli, in_corso=False):
     """Cosa verrebbe fatto, senza aprire un browser ne' toccare la rete.
 
     Non e' una comodita': i termini d'uso di WhoScored non sono ancora stati
@@ -617,14 +911,19 @@ def _stampa_dry_run(bersagli):
     non passi dalla fonte.
     """
     print(f"DRY RUN — {len(bersagli)} stagion{'e' if len(bersagli) == 1 else 'i'}, "
-          "niente browser, niente rete\n")
+          "niente browser, niente rete")
+    if in_corso:
+        print("modo --in-corso: una passata sola sul calendario, cache "
+              "sempre rinfrescata, incompletezza attesa e non un difetto")
+    print("")
     for t in bersagli:
         s = stato(t)
         print(f"  {t}")
         print(f"    stagione sul sito   {t.stagione_sito}")
         print(f"    url competizione    {t.url_competizione(main_url)}")
         print(f"    CSV partita         {t.dir_partite}")
-        print(f"    cache calendario    {t.cache_url}")
+        print(f"    cache partite       {t.cache_url}")
+        print(f"    calendario futuro   {t.cache_calendario}")
         print(f"    gia' su disco       {s['csv_su_disco']} CSV"
               + (f" | {s['partite_in_cache']} in cache"
                  f" | {s['da_scaricare']} da scaricare" if s['partite_in_cache'] else
@@ -640,10 +939,22 @@ def scarica(target: Target, args):
     if MINIMIZE_WINDOW:
         driver.minimize_window()
 
+    solo_cal = getattr(args, 'solo_calendario', False)
+    vuole_cal = solo_cal or getattr(args, 'calendario', False)
+
     try:
-        match_urls = load_match_urls(driver, target, refresh=args.refresh_urls)
-        failed, senza_dati = scarica_partite(
-            driver, target, match_urls, sleep=args.sleep)
+        if solo_cal:
+            failed, senza_dati = [], []
+        else:
+            match_urls = load_match_urls(
+                driver, target, refresh=args.refresh_urls,
+                in_corso=getattr(args, 'in_corso', False))
+            failed, senza_dati = scarica_partite(
+                driver, target, match_urls, sleep=args.sleep)
+        if vuole_cal:
+            # **Dopo** gli eventi e nella STESSA sessione di browser: aprirne una
+            # seconda raddoppierebbe le richieste alla fonte per niente.
+            raccogli_calendario(driver, target)
     finally:
         driver.quit()
 
@@ -659,7 +970,21 @@ def scarica(target: Target, args):
 
     n = len(list(target.dir_partite.glob('*.csv')))
     print(f"\n{target}: {n} CSV su disco.")
-    return failed
+    # **Si restituiscono ENTRAMBE le liste**, come la docstring dichiara e come
+    # `main` spacchetta. Fino al 2026-08-14 qui c'era `return failed`, e la
+    # contraddizione con la propria docstring e' rimasta invisibile per due
+    # ragioni che vale la pena scrivere:
+    #
+    #   - con una lista di ESATTAMENTE due fallimenti lo spacchettamento in
+    #     `main` riusciva, assegnando due URL alle variabili sbagliate: nessun
+    #     errore, un riepilogo falso;
+    #   - con zero fallimenti — cioe' **solo quando la stagione riesce del
+    #     tutto** — sollevava `not enough values to unpack`.
+    #
+    # Ne segue che il difetto si manifestava all'ESITO MIGLIORE e taceva su
+    # quelli mediocri. E' comparso alla prima stagione a copertura piena, la
+    # Premier League 2025-2026 (380/380), non sulla Serie A che ne perdeva 12.
+    return failed, senza_dati
 
 
 def main(argv=None):
@@ -674,23 +999,29 @@ def main(argv=None):
         sys.exit(f"errore: {exc}")
 
     if args.dry_run:
-        _stampa_dry_run(bersagli)
+        _stampa_dry_run(bersagli, in_corso=args.in_corso)
         return
 
     # Una stagione che fallisce non deve fermare le altre: sono acquisizioni
     # indipendenti, e la ripartibilita' vale anche fra stagioni.
+    # La chiave e' il `Target` stesso (dataclass frozen, quindi hashabile) e non
+    # la sua forma stampata: il riepilogo ricostruiva un Target da
+    # `nome.split()[-1]`, cioe' rileggeva una stringa che aveva appena
+    # formattato. Funzionava finche' `__str__` restava "campionato stagione", e
+    # sarebbe diventato silenziosamente sbagliato al primo campionato con uno
+    # spazio nel nome.
     esiti = {}
     for target in bersagli:
         try:
-            esiti[str(target)] = scarica(target, args)
+            esiti[target] = scarica(target, args)
         except Exception as exc:            # noqa: BLE001 — vale per l'intera stagione
             print(f"\n!! {target} interrotta: {exc}")
-            esiti[str(target)] = ([('<intera stagione>', str(exc))], [])
+            esiti[target] = ([('<intera stagione>', str(exc))], [])
 
     print(f"\n{'=' * 70}\nRIEPILOGO\n{'=' * 70}")
     ritentabili = 0
-    for nome, (failed, senza_dati) in esiti.items():
-        t = Target(args.league, nome.split()[-1])
+    for t, (failed, senza_dati) in esiti.items():
+        nome = str(t)
         n = len(list(t.dir_partite.glob('*.csv'))) if t.dir_partite.is_dir() else 0
         ritentabili += len(failed)
         coda = []
@@ -698,6 +1029,14 @@ def main(argv=None):
             coda.append(f"{len(failed)} da ritentare")
         if senza_dati:
             coda.append(f"{len(senza_dati)} senza dati alla fonte")
+        # In una stagione in corso il divario fra calendario e CSV non e' un
+        # difetto: sono le partite che non si sono ancora giocate. Senza questa
+        # riga la copertura sembrerebbe sempre rotta, e la volta in cui lo fosse
+        # davvero non si distinguerebbe da tutte le altre.
+        if getattr(args, 'in_corso', False):
+            resto = stato(t)['partite_in_cache'] - n - len(failed) - len(senza_dati)
+            if resto > 0:
+                coda.append(f"{resto} non ancora giocate")
         print(f"  {nome}: {n} CSV su disco" + (f" | {' | '.join(coda)}" if coda else ""))
         for url, err in failed:
             print(f"      ritentabile  {url}  ({err})")

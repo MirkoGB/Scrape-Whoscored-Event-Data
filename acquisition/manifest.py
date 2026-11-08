@@ -47,10 +47,37 @@ DEFINIZIONI = {
             "Opta `shotOnTarget` esiste nello schema. La definizione usata dal "
             "progetto e' in sot/shots.py e coincide con quel flag."
         ),
+        "calendario": (
+            "`calendario.json` porta le partite ANCORA DA GIOCARE, ed e' un file "
+            "diverso da `matches.json`, che porta quelle giocate. Una riga di "
+            "calendario ha `giocata: false` e **`score: null`**: il punteggio "
+            "non esiste, e non ci si scrive l'orario di inizio perche' '20:45' "
+            "ha esattamente la forma di un risultato e sarebbe ambiguo per "
+            "costruzione. Il discriminante e' l'href: `/live/` = giocata, "
+            "`/show/` = da giocare, accertato il 2026-09-03 da "
+            "acquisition/whoscored/verifica_calendario.py con un controllo "
+            "positivo (30 righe di stagione conclusa, tutte gia' su disco) e uno "
+            "negativo (30 righe future, nessuna su disco)."
+        ),
+        "natura_del_calendario": (
+            "ISTANTANEA RIGENERABILE, non un dato grezzo immutabile. Si riscrive "
+            "a ogni aggiornamento e il suo hash cambia **legittimamente** ogni "
+            "settimana, perche' le partite giocate escono e quelle nuove "
+            "entrano. Per questo NON viene registrato come i CSV degli eventi: "
+            "li' un hash cambiato significa che la fonte ha cambiato i dati "
+            "sotto di noi, qui significa soltanto che il tempo e' passato. "
+            "Registrarlo con la stessa semantica farebbe crescere "
+            "`revisioni_precedenti` per costruzione, svuotando di senso il "
+            "segnale che quella lista esiste per dare."
+        ),
         "note": (
-            "il dominio effettivamente contattato e' 1xbet.whoscored.com, un "
-            "mirror di affiliazione fissato in acquisition/whoscored/main.py, "
-            "non www.whoscored.com"
+            "il dominio contattato e' www.whoscored.com "
+            "(acquisition/whoscored/main.py). Fino al 2026-08-14 era il mirror "
+            "di affiliazione 1xbet.whoscored.com, ereditato dal fork: da quella "
+            "data risponde 301 verso www, e main.py e' stato portato li'. I file "
+            "acquisiti PRIMA del 2026-08-14 sono passati dal mirror, e la data "
+            "di download di ciascuno sta nel suo record: e' quella che dice da "
+            "quale dei due un file e' arrivato, non questa nota."
         ),
     },
     "fantacalcio": {
