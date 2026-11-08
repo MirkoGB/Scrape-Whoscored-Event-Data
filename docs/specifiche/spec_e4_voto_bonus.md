@@ -1,6 +1,6 @@
 # Fase 9 — Blocco E4: voto base e bonus
 
-> Da inserire in `docs/prompt_fase9.md` come specifica di E4, senza sovrascrivere
+> Da inserire in `docs/fasi/prompt_fase9.md` come specifica di E4, senza sovrascrivere
 > il resto. Legge come prerequisito tutto ciò che E1, E2, E3 e (b) hanno già
 > stabilito — in particolare il gate di E1 e il gate del FVM in
 > `sot/quotazioni.py`.

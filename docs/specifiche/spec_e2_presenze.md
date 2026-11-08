@@ -1,6 +1,6 @@
 # Fase 9 — Blocco E2: le presenze
 
-> Da integrare in `docs/prompt_fase9.md` come specifica di E2. **Non
+> Da integrare in `docs/fasi/prompt_fase9.md` come specifica di E2. **Non
 > sovrascrivere il file**: la tua copia è divergente dalla mia (G3 rimosso, E0
 > ed E1 chiusi, sezioni aggiunte). Inserisci, non rimpiazzare.
 

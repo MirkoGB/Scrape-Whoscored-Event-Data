@@ -30,6 +30,20 @@ events.csv
 reports/*
 !reports/figures/
 !reports/*.md
+#
+# Fase 16 / O1. Le previsioni CONGELATE il 2026-08-30 e il loro registro sono
+# l'UNICA cosa di quel blocco che non e' rigenerabile: `run_previsioni.py --csv`
+# riscrive `reports/previsioni_<L>.csv` sovrascrivendo e senza data nel nome del
+# file, e l'aggiornamento automatico del martedi' e' attivo. Stessa motivazione
+# gia' scritta per `data/raw/manifest.json`: una provenienza senza storia in git
+# non e' verificabile.
+#
+# Il commit di per se' NON prova che quei file esistessero il 30 agosto — la
+# storia in git comincia dopo. Cio' che lo prova e' che le loro previsioni sono
+# riproducibili da un modello stimato su dati che finiscono a maggio 2026
+# (`verifica_prospettica.verifica_anteriorita`).
+!reports/fase16_o1_congelate_*.csv
+!reports/fase16_o1_registro.csv
 
 # pytest
 .pytest_cache/
@@ -47,3 +61,6 @@ reports/*
 #                        momento in cui accorgersene sarebbe `git status`,
 #                        cioe' troppo tardi.
 .claude/settings.local.json
+
+# Analisi Graphify generata localmente: grafo, cache e dipendenze scaricate.
+graphify-out/

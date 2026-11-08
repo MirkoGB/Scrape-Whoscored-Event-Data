@@ -128,7 +128,7 @@ sua deriva fra stagioni **prima e dopo**.
 ## Blocco E2 — le presenze. È qui che il 91% dell'errore aspetta
 
 > Specifica completa, dall'utente il 2026-08-04 (era
-> `docs/spec_e2_presenze.md`). Sostituisce lo stub che stava qui: quello elencava
+> `docs/specifiche/spec_e2_presenze.md`). Sostituisce lo stub che stava qui: quello elencava
 > i candidati, questa aggiunge l'ordine di esecuzione, i predittori di distinta e
 > il criterio di valutazione.
 
@@ -319,7 +319,7 @@ dell'effetto non è ovvio.
 
 ## Blocco E4 — voto base e bonus
 
-> Specifica completa, dall'utente il 2026-08-07 (era `docs/spec_e4_voto_bonus.md`).
+> Specifica completa, dall'utente il 2026-08-07 (era `docs/specifiche/spec_e4_voto_bonus.md`).
 > Sostituisce lo stub che stava qui: quello dava la cornice e i candidati, questa
 > aggiunge l'ordine di esecuzione, il costo della rilettura, il criterio di
 > valutazione e i gate ereditati. **Cosa lo stub diceva e questa non ripete** —
@@ -475,7 +475,7 @@ giudizio, e poi ne scelgo una.
 > **Erano quattro.** La quarta era `rho` e l'ancora 4.90 — la domanda singola
 > piu' grande sulla proiezione, 19 tiri e il 21% dell'IC80% — ed **e' stata
 > tolta da qui perche' e' gia' la Fase 7**, cioe' il ramo `7B → 7C → 7D`
-> descritto in `docs/prompt_fase7.md`. Due rami che convergono sulla stessa
+> descritto in `docs/fasi/prompt_fase7.md`. Due rami che convergono sulla stessa
 > domanda sono un modo di farla due volte, e il secondo modo sarebbe stato
 > quello senza i dati: la Fase 7 va a prendere la fonte tabellare che serve,
 > questa fase non ha niente con cui rispondere. **Non e' rinviata, e' altrove.**
