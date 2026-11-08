@@ -91,14 +91,18 @@ def _pagine(league: str, seasons) -> list[tuple[T.TargetVoti, int]]:
     return fuori
 
 
-def costruisci(league: str = None, seasons=None, verbose: bool = True):
+def costruisci(league: str = None, seasons=None, verbose: bool = True, giornate=None):
     """Legge tutte le pagine su disco e restituisce `(voti, partite)`.
 
     Non tocca la rete e non scrive: chi vuole i Parquet chiama `run()`.
     """
     league = config.LEAGUE if league is None else league
+    if giornate is not None:
+        giornate = {T._check_giornata(g) for g in giornate}
     righe, partite = [], []
     for t, g in _pagine(league, seasons):
+        if giornate is not None and g not in giornate:
+            continue
         percorso = t.percorso(g)
         letto = P.analizza(P.leggi(percorso), t.season, g)
         relativo = str(percorso.relative_to(config.ROOT)).replace("\\", "/")

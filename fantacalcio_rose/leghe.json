@@ -1,0 +1,424 @@
+{
+  "versione_schema": 1,
+  "stagione": "2026-2027",
+  "nota": "Stagione proposta dai dati; regole non dedotte dagli export. I null sono decisioni mancanti, non valori di default.",
+  "leghe": [
+    {
+      "id": "fantagas2020",
+      "mia_squadra": "Swiftdon Town",
+      "foglio": "ROSE",
+      "stagione_confermata": false,
+      "regole_confermate": false,
+      "fonte_regolamento": "Indicazioni parziali dell'utente, conversazione del 2026-10-06",
+      "regole": {
+        "formato": null,
+        "fonte_voti": null,
+        "moduli_consentiti": null,
+        "vincoli_rosa": null,
+        "bonus_malus": null,
+        "modificatori": {
+          "difesa": {
+            "attivo": true,
+            "fasce_complete": [
+              {
+                "min_incluso": 6.0,
+                "max_escluso": 6.25,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.25,
+                "max_escluso": 6.5,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.5,
+                "max_escluso": 6.75,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 6.75,
+                "max_escluso": 7.0,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 7.0,
+                "max_escluso": "+inf",
+                "bonus": 6
+              }
+            ],
+            "criterio_media": null,
+            "minimo_difensori_schierati": null,
+            "gestione_sv": null,
+            "bonus_sotto_6": null,
+            "convenzione_intervalli": "[min,max); ultima fascia aperta verso +inf"
+          },
+          "capitano": {
+            "attivo": true,
+            "formula": null
+          }
+        },
+        "sostituzioni": null,
+        "scambi": null,
+        "crediti": null
+      },
+      "dichiarazioni_utente": {
+        "data": "2026-10-06",
+        "fonte": "messaggio utente nella conversazione",
+        "difesa": {
+          "attivo": true,
+          "bonus_in_ordine": [
+            1,
+            1,
+            3,
+            3,
+            6
+          ],
+          "inizio_bonus_da_media": 6,
+          "primo_intervallo": null,
+          "ampiezza_intervalli": 0.25
+        },
+        "capitano_attivo": true
+      }
+    },
+    {
+      "id": "fantamassa21",
+      "mia_squadra": "Daughter from Helgason",
+      "foglio": "ROSE",
+      "stagione_confermata": false,
+      "regole_confermate": false,
+      "fonte_regolamento": "Indicazioni parziali dell'utente, conversazione del 2026-10-06",
+      "regole": {
+        "formato": null,
+        "fonte_voti": null,
+        "moduli_consentiti": null,
+        "vincoli_rosa": null,
+        "bonus_malus": null,
+        "modificatori": {
+          "difesa": {
+            "attivo": true,
+            "fasce_complete": [
+              {
+                "min_incluso": 6.0,
+                "max_escluso": 6.25,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.25,
+                "max_escluso": 6.5,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.5,
+                "max_escluso": 6.75,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 6.75,
+                "max_escluso": 7.0,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 7.0,
+                "max_escluso": "+inf",
+                "bonus": 6
+              }
+            ],
+            "criterio_media": null,
+            "minimo_difensori_schierati": null,
+            "gestione_sv": null,
+            "bonus_sotto_6": null,
+            "convenzione_intervalli": "[min,max); ultima fascia aperta verso +inf"
+          },
+          "capitano": {
+            "attivo": true,
+            "formula": null
+          }
+        },
+        "sostituzioni": null,
+        "scambi": null,
+        "crediti": null
+      },
+      "dichiarazioni_utente": {
+        "data": "2026-10-06",
+        "fonte": "messaggio utente nella conversazione",
+        "difesa": {
+          "attivo": true,
+          "bonus_in_ordine": [
+            1,
+            1,
+            3,
+            3,
+            6
+          ],
+          "inizio_bonus_da_media": 6,
+          "primo_intervallo": null,
+          "ampiezza_intervalli": 0.25
+        },
+        "capitano_attivo": true
+      }
+    },
+    {
+      "id": "fantaonlyfans",
+      "mia_squadra": "Il parco dei bambini",
+      "foglio": "ROSE",
+      "stagione_confermata": false,
+      "regole_confermate": false,
+      "fonte_regolamento": "Indicazioni parziali dell'utente, conversazione del 2026-10-06",
+      "regole": {
+        "formato": null,
+        "fonte_voti": null,
+        "moduli_consentiti": null,
+        "vincoli_rosa": null,
+        "bonus_malus": null,
+        "modificatori": {
+          "difesa": {
+            "attivo": true,
+            "fasce_complete": [
+              {
+                "min_incluso": 6.0,
+                "max_escluso": 6.25,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.25,
+                "max_escluso": 6.5,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.5,
+                "max_escluso": 6.75,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 6.75,
+                "max_escluso": 7.0,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 7.0,
+                "max_escluso": "+inf",
+                "bonus": 6
+              }
+            ],
+            "criterio_media": null,
+            "minimo_difensori_schierati": null,
+            "gestione_sv": null,
+            "bonus_sotto_6": null,
+            "convenzione_intervalli": "[min,max); ultima fascia aperta verso +inf"
+          },
+          "capitano": {
+            "attivo": true,
+            "formula": null
+          }
+        },
+        "sostituzioni": null,
+        "scambi": null,
+        "crediti": null
+      },
+      "dichiarazioni_utente": {
+        "data": "2026-10-06",
+        "fonte": "messaggio utente nella conversazione",
+        "difesa": {
+          "attivo": true,
+          "bonus_in_ordine": [
+            1,
+            1,
+            3,
+            3,
+            6
+          ],
+          "inizio_bonus_da_media": 6,
+          "primo_intervallo": null,
+          "ampiezza_intervalli": 0.25
+        },
+        "capitano_attivo": true
+      }
+    },
+    {
+      "id": "fantaunipdgiantiamiamo",
+      "mia_squadra": "Expectations goals",
+      "foglio": "ROSE",
+      "stagione_confermata": false,
+      "regole_confermate": false,
+      "fonte_regolamento": "Indicazioni parziali dell'utente, conversazione del 2026-10-06",
+      "regole": {
+        "formato": null,
+        "fonte_voti": null,
+        "moduli_consentiti": null,
+        "vincoli_rosa": null,
+        "bonus_malus": null,
+        "modificatori": {
+          "difesa": {
+            "attivo": true,
+            "fasce_complete": [
+              {
+                "min_incluso": 6.0,
+                "max_escluso": 6.25,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.25,
+                "max_escluso": 6.5,
+                "bonus": 1.5
+              },
+              {
+                "min_incluso": 6.5,
+                "max_escluso": 6.75,
+                "bonus": 2
+              },
+              {
+                "min_incluso": 6.75,
+                "max_escluso": 7.0,
+                "bonus": 2.5
+              },
+              {
+                "min_incluso": 7.0,
+                "max_escluso": 7.25,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 7.25,
+                "max_escluso": 7.5,
+                "bonus": 4
+              },
+              {
+                "min_incluso": 7.5,
+                "max_escluso": "+inf",
+                "bonus": 5
+              }
+            ],
+            "criterio_media": null,
+            "minimo_difensori_schierati": null,
+            "gestione_sv": null,
+            "bonus_sotto_6": null,
+            "convenzione_intervalli": "[min,max); ultima fascia aperta verso +inf"
+          },
+          "capitano": {
+            "attivo": null,
+            "formula": null
+          }
+        },
+        "sostituzioni": null,
+        "scambi": null,
+        "crediti": null
+      },
+      "dichiarazioni_utente": {
+        "data": "2026-10-06",
+        "fonte": "messaggio utente nella conversazione",
+        "difesa": {
+          "attivo": true,
+          "bonus_in_ordine": [
+            1,
+            1.5,
+            2,
+            2.5,
+            3,
+            4,
+            5
+          ],
+          "inizio_bonus_da_media": 6,
+          "primo_intervallo": null,
+          "ampiezza_intervalli": 0.25
+        },
+        "capitano_attivo": null
+      }
+    },
+    {
+      "id": "fantazavomerda",
+      "mia_squadra": "Old-ham Fashioned Athletic",
+      "foglio": "ROSE",
+      "stagione_confermata": false,
+      "regole_confermate": false,
+      "fonte_regolamento": "Indicazioni parziali dell'utente, conversazione del 2026-10-06",
+      "regole": {
+        "formato": null,
+        "fonte_voti": null,
+        "moduli_consentiti": null,
+        "vincoli_rosa": null,
+        "bonus_malus": null,
+        "modificatori": {
+          "difesa": {
+            "attivo": true,
+            "fasce_complete": [
+              {
+                "min_incluso": "-inf",
+                "max_escluso": 5.5,
+                "bonus": -1.5
+              },
+              {
+                "min_incluso": 5.5,
+                "max_escluso": 5.75,
+                "bonus": -1
+              },
+              {
+                "min_incluso": 5.75,
+                "max_escluso": 6.0,
+                "bonus": 0
+              },
+              {
+                "min_incluso": 6.0,
+                "max_escluso": 6.25,
+                "bonus": 0
+              },
+              {
+                "min_incluso": 6.25,
+                "max_escluso": 6.5,
+                "bonus": 1
+              },
+              {
+                "min_incluso": 6.5,
+                "max_escluso": 6.75,
+                "bonus": 2
+              },
+              {
+                "min_incluso": 6.75,
+                "max_escluso": 7.0,
+                "bonus": 3
+              },
+              {
+                "min_incluso": 7.0,
+                "max_escluso": "+inf",
+                "bonus": 3.5
+              }
+            ],
+            "criterio_media": null,
+            "minimo_difensori_schierati": null,
+            "gestione_sv": null,
+            "convenzione_intervalli": "[min,max); ultima fascia aperta verso +inf"
+          },
+          "capitano": {
+            "attivo": null,
+            "formula": null
+          }
+        },
+        "sostituzioni": null,
+        "scambi": null,
+        "crediti": null
+      },
+      "dichiarazioni_utente": {
+        "data": "2026-10-06",
+        "fonte": "messaggio utente nella conversazione",
+        "difesa": {
+          "attivo": true,
+          "bonus_in_ordine": [
+            -1.5,
+            -1,
+            0,
+            0,
+            1,
+            2,
+            3,
+            3.5
+          ],
+          "inizio_bonus_da_media": null,
+          "primo_intervallo": {
+            "media_inferiore_a": 5.5,
+            "bonus": -1.5
+          },
+          "ampiezza_intervalli": 0.25
+        },
+        "capitano_attivo": null
+      }
+    }
+  ]
+}

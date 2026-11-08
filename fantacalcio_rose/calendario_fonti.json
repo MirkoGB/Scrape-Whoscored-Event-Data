@@ -1,0 +1,9 @@
+{
+  "stagione": "2026-2027",
+  "verificato_il": "2026-10-06",
+  "metodo": "Trascrizione degli accoppiamenti ufficiali G1-G10; date programmate solo G6-G10. G1-G5: date effettive da Fantacalcio e WhoScored, confrontate separatamente, per non imporre le date provvisorie del comunicato.",
+  "fonti": [
+    {"giornate": [1, 5], "url": "https://images.legaseriea.it/image/private/fl_attachment/prd/czailts3apyt3kuxjran.pdf", "documento": "CU 208 del 24 giugno 2026, pagine 1-3", "cache": "data/raw/legaseriea/2026-2027/2026-10-06/g1_g5.pdf"},
+    {"giornate": [6, 10], "url": "https://www.legaseriea.it/serie-a/news/quando-si-gioca-anticipi-e-posticipi-fino-alla-12a-giornata", "documento": "Articolo del 3 settembre 2026; controllo delle variazioni al 6 ottobre: la variazione successiva riguarda G12", "cache": "data/raw/legaseriea/2026-2027/2026-10-06/g6_g12.html"}
+  ]
+}

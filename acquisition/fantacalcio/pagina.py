@@ -121,7 +121,7 @@ N_SQUADRE = 20
 _ID_SQUADRA = re.compile(r"^team-(\d+)$")
 _ID_PARTITA = re.compile(r"^match-(\d+)$")
 # .../squadre/<squadra>/<nome>/<idGiocatore>/<stagione>
-_ID_GIOCATORE = re.compile(r"/squadre/[^/]+/[^/]+/(\d+)/")
+_ID_GIOCATORE = re.compile(r"/squadre/[^/]+/[^/]+/(\d+)(?:/|$|[?#])")
 
 
 class ListoneNonPubblicato(RuntimeError):
@@ -377,6 +377,12 @@ def analizza_quote(html: bytes, stagione: str) -> list[dict]:
     tabelle condividono davvero una chiave.
     """
     soup = BeautifulSoup(html, "lxml")
+    selezionata = soup.select_one("select#season option[selected]")
+    if selezionata is not None:
+        attesa = f"{stagione[:4]}/{stagione[-2:]}"
+        if selezionata.get("value") != attesa:
+            raise MarkupInatteso(
+                f"stagione listone {selezionata.get('value')!r} invece di {attesa}")
     tabella = soup.select_one("table.pills-table")
     if tabella is None:
         # **"Dati non disponibili" non e' un markup cambiato**, ed e' la
@@ -444,6 +450,13 @@ def analizza(html: bytes, stagione: str, giornata: int) -> dict:
     """
     soup = BeautifulSoup(html, "lxml")
     tabelle = _contratto(soup)
+    # Alcuni redirect conservano un markup valido ma cambiano il bersaglio.
+    for selector, atteso in (("season", f"{stagione[:4]}/{stagione[-2:]}"),
+                             ("matchweek", str(giornata))):
+        selected = soup.select_one(f"select#{selector} option[selected]")
+        if selected is not None and selected.get("value") != atteso:
+            raise MarkupInatteso(
+                f"{selector} voti {selected.get('value')!r} invece di {atteso}")
     partite = _partite(soup, giornata)
 
     # squadra -> avversario, in un verso e nell'altro. Passa dal calendario e

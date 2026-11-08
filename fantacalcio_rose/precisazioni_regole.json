@@ -1,0 +1,70 @@
+{
+  "fonte": "Precisazione dell'utente nella conversazione del 7 ottobre 2026",
+  "testo": "Per le prime 4 leghe sotto il 6 il modificatore è 0; i migliori 4 fra portieri e difensori; se dopo i cambi restano meno di 4 voti utili non si prende; in fantagas2020 e fantaonlyfans la panchina è 1P 2D 2C 2A, negli altri la panchina è libera.",
+  "moduli": {
+    "fonte_classic": "Normali moduli Classic dichiarati nel file utente, espansi secondo il regolamento ufficiale",
+    "fonte_mantra": "Conferma dell'utente: sì, tutti i moduli ufficiali Mantra",
+    "classic": ["3-4-3", "3-5-2", "4-3-3", "4-4-2", "4-5-1", "5-3-2", "5-4-1"],
+    "mantra": ["3-4-3", "3-4-1-2", "3-4-2-1", "3-5-2", "3-5-1-1", "4-3-3", "4-3-1-2", "4-4-2", "4-1-4-1", "4-4-1-1", "4-2-3-1"]
+  },
+  "capitano": {
+    "fonte": "Precisazione dell'utente: voto base 6 dà 0, 6.5 dà +0.5, 7 dà +1, anche in negativo",
+    "formula": {"operazione": "voto_base_meno_soglia", "soglia": 6}
+  },
+  "sostituzioni": {
+    "fonte": "Precisazioni dell'utente: sostituzioni ruolo per ruolo, anche nel Mantra, senza cambiare ruolo; numero tecnicamente infinito entro i limiti delle panchine già dichiarati",
+    "modalita_dichiarata": "stesso_ruolo",
+    "numero_massimo": "illimitato",
+    "adattamenti_ruolo_consentiti": false
+  },
+  "bonus_malus": {
+    "fonte": "Precisazione successiva dell'utente: bonus/malus delle cinque leghe",
+    "comuni": {
+      "gol_segnati": 3,
+      "rigori_segnati": 3,
+      "rigori_sbagliati": -3,
+      "rigori_parati": 3,
+      "ammonizione": -0.5,
+      "espulsione": -1,
+      "autoreti": -2,
+      "gol_subiti": -1,
+      "porta_inviolata": 1
+    },
+    "eccezioni": {
+      "fantazavomerda": {"rigori_segnati": 2, "rigori_sbagliati": -2}
+    },
+    "assist_per_lega": {
+      "fantagas2020": {"modalita": "fisso", "bonus_per_assist": 1},
+      "fantamassa21": {"modalita": "quality", "fasce_bonus": [0.5, 1, 1.5]},
+      "fantaonlyfans": {"modalita": "fisso", "bonus_per_assist": 1},
+      "fantaunipdgiantiamiamo": {"modalita": "quality", "fasce_bonus": [0.5, 1, 1.5]},
+      "fantazavomerda": {"modalita": "quality", "fasce_bonus": [0.5, 1, 1.5]}
+    }
+  },
+  "limiti_rosa": {
+    "fantamassa21": {
+      "massimo_giocatori": 35,
+      "fonte": "Correzione successiva dell'utente: in fantamassa il massimo è 35, non 32"
+    }
+  },
+  "difesa_comune": {
+    "criterio_media": "migliori_quattro_fra_portiere_e_difensori_schierati",
+    "gestione_sv": {
+      "esclusi_dalla_media": true,
+      "meno_di_quattro_voti": "modificatore_non_applicato"
+    }
+  },
+  "bonus_difesa_sotto_6": {
+    "fantagas2020": 0,
+    "fantamassa21": 0,
+    "fantaonlyfans": 0,
+    "fantaunipdgiantiamiamo": 0
+  },
+  "panchine": {
+    "fantagas2020": {"composizione": "fissa", "posti_per_ruolo": {"p": 1, "d": 2, "c": 2, "a": 2}, "numero_posti": 7},
+    "fantamassa21": {"composizione": "libera", "numero_posti": null},
+    "fantaonlyfans": {"composizione": "fissa", "posti_per_ruolo": {"p": 1, "d": 2, "c": 2, "a": 2}, "numero_posti": 7},
+    "fantaunipdgiantiamiamo": {"composizione": "libera", "numero_posti": null},
+    "fantazavomerda": {"composizione": "libera", "numero_posti": null}
+  }
+}
