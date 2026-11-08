@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "mode": "paper_only",
+  "bankroll": 100.0,
+  "daily_budget": 1.0,
+  "stop_drawdown": 20.0,
+  "probability_stress": 0.05,
+  "extra_stress": 0.1,
+  "min_robust_ev": 0.05,
+  "max_quote_age_minutes": 60,
+  "pool_limit": 18,
+  "sizes": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "selection": "massimo EV al limite inferiore Frechet con p ridotta di 5 punti; astensione se EV < 5%",
+  "same_match": "vietato",
+  "shared_team": "vietato",
+  "same_bookmaker": true,
+  "multiple_price": "quota complessiva esplicitamente documentata; prodotto quote solo indicativo",
+  "settlement": "90 minuti + recupero; linee .5; vittoria/perdita/annullata; fonte e regole documentate",
+  "holdout": "solo decisioni registrate dopo il congelamento, prima delle gare; nessun tuning sul test",
+  "budget_note": "100 unita virtuali; massimo 1 unita per strategia e data delle gare; non spesa in caso di astensione",
+  "frozen_at": "2026-09-16T13:08:28.915682+00:00",
+  "test_from": "2026-09-17",
+  "sha256": "c456affb2d311439db7011c0f643b3a7d55c2482a940faae4a8c2590ae76aced"
+}
