@@ -30,6 +30,6 @@ Non e' xG di un fornitore: e' stimato in casa, cross-fitted a 5 fold raggruppati
 
 ## Tabelle prodotte
 
-- `team_match.parquet` — 760 righe, 26 colonne
-- `player_match.parquet` — 17774 righe, 20 colonne
+- `team_match.parquet` — 760 righe, 27 colonne
+- `player_match.parquet` — 17774 righe, 21 colonne
 - `shots.parquet` — 9359 tiri

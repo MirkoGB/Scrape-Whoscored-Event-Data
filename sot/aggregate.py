@@ -75,17 +75,38 @@ def _base_team_match(events: pd.DataFrame, league: str = None,
     return base
 
 
-def build_shots(events: pd.DataFrame, season: str = None) -> pd.DataFrame:
+def etichetta_fit(league: str = None, season: str = None) -> str:
+    """L'identita' del fit di xG che ha prodotto una riga: `campionato/stagione`.
+
+    **Fino alla Fase 13 era la sola stagione, e non basta piu'.** E0 aveva
+    stabilito che `xg_fit` non e' ridondante rispetto a `stagione` perche' l'xG
+    interno si stima una stagione per volta, quindi i fit sono **cinque**. Con
+    G2 i campionati diventano cinque e i fit **venticinque**: `"2025-2026"`
+    identificherebbe cinque logistiche diverse, e la colonna direbbe una cosa
+    falsa proprio nel momento in cui serve.
+
+    E' lo stesso ragionamento di E0 applicato un piano piu' su, e la ragione per
+    cui non si poolano i campionati e' la stessa per cui non si poolano le
+    stagioni: E4 ha misurato che fra sole stagioni il livello dell'xG si muove
+    del 15,8%.
+    """
+    league = config.LEAGUE if league is None else league
+    season = config.SEASON if season is None else season
+    return f"{league}/{season}"
+
+
+def build_shots(events: pd.DataFrame, season: str = None,
+                league: str = None) -> pd.DataFrame:
     """Tabella dei tiri con xG cross-fitted **su questa stagione soltanto**.
 
-    `xg_fit` registra quale fit ha prodotto la colonna: vedi la docstring del
-    modulo. Il fit e' per costruzione quello della stagione che si sta
+    `xg_fit` registra quale fit ha prodotto la colonna: vedi `etichetta_fit`.
+    Il fit e' per costruzione quello della coppia campionato-stagione che si sta
     costruendo — ma "per costruzione" e' esattamente il tipo di cosa che smette
     di essere vera in silenzio, quindi si scrive.
     """
     sh = shots_mod.shot_frame(events)
     sh = sh.join(xg_mod.fit_predict_xg(sh))
-    sh["xg_fit"] = config.SEASON if season is None else season
+    sh["xg_fit"] = etichetta_fit(league, season)
     return sh
 
 
@@ -113,10 +134,11 @@ def build_team_match(events: pd.DataFrame, shots: pd.DataFrame,
                  "xg_per_shot": "xg_per_shot_conceded"})
     out = out.merge(conceded, on=["matchId", "opponentId"], how="left")
 
+    out["campionato"] = config.LEAGUE if league is None else league
     out["stagione"] = config.SEASON if season is None else season
-    out["xg_fit"] = out["stagione"]
+    out["xg_fit"] = etichetta_fit(league, season)
 
-    cols = ["stagione", "matchId", "date", "team", "teamId", "opponent", "opponentId",
+    cols = ["campionato", "stagione", "matchId", "date", "team", "teamId", "opponent", "opponentId",
             "is_home", "team_match_idx",
             "shots", "sot", "goals", "xg", "xg_per_shot", "big_chances",
             "mean_shot_distance", "possession", "field_tilt", "box_touches",
@@ -199,11 +221,12 @@ def build_player_match(events: pd.DataFrame, shots: pd.DataFrame,
         ["matchId", "teamId", "team", "opponent", "is_home", "date", "team_match_idx"]]
     out = out.merge(meta, on=["matchId", "teamId"], how="left")
 
+    out["campionato"] = config.LEAGUE if league is None else league
     out["stagione"] = config.SEASON if season is None else season
-    out["xg_fit"] = out["stagione"]
+    out["xg_fit"] = etichetta_fit(league, season)
     out["stato"] = stato_impiego(out)
 
-    cols = ["stagione", "matchId", "date", "team", "teamId", "opponent", "is_home",
+    cols = ["campionato", "stagione", "matchId", "date", "team", "teamId", "opponent", "is_home",
             "team_match_idx", "playerId", "playerName", "role", "role_inferred",
             "stato", "is_starter", "minutes", "shots", "sot", "goals", "xg", "xg_fit"]
     return out[cols].sort_values(["date", "matchId", "teamId", "minutes"],
@@ -220,7 +243,7 @@ def run(force: bool = False, league: str = None,
     events = io_events.load_events(force=force, league=league, season=season)
     lineup = io_events.load_lineup_events(league=league, season=season)
 
-    shots = build_shots(events, season)
+    shots = build_shots(events, season, league)
     team = build_team_match(events, shots, league, season)
     player = build_player_match(events, shots, lineup, league, season)
 

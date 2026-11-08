@@ -67,11 +67,31 @@ def test_stagione_malformata_rifiutata():
 @serve_parquet
 @pytest.mark.parametrize("stagione", config.SEASONS_STORICHE)
 def test_xg_fit_dichiara_la_stagione(stagione):
-    """`xg_fit` deve dire quale fit ha prodotto `xg`, in tutte e tre le tabelle."""
+    """`xg_fit` deve dire quale fit ha prodotto `xg`, in tutte e tre le tabelle.
+
+    **Si verifica la PROPRIETA', non la forma della stringa**, e la correzione e'
+    della Fase 14. Il test pretendeva `xg_fit == stagione`, cioe' la forma che
+    `etichetta_fit` aveva **fino alla Fase 13**: da li' l'etichetta e'
+    `campionato/stagione`, perche' con cinque campionati i fit sono venticinque e
+    `"2025-2026"` ne identificherebbe cinque.
+
+    Passava lo stesso perche' i Parquet su disco erano piu' vecchi del codice, e
+    si e' rotto appena `run_phase1.py` — che e' un passo di **verifica**
+    prescritto da CLAUDE.md — ne ha rigenerato uno. Un test che sorveglia un
+    formato invece di una proprieta' dichiara verde una cache stantia.
+    """
     for percorso in (config.player_match, config.team_match, config.shots_parquet):
         df = pd.read_parquet(percorso(season=stagione))
         assert "xg_fit" in df.columns, percorso.__name__
-        assert set(df["xg_fit"].unique()) == {stagione}, percorso.__name__
+        etichette = set(df["xg_fit"].unique())
+        assert len(etichette) == 1, percorso.__name__
+        (e,) = etichette
+        # la stagione ci deve essere: e' il fatto che E0 aveva stabilito
+        assert stagione in e, (percorso.__name__, e)
+        # e se c'e' anche il campionato, deve essere quello dichiarato da
+        # `etichetta_fit`, non una terza forma inventata
+        assert e in (stagione, aggregate.etichetta_fit(season=stagione)), \
+            (percorso.__name__, e)
 
 
 @serve_parquet
@@ -185,11 +205,22 @@ def test_medie_sono_una_tabella_a_parte():
 
 @serve_parquet
 def test_le_medie_non_stanno_dentro_player_match():
-    """Il derivato non porta la media di campionato come colonna ripetuta."""
+    """Il derivato non porta la media di campionato come colonna ripetuta.
+
+    **La guardia cerca la media, non la parola.** Cercava `"campionato" not in c`
+    e ha cominciato a punire la colonna `campionato` — che e' legittima, e' nella
+    lista dichiarata di `build_player_match`, e dice a quale campionato appartiene
+    la riga. E' la quinta volta in questo repository che una guardia scritta su
+    una sottostringa da' un falso positivo, dopo il gate sui qualifier, le
+    guardie del vincolo 3, la cache di V1 e il `--league` della Fase 14.
+    """
     pm = pd.read_parquet(config.player_match(season=config.SEASON))
     for c in pm.columns:
         assert not c.startswith("media_"), c
-        assert "campionato" not in c
+        assert "media_campionato" not in c, c
+    # il controllo positivo: senza, «nessuna media» potrebbe voler dire «la
+    # guardia non guarda niente»
+    assert "campionato" in pm.columns
 
 
 @serve_parquet

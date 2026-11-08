@@ -101,19 +101,30 @@ def costruisci(stagioni=STAGIONI, force: bool = False) -> pd.DataFrame:
     return pd.DataFrame(righe)
 
 
-def carica(tabella: str, stagioni=STAGIONI) -> pd.DataFrame:
+def carica(tabella: str, stagioni=STAGIONI, league: str | None = None) -> pd.DataFrame:
     """Concatena una delle tabelle di Fase 1 sulle stagioni richieste.
 
     `tabella` e' "team_match", "player_match" o "shots". Il risultato porta
     sempre `stagione`: e' la colonna senza la quale un `groupby` mescola cinque
     regimi di annotazione diversi.
+
+    `league` e' arrivato con la Fase 14 e ha lo stesso default `None` di tutte le
+    funzioni di `config`: **la firma di prima e' la firma di adesso con `league`
+    omesso**, e un test lo pretende bit per bit. Finche' non c'era, questa
+    funzione chiamava `percorso(season=st)` senza campionato, quindi ricadeva
+    sempre su `config.LEAGUE` — cioe' tutta la catena a valle
+    (`tentativi.universo` → `volume` → `previsione`) era **cablata sulla Serie A**
+    senza dirlo, e chiedendole un altro campionato avrebbe risposto con numeri
+    italiani perfettamente plausibili. E' lo stesso difetto che E0 aveva trovato
+    in `aggancio.mappa_giocatori`, che aveva `stagione` nella firma e leggeva
+    `config.PLAYER_MATCH`.
     """
     percorso = {"team_match": config.team_match,
                 "player_match": config.player_match,
                 "shots": config.shots_parquet}[tabella]
     parti = []
     for st in stagioni:
-        df = pd.read_parquet(percorso(season=st))
+        df = pd.read_parquet(percorso(league=league, season=st))
         if "stagione" not in df.columns:
             df = df.assign(stagione=st)
         parti.append(df)

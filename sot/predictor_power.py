@@ -86,7 +86,7 @@ _KEY = ["matchId", "team"]
 
 # --------------------------------------------------------------- walk-forward
 def previsioni(df: pd.DataFrame, candidati: tuple[str, ...] | None = None,
-               verbose: bool = True) -> pd.DataFrame:
+               verbose: bool = True, target: str = bl.TARGET) -> pd.DataFrame:
     """Un walk-forward per il modello base e uno per ciascun candidato.
 
     Ritorna una tabella larga con una colonna `lam_<nome>` per modello, su
@@ -94,19 +94,27 @@ def previsioni(df: pd.DataFrame, candidati: tuple[str, ...] | None = None,
     burn-in: quali righe valutare e' una decisione successiva, e tenerla
     separata dal calcolo e' l'unico modo di applicare piu' regimi alle stesse
     identiche previsioni.
+
+    `target` esiste dalla Fase 12 / V3 e **il default non va cambiato qui**:
+    tutto cio' che la Fase 6D ha pubblicato lo assume, e un test verifica che
+    con il default i numeri di `reports/phase6_predittori.csv` si riproducano a
+    1e-12. La colonna del bersaglio esce **col proprio nome**, mai rinominata in
+    `sot` — e' la stessa garanzia di `walkforward_predict`.
     """
     candidati = tuple(wf.CANDIDATES) if candidati is None else tuple(candidati)
 
     if verbose:
         print(f"  walk-forward: base + {len(candidati)} candidati")
-    base = V.walkforward_predict(df, extra=()).sort_values(_KEY).reset_index(drop=True)
+    base = (V.walkforward_predict(df, extra=(), target=target)
+            .sort_values(_KEY).reset_index(drop=True))
 
     out = base[["matchId", "date", "team", "opponent", "is_home",
-                "team_match_idx", "sot", "alpha"]].copy()
+                "team_match_idx", target, "alpha"]].copy()
     out[f"lam_{BASE}"] = base["lam"].to_numpy()
 
     for name in candidati:
-        p = V.walkforward_predict(df, extra=(name,)).sort_values(_KEY).reset_index(drop=True)
+        p = (V.walkforward_predict(df, extra=(name,), target=target)
+             .sort_values(_KEY).reset_index(drop=True))
         if not p[_KEY].equals(base[_KEY]):
             raise ValueError(f"{name}: righe disallineate rispetto al modello base")
         out[f"lam_{name}"] = p["lam"].to_numpy()
@@ -215,7 +223,8 @@ def _ll(y: np.ndarray, lam: np.ndarray) -> np.ndarray:
 def confronto(prev: pd.DataFrame, regime: str,
               df: pd.DataFrame | None = None,
               riferimento: pd.DataFrame | None = None,
-              candidati: tuple[str, ...] | None = None) -> pd.DataFrame:
+              candidati: tuple[str, ...] | None = None,
+              target: str = bl.TARGET) -> pd.DataFrame:
     """Guadagno fuori campione di ciascun candidato sulle righe del regime.
 
     `df` (la tabella con i predittori) serve ai due confronti **in campione**;
@@ -240,18 +249,23 @@ def confronto(prev: pd.DataFrame, regime: str,
 
     m = maschera(prev, regime)
     sub = prev[m]
-    y = sub["sot"].to_numpy(dtype=float)
+    y = sub[target].to_numpy(dtype=float)
     ll0 = _ll(y, sub[f"lam_{BASE}"].to_numpy())
 
     ins0 = ins0_reg = None
     if df is not None:
         d_in = _righe_in_campione(df, sub)
-        y_in = d_in["sot"].to_numpy(dtype=float)
+        y_in = d_in[target].to_numpy(dtype=float)
         teams = sorted(set(df["team"]) | set(df["opponent"]))
         as_of = d_in["date"].max()
 
         def _fit(extra, solo_regime):
-            mod = MT.TeamModel(alpha=ALPHA_INS, extra=extra)
+            # `target=target` NON e' decorativo: senza, il parametro sembrerebbe
+            # funzionare — `y_in` e' gia' del bersaglio giusto — e il modello
+            # verrebbe stimato su `sot` mentre lo si valuta su un altro
+            # bersaglio. Un test lo blocca pretendendo che la verosimiglianza
+            # in campione CAMBI al cambiare del target.
+            mod = MT.TeamModel(alpha=ALPHA_INS, extra=extra, target=target)
             return (mod.fit(d_in, as_of=as_of, teams=teams) if solo_regime
                     else mod.fit(df, teams=teams))
 
@@ -298,7 +312,8 @@ def righe_del_regime(df: pd.DataFrame, prev: pd.DataFrame,
 
 
 def penalita(df_fit: pd.DataFrame, extra: tuple[str, ...] = (),
-             alpha: float = ALPHA_INS, teams: list | None = None) -> dict:
+             alpha: float = ALPHA_INS, teams: list | None = None,
+             target: str = bl.TARGET) -> dict:
     """Verosimiglianza grezza, penalita' ridge e coefficiente, dallo stesso fit.
 
     Serve a spiegare un fatto che altrimenti sembra un errore: nel regime
@@ -313,8 +328,9 @@ def penalita(df_fit: pd.DataFrame, extra: tuple[str, ...] = (),
     teams = teams if teams is not None else sorted(
         set(df_fit["team"]) | set(df_fit["opponent"]))
     as_of = df_fit["date"].max()
-    m = MT.TeamModel(alpha=alpha, extra=extra).fit(df_fit, as_of=as_of, teams=teams)
-    y = df_fit["sot"].to_numpy(dtype=float)
+    m = MT.TeamModel(alpha=alpha, extra=extra, target=target).fit(
+        df_fit, as_of=as_of, teams=teams)
+    y = df_fit[target].to_numpy(dtype=float)
     lam = m.predict(df_fit)
     w = 0.5 ** (np.clip((as_of - df_fit["date"]).dt.total_seconds().to_numpy()
                         / 86400.0, 0.0, None) / m.half_life)
@@ -335,7 +351,8 @@ def _righe_in_campione(df: pd.DataFrame, sub: pd.DataFrame) -> pd.DataFrame:
 
 
 # ------------------------------------------------- il contesto: baseline stupidi
-def contesto(prev: pd.DataFrame, df: pd.DataFrame, regime: str) -> pd.DataFrame:
+def contesto(prev: pd.DataFrame, df: pd.DataFrame, regime: str,
+             target: str = bl.TARGET) -> pd.DataFrame:
     """Modello base e baseline sulle stesse righe del regime.
 
     Non e' un ornamento: la premessa del blocco e' che nel regime acerbo
@@ -346,13 +363,14 @@ def contesto(prev: pd.DataFrame, df: pd.DataFrame, regime: str) -> pd.DataFrame:
     predittore avrebbe piu' spazio per esistere — ed e' proprio l'ipotesi da
     testare.
     """
-    blw = V.walkforward_baselines(df).sort_values(_KEY).reset_index(drop=True)
+    blw = (V.walkforward_baselines(df, target=target)
+           .sort_values(_KEY).reset_index(drop=True))
     m = maschera(prev, regime)
     sub = prev[m]
     key = pd.MultiIndex.from_frame(sub[_KEY])
     be = blw.set_index(pd.MultiIndex.from_frame(blw[_KEY])).loc[key]
 
-    y = sub["sot"].to_numpy(dtype=float)
+    y = sub[target].to_numpy(dtype=float)
     preds = {V.MODEL_NAME: sub[f"lam_{BASE}"].to_numpy(dtype=float)}
     for name in bl.BASELINES:
         preds[name] = be[name].to_numpy(dtype=float)

@@ -69,14 +69,14 @@ TARGET = "gol_fatti"
 # I gol, ricomposti col punteggio vero
 # --------------------------------------------------------------------------
 
-def autogol(stagione: str) -> pd.DataFrame:
+def autogol(stagione: str, league: str = None) -> pd.DataFrame:
     """Autogol per `(matchId, teamId)`, dove `teamId` e' **chi lo subisce**.
 
     L'attribuzione non e' assunta: `verifica_punteggio` la falsifica contro il
     punteggio di `matches.json`, e l'ipotesi alternativa (autogol attribuito a chi
     ne beneficia) sbaglia 44 righe su 760 nel solo 2025-26.
     """
-    ev = io_events.load_events(season=stagione)
+    ev = io_events.load_events(league=league, season=stagione)
     g = ev[ev["type"] == "Goal"]
     # `isOwnGoal` manca in 358 file su 380 (CLAUDE.md): pandas la emette solo se in
     # quella partita c'e' stato un autogol. `fillna(False)` non e' prudenza, e' la
@@ -88,7 +88,7 @@ def autogol(stagione: str) -> pd.DataFrame:
     return out
 
 
-def gol_squadra_partita(stagioni=None) -> pd.DataFrame:
+def gol_squadra_partita(stagioni=None, league: str = None) -> pd.DataFrame:
     """`team_match` con il punteggio VERO: `gol_fatti` e `gol_subiti`.
 
     `gol_fatti` = gol da tiri propri + autogol dell'avversario.
@@ -101,8 +101,8 @@ def gol_squadra_partita(stagioni=None) -> pd.DataFrame:
     stagioni = list(config.SEASONS_STORICHE if stagioni is None else stagioni)
     pezzi = []
     for st in stagioni:
-        tm = pd.read_parquet(config.team_match(season=st))
-        ag = autogol(st).set_index(["matchId", "teamId"])["autogol_subiti"]
+        tm = pd.read_parquet(config.team_match(league=league, season=st))
+        ag = autogol(st, league).set_index(["matchId", "teamId"])["autogol_subiti"]
 
         d = tm.copy()
         d["autogol_subiti"] = [ag.get((m, t), 0) for m, t
