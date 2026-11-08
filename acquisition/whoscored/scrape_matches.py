@@ -66,7 +66,7 @@ if scrape_main_path.exists():
             # if loading fails, remove the injected module to avoid partial state
             sys.modules.pop("env.main", None)
 
-from env.main import getMatchData
+from env.main import getMatchData, configura_firefox_scraper
 
 
 # ──────────────────────────────────────────────
@@ -207,6 +207,7 @@ def build_driver():
 
     def _build_firefox():
         options = FirefoxOptions()
+        configura_firefox_scraper(options)
         if HEADLESS:
             options.add_argument("-headless")
 

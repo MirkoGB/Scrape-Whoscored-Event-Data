@@ -8,6 +8,7 @@ Created on Wed Oct 14 14:20:02 2020
 
 import warnings
 import time
+import os
 import pandas as pd
 pd.options.mode.chained_assignment = None
 import json
@@ -30,6 +31,80 @@ from selenium.webdriver.common.by import By
 # options = webdriver.FirefoxOptions()
 
 # options.add_experimental_option('excludeSwitches', ['enable-logging'])
+
+
+# --------------------------------------------------------------------------
+# Il browser. Aggiunto dalla Fase 13 (2026-08-14) e NON e' un abbellimento:
+# questo file istanziava `webdriver.Firefox()` in tre punti, e Firefox non e'
+# installato sulla macchina dove la Fase 13 gira. L'acquisizione dei quattro
+# campionati nuovi **non sarebbe partita affatto**.
+#
+# La scelta e' per DISPONIBILITA', non per preferenza, e Firefox resta il primo
+# tentativo: cosi' una macchina che aveva gia' acquisito la Serie A continua a
+# usare esattamente lo stesso browser, e i 1.889 CSV gia' su disco restano
+# confrontabili con quelli nuovi. Il ripiego su Chrome vale solo dove Firefox
+# manca.
+#
+# `WHOSCORED_BROWSER` forza la scelta (`firefox` | `chrome`), perche' un ripiego
+# automatico che nessuno puo' disattivare e' un modo di non sapere quale
+# browser ha prodotto i dati.
+# --------------------------------------------------------------------------
+def configura_firefox_scraper(options):
+    """Impedisce ai profili temporanei di registrare avvii fuori dallo scraper.
+
+    Condivisa anche con scrape_matches.build_driver, usato dal giro settimanale.
+    Non modifica le preferenze del profilo personale dell'utente.
+    """
+    options.set_preference('browser.startup.windowsLaunchOnLogin.enabled', False)
+    options.set_preference('app.update.background.scheduling.enabled', False)
+    options.set_preference('app.update.auto', False)
+    options.set_preference('app.update.enabled', False)
+
+
+def nuovo_driver(headless: bool = False):
+    """Un driver Selenium, con Firefox se c'e' e Chrome altrimenti.
+
+    Solleva con un messaggio leggibile se non c'e' nessuno dei due, invece di
+    lasciar morire il chiamante dentro Selenium trenta secondi dopo.
+    """
+    scelta = os.environ.get('WHOSCORED_BROWSER', '').strip().lower()
+    errori = []
+
+    def _firefox():
+        opts = webdriver.FirefoxOptions()
+        configura_firefox_scraper(opts)
+        if headless:
+            opts.add_argument('-headless')
+        return webdriver.Firefox(options=opts)
+
+    def _chrome():
+        opts = webdriver.ChromeOptions()
+        if headless:
+            opts.add_argument('--headless=new')
+        opts.add_argument('--window-size=1400,1000')
+        # L'UA di default di Chrome headless viene rifiutato con 403.
+        opts.add_argument(
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+            'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36')
+        opts.add_experimental_option('excludeSwitches', ['enable-automation'])
+        return webdriver.Chrome(options=opts)
+
+    if scelta == 'firefox':
+        return _firefox()
+    if scelta == 'chrome':
+        return _chrome()
+
+    for nome, fabbrica in (('firefox', _firefox), ('chrome', _chrome)):
+        try:
+            return fabbrica()
+        except Exception as e:  # WebDriverException e i suoi parenti
+            errori.append(f'{nome}: {type(e).__name__}: {str(e)[:160]}')
+
+    raise WebDriverException(
+        'nessun browser utilizzabile per lo scraping WhoScored.\n  '
+        + '\n  '.join(errori)
+        + '\nInstallare Firefox o Chrome, oppure forzare con '
+          'WHOSCORED_BROWSER=firefox|chrome')
 
 
 TRANSLATE_DICT = {'Jan': 'Jan',
@@ -57,13 +132,22 @@ TRANSLATE_DICT = {'Jan': 'Jan',
                  'Nov': 'Nov',
                  'Dec': 'Dec'}
 
-main_url = 'https://1xbet.whoscored.com/'
+# Era `https://1xbet.whoscored.com/`, un mirror di affiliazione ereditato dal
+# fork. **Quel dominio non esiste piu' come mirror**: il 2026-08-14 risponde
+# `301 Moved Permanently` verso `www.whoscored.com`. Puntarci ancora costerebbe
+# un redirect per ognuna delle ~7.000 richieste della Fase 13, e lascerebbe
+# l'acquisizione appesa a un rimando che la fonte puo' togliere quando vuole.
+#
+# Ne segue anche che la domanda lasciata aperta da `regole_fantacalcio.md` §7.1
+# (decisione 3) — «se l'autorizzazione copre WhoScored ma non il mirror, il
+# dominio va cambiato» — **si e' risolta da se'**: il mirror ora E' il sito.
+main_url = 'https://www.whoscored.com/'
 
 
 
 def getLeagueUrls(minimize_window=True):
     
-    driver = webdriver.Firefox()
+    driver = nuovo_driver()
 
     if minimize_window:
         driver.minimize_window()
@@ -118,7 +202,7 @@ def getLeagueUrls(minimize_window=True):
 
 def getMatchUrls(comp_urls, competition, season, maximize_window=True):
 
-    driver = webdriver.Firefox()
+    driver = nuovo_driver()
     
     if maximize_window:
         driver.maximize_window()
@@ -237,7 +321,7 @@ def getMatchesData(match_urls, minimize_window=True):
     
     matches = []
     
-    driver = webdriver.Firefox()
+    driver = nuovo_driver()
     if minimize_window:
         driver.minimize_window()
     
@@ -271,7 +355,12 @@ def getFixtureData(driver):
             date_row = dates.find_element(By.CLASS_NAME, 'Accordion-module_header__HqzWD')
             for row in fixtures:
                 url = row.find_element(By.TAG_NAME, 'a')
-                if 'live' in url.get_attribute('href'):
+                # **'/live/' e non 'live'**: il sottostringa nuda fa match
+                # dentro 'liverpool', quindi lasciava passare come GIOCATA
+                # ogni partita del Liverpool anche non ancora giocata.
+                # Trovato il 2026-09-03 da sot/calendario.coerenza_fonti,
+                # su Ipswich-Liverpool finita in matches.json con '-:-'.
+                if '/live/' in url.get_attribute('href'):
                     # print(url.get_attribute('href'))
                     match_dict = {}
                     element = soup(row.get_attribute('innerHTML'), features='lxml')
