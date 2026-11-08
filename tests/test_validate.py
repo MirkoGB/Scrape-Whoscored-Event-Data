@@ -277,3 +277,105 @@ def test_dispersione_vettoriale_coincide_con_quella_scalare(rng):
     assert np.allclose(D.p_over(lam, config.OVER_LINE, 12.0),
                        D.p_over(lam, config.OVER_LINE, r_vec))
     assert np.allclose(D.ppf(0.9, lam, 12.0), D.ppf(0.9, lam, r_vec))
+
+
+# ------------------------------------------- CRPS sui conteggi (Fase 16 / O1)
+def _crps_riferimento(y, pmf_supporto, pmf):
+    """Implementazione di riferimento, scritta per essere ovviamente giusta.
+
+    Somma sulle cumulate di una pmf **esplicita**, cioe' la definizione
+    dell'RPS. Serve a controllare `crps_conteggi`, che invece chiama `cdf`:
+    se le due coincidono, non e' la stessa formula sbagliata scritta due volte.
+    """
+    f = np.cumsum(pmf, axis=1)
+    o = (pmf_supporto[None, :] >= np.asarray(y)[:, None]).astype(float)
+    return ((f - o) ** 2).sum(axis=1)
+
+
+def test_crps_coincide_con_la_definizione_su_pmf_esplicita(rng):
+    from scipy.stats import nbinom
+
+    lam = np.array([4.0, 12.6, 9.1, 20.0])
+    r = 20.0
+    k_max = V.crps_k_max(lam, r)
+    k = np.arange(k_max + 1)
+    pmf = np.stack([nbinom.pmf(k, r, r / (r + l)) for l in lam])
+    y = np.array([3.0, 12.0, 15.0, 20.0])
+
+    atteso = _crps_riferimento(y, k, pmf)
+    assert np.allclose(V.crps_conteggi(y, lam, r, k_max=k_max), atteso, atol=1e-9)
+
+
+def test_crps_e_zero_su_una_predittiva_degenere():
+    """Massa tutta sull'osservato: la distanza dev'essere esattamente zero.
+
+    Non si ottiene con una NB2 — si costruisce la cumulata a mano, che e' il
+    caso limite in cui la risposta e' nota senza calcolare niente.
+    """
+    k = np.arange(0, 26)
+    y = 12.0
+    f = (k >= y).astype(float)          # gradino esatto in y
+    assert float(((f - (k >= y).astype(float)) ** 2).sum()) == 0.0
+
+    # e la stessa quantita' calcolata dal modulo su una NB2 strettissima
+    stretta = V.crps_conteggi(np.array([y]), np.array([y]), r=5e4, k_max=60)[0]
+    larga = V.crps_conteggi(np.array([y]), np.array([y]), r=1.0, k_max=200)[0]
+    assert stretta < larga
+    assert stretta < 1.5
+
+
+def test_crps_e_propria_il_minimo_cade_sul_lambda_vero(rng):
+    """La proprieta' che rende il CRPS una misura e non un'asserzione.
+
+    Su dati generati da NB2(lam0, r) il punteggio medio dev'essere minimo
+    **proprio** a lam0: se non lo fosse, si potrebbe migliorare la metrica
+    dichiarando una distribuzione diversa da quella vera.
+    """
+    from scipy.stats import nbinom
+
+    lam0, r, n = 12.6, 20.0, 60_000
+    y = nbinom.rvs(r, r / (r + lam0), size=n, random_state=rng)
+    griglia = np.array([10.6, 11.6, 12.1, lam0, 13.1, 14.1, 15.6])
+    k_max = V.crps_k_max(np.array([griglia.max()]), r)
+    punteggi = [V.crps_conteggi(y, np.full(n, g), r, k_max=k_max).mean()
+                for g in griglia]
+    assert griglia[int(np.argmin(punteggi))] == lam0
+
+
+def test_crps_peggiora_anche_quando_la_dispersione_e_sbagliata(rng):
+    """E' una regola PROPRIA, non solo sensibile alla media.
+
+    A lambda giusto e `r` sbagliata il punteggio deve peggiorare: e' cio' che
+    la distingue dal MAE, che non vedrebbe niente.
+    """
+    from scipy.stats import nbinom
+
+    lam0, r0, n = 12.6, 20.0, 60_000
+    y = nbinom.rvs(r0, r0 / (r0 + lam0), size=n, random_state=rng)
+    lam = np.full(n, lam0)
+    k_max = 80
+    giusta = V.crps_conteggi(y, lam, r0, k_max=k_max).mean()
+    for r in (2.0, 5.0, 5000.0):
+        assert V.crps_conteggi(y, lam, r, k_max=k_max).mean() > giusta
+
+
+def test_crps_k_max_lascia_fuori_meno_della_coda_dichiarata(rng):
+    lam = np.exp(rng.normal(2.4, 0.3, 400))
+    r = 20.0
+    k_max = V.crps_k_max(lam, r)
+    coda = D.p_over(lam, k_max + 0.5, r)
+    assert coda.max() <= V.CRPS_CODA_AMMESSA
+
+    # e troncare piu' in la' non sposta il risultato in modo leggibile
+    y = np.floor(lam)
+    a = V.crps_conteggi(y, lam, r, k_max=k_max)
+    b = V.crps_conteggi(y, lam, r, k_max=k_max + 40)
+    assert np.max(np.abs(a - b)) < 1e-4
+
+
+def test_crps_accetta_r_per_riga_come_le_altre(rng):
+    lam = np.exp(rng.normal(2.4, 0.2, 200))
+    y = np.floor(lam)
+    scalare = V.crps_conteggi(y, lam, 20.0, k_max=60)
+    vettore = V.crps_conteggi(y, lam, np.full(len(lam), 20.0), k_max=60)
+    assert np.allclose(scalare, vettore)

@@ -50,6 +50,58 @@ class TeamModel:
     #: sarebbe leggere male il vincolo 7.
     target: str = "sot"
 
+    #: Se `True`, una squadra che non sta in `teams_` **solleva** invece di
+    #: scivolare a coefficiente zero. Il default e' `False` e **non va cambiato**:
+    #: dentro il walk-forward il coefficiente zero e' il comportamento *giusto*
+    #: (una squadra alla sua prima apparizione in un training parziale), e
+    #: sollevare romperebbe la Fase 2, E3 e R0-R3. Un test verifica che con
+    #: `False` le previsioni siano identiche bit per bit a prima che il parametro
+    #: esistesse.
+    #:
+    #: Serve al ponte della Fase 12 / V4, dove il difetto e' reale e silenzioso:
+    #: `df["team"].map(idx)` da' `NaN`, la maschera salta la riga e la dummy resta
+    #: a zero, cioe' la squadra viene trattata **come esattamente media** senza
+    #: errore ne' avviso. Il caso vero non e' la squadra inventata: e' chiedere
+    #: Como-Cremonese nel 2023-24, dove la Cremonese non c'era.
+    strict_teams: bool = False
+
+    #: Fase 14 / A2 — il **centro della penalita'**, cioe' verso cosa la ridge
+    #: tira attacco e difesa. `None` (il default, che **non va cambiato**) vuol
+    #: dire "verso zero", che e' la media di campionato: e' cio' che questo
+    #: modello ha sempre fatto, e un test verifica l'identita' bit per bit.
+    #:
+    #: Un dizionario `{squadra: (attacco, difesa)}` sposta quel centro sui
+    #: coefficienti della **stagione precedente**. Serve alle prime giornate di
+    #: una stagione nuova, dove la forma within-season non ha niente su cui
+    #: stimare: a zero partite giocate la penalita' e' l'unico termine con
+    #: informazione dentro, e il fit restituisce il prior.
+    #:
+    #: **Il prior si scioglie da solo**, e non c'e' nessun decadimento da
+    #: sintonizzare: la verosimiglianza cresce con `n` mentre la penalita' resta
+    #: fissa, quindi il peso relativo del prior cala partita dopo partita.
+    #:
+    #: **Porta la forza RELATIVA, non il livello.** `mu` e `gamma` non sono
+    #: penalizzati, quindi il livello della stagione nuova lo imparano i dati
+    #: nuovi. E' cio' che evita il problema gia' misurato in E4 sui cinque fit di
+    #: xG — forma stabile, livello che si muove del 15,8% — e in V0 sui
+    #: tentativi, dove il livello si muove del 5,5% fra le cinque stagioni.
+    #:
+    #: Una squadra **assente** dal dizionario riceve centro zero, cioe' viene
+    #: tirata verso la media di campionato. E' l'unico default onesto per una
+    #: neopromossa, ed e' il motivo per cui il prior va **centrato** prima di
+    #: entrare (vedi `prior_stagione.centra`): se la media dei coefficienti noti
+    #: non fosse zero, lo zero delle neopromosse non sarebbe la media di
+    #: campionato ma un punto arbitrario accanto.
+    prior: dict | None = None
+
+    #: La forza della penalita' **quando c'e' un prior**. `None` = si riusa
+    #: `alpha`. E' un parametro separato perche' le due penalita' non chiedono la
+    #: stessa cosa: tirare verso la media di campionato e tirare verso «com'era
+    #: l'anno scorso» sono due affermazioni di forza diversa, e imporre lo stesso
+    #: numero sarebbe una scelta non dichiarata. Si sceglie in walk-forward sulle
+    #: sole transizioni storiche (`prior_stagione.scegli_alpha_prior`).
+    alpha_prior: float | None = None
+
     teams_: list = field(default_factory=list, init=False)
     beta_: np.ndarray = field(default=None, init=False)
     mu_: float = field(default=None, init=False)
@@ -70,6 +122,15 @@ class TeamModel:
         rows = np.arange(n)
         ok_a = ~pd.isna(ai)
         ok_d = ~pd.isna(di)
+
+        if self.strict_teams and not (ok_a.all() and ok_d.all()):
+            ignote = sorted(set(df.loc[~ok_a, "team"]) | set(df.loc[~ok_d, "opponent"]))
+            raise ValueError(
+                f"squadre sconosciute al modello: {ignote}. "
+                f"Note: {sorted(self.teams_)}. "
+                "Senza `strict_teams` la loro dummy resta a zero, cioe' "
+                "verrebbero trattate come esattamente medie senza alcun avviso.")
+
         X[rows[ok_a], 1 + ai[ok_a].astype(int)] = 1.0
         X[rows[ok_d], 1 + n_t + di[ok_d].astype(int)] = 1.0
 
@@ -87,6 +148,27 @@ class TeamModel:
         p = np.zeros(1 + 2 * n_t + 1 + len(self.extra))
         p[1:1 + 2 * n_t] = 1.0
         return p
+
+    def _penalty_center(self) -> np.ndarray:
+        """Verso dove tira la ridge. Zero ovunque, tranne dove c'e' un prior.
+
+        Il vettore ha la forma di `beta_`, cosi' la penalita' resta la stessa
+        espressione con un centro spostato invece di un ramo di codice in piu':
+        `alpha * sum(pen * (b - centro)**2)`. Con `prior=None` il centro e' zero
+        e l'espressione e' **letteralmente** quella di prima.
+        """
+        n_t = len(self.teams_)
+        c = np.zeros(1 + 2 * n_t + 1 + len(self.extra))
+        if not self.prior:
+            return c
+        for i, t in enumerate(self.teams_):
+            v = self.prior.get(t)
+            if v is None:
+                continue                    # neopromossa: centro zero = media
+            att, dif = v
+            c[1 + i] = float(att)
+            c[1 + n_t + i] = float(dif)
+        return c
 
     def _weights(self, df: pd.DataFrame, as_of: pd.Timestamp) -> np.ndarray:
         age = (as_of - df["date"]).dt.total_seconds().to_numpy() / 86400.0
@@ -111,17 +193,25 @@ class TeamModel:
         y = df[self.target].to_numpy(dtype=float)
         w = self._weights(df, as_of)
         pen = self._penalty_mask()
+        centro = self._penalty_center()
+        a = self.alpha if self.prior is None else (
+            self.alpha if self.alpha_prior is None else self.alpha_prior)
 
         def obj(b):
             eta = np.clip(X @ b, -20, 20)
             lam = np.exp(eta)
             nll = np.sum(w * (lam - y * eta))
             grad = X.T @ (w * (lam - y))
-            reg = self.alpha * np.sum(pen * b ** 2)
-            greg = 2.0 * self.alpha * pen * b
+            d = b - centro
+            reg = a * np.sum(pen * d ** 2)
+            greg = 2.0 * a * pen * d
             return nll + reg, grad + greg
 
-        b0 = np.zeros(X.shape[1])
+        # Si parte dal centro della penalita': con `prior=None` e' il vettore
+        # nullo, cioe' esattamente il punto di partenza di prima. Con un prior e'
+        # la stagione scorsa, che e' anche la risposta giusta quando le partite
+        # nuove sono zero o quasi.
+        b0 = centro.copy()
         b0[0] = np.log(max(y.mean(), 0.1))
         res = minimize(obj, b0, jac=True, method="L-BFGS-B",
                        options={"maxiter": 500, "ftol": 1e-12})

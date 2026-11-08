@@ -258,6 +258,62 @@ def brier_decomposition(y_bin: np.ndarray, p: np.ndarray,
             "incertezza": unc, "residuo": b - (rel - res + unc), "n_fasce": len(t)}
 
 
+# ------------------------------------ regola di punteggio propria sui conteggi
+#: Coda residua ammessa nel troncamento del CRPS. Non e' una scelta di comodo:
+#: `crps_conteggi` sceglie il piu' piccolo `k_max` per cui `1 - F(k_max)` sta
+#: sotto questa soglia su OGNI riga, e lo dichiara. Il contributo trascurato e'
+#: al piu' `somma_{k>k_max} (1 - F(k))^2`, cioe' dell'ordine della soglia.
+CRPS_CODA_AMMESSA = 1e-6
+
+
+def crps_k_max(lam: np.ndarray, r=None,
+               coda: float = CRPS_CODA_AMMESSA) -> int:
+    """Il piu' piccolo `k` per cui la coda superiore sta sotto `coda` ovunque.
+
+    Serve a rendere il troncamento del CRPS un numero **dichiarato** invece di
+    una costante scelta a occhio: si riporta nel report e un test lo verifica.
+    """
+    lam = np.asarray(lam, dtype=float)
+    return int(np.max(dispersion.ppf(1.0 - coda, lam, r))) + 1
+
+
+def crps_conteggi(y: np.ndarray, lam: np.ndarray, r=None,
+                  k_max: int | None = None,
+                  coda: float = CRPS_CODA_AMMESSA) -> np.ndarray:
+    """CRPS discreto per riga: `somma_k (F(k) - 1{y <= k})^2`.
+
+    E' la **regola di punteggio propria** che al progetto mancava sui conteggi.
+    Il repository aveva il Brier (una linea alla volta), la log-verosimiglianza
+    NB2 e il PIT; l'unico RPS era quello a tre classi dell'esito 1X2
+    (`esiti.rps`). Questo e' lo stesso oggetto su un supporto con molte piu'
+    classi — non una metrica nuova nel progetto, la stessa scelta rifatta.
+
+    **Perche' questa e non la log-verosimiglianza**, dove si valuta su poche
+    righe: la log score guarda solo `P(Y = y)`, quindi prevedere 12 quando
+    escono 13 e prevedere 12 quando escono 20 possono costare quasi lo stesso;
+    il CRPS li distingue in proporzione, perche' e' **ordinale**. Ed e' robusto
+    alle code — con poche decine di righe una singola osservazione estrema
+    farebbe esplodere la log score e deciderebbe il verdetto da sola.
+
+    Il risultato e' in **unita' del bersaglio** (tiri), quindi leggibile: e' la
+    distanza fra la distribuzione dichiarata e cio' che e' successo. Sommare
+    sulle linee intere `k` e' esattamente il Brier integrato su tutte le soglie
+    possibili invece che sulle cinque dichiarate.
+
+    `r` accetta uno scalare o un vettore riga per riga, come `p_over` e `cdf`.
+    """
+    y = np.asarray(y, dtype=float)
+    lam = np.asarray(lam, dtype=float)
+    if k_max is None:
+        k_max = crps_k_max(lam, r, coda)
+
+    out = np.zeros(len(y), dtype=float)
+    for k in range(int(k_max) + 1):
+        f = dispersion.cdf(np.full(len(y), float(k)), lam, r)
+        out += (f - (y <= k).astype(float)) ** 2
+    return out
+
+
 # ------------------------------------------------ calibrazione della predittiva
 def pit(y: np.ndarray, lam: np.ndarray, r=None,
         seed: int = config.SEED) -> np.ndarray:
@@ -368,16 +424,42 @@ def metrics(y: np.ndarray, lam: np.ndarray, r=None,
 
 
 # ------------------------------------------------------------------- confronti
-def paired_t(a: np.ndarray, b: np.ndarray) -> tuple[float, float]:
+def paired_t(a: np.ndarray, b: np.ndarray,
+             cluster: pd.Series | np.ndarray | None = None) -> tuple[float, float]:
     """Somma e statistica t della differenza appaiata `a - b`.
 
     Appaiata sulla stessa partita: due modelli valutati sulle stesse righe
     sbagliano insieme sulle partite strane, e ignorarlo gonfia l'errore
     standard fino a rendere invisibile qualunque differenza.
+
+    `cluster` raggruppa le righe che **non sono indipendenti fra loro** prima di
+    calcolare l'errore standard: la media si fa dentro il gruppo e il `t` sui
+    gruppi. Serve quando la riga e' la squadra-partita ma l'unita' indipendente
+    e' la partita — le due squadre condividono ritmo, punteggio e arbitro.
+
+    **Il default `None` e' il comportamento di sempre**, riga per riga, e un test
+    verifica l'identita' bit per bit: tutto cio' che le Fasi 1-11 hanno pubblicato
+    passa di qui.
+
+    Il fattore non e' sempre punitivo, ed e' il motivo per cui va misurato invece
+    che assunto: sui **tentativi** la Fase 12 / V0 ha misurato una correlazione
+    fra i due lati di **-0,35** (il possesso e' a somma costante), quindi
+    raggruppare per partita *riduce* l'errore standard invece di gonfiarlo.
     """
     d = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
+    somma = float(d.sum())
+
+    if cluster is not None:
+        c = np.asarray(cluster)
+        if len(c) != len(d):
+            raise ValueError(
+                f"cluster ha {len(c)} righe e la differenza ne ha {len(d)}")
+        d = pd.Series(d).groupby(c).mean().to_numpy()
+
+    if len(d) < 2:
+        return somma, float("nan")
     se = d.std(ddof=1) / np.sqrt(len(d))
-    return float(d.sum()), float(d.mean() / se) if se > 0 else float("nan")
+    return somma, float(d.mean() / se) if se > 0 else float("nan")
 
 
 def compare_models(y: np.ndarray, preds: dict, dates: pd.Series | None = None,
