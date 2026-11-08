@@ -18,21 +18,47 @@ Il lavoro procede per fasi. **Alla fine di ogni fase ci si ferma e si riferisce
 all'utente prima di proseguire.** Non passare alla fase successiva di propria
 iniziativa.
 
-Stato: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
+Stato: dalla richiesta dell'utente del **2026-09-03** c'e' la **Fase 16 /
+Blocco O1**, cioe' **la prima verifica del progetto in cui la previsione e'
+stata scritta prima e l'esito letto dopo**. Non e' una simulazione:
+`reports/previsioni_*.csv` sono del 2026-08-30 e il primo dato della 2026-2027 e'
+arrivato quattro giorni dopo. **Esito, e le due meta' vanno tenute insieme**: le
+previsioni congelate hanno il **CRPS migliore di ogni baseline reale** su
+entrambi i bersagli, ma **nessun confronto raggiunge il proprio MDE** su 85
+partite tranne quello contro la media di campionato; e la taratura sulle venti
+transizioni passate dice che il CRPS assoluto e' **fuori** dall'intervallo
+storico mentre il **vantaggio sul baseline e' ordinario** — cioe' l'avvio
+2026-27 e' piu' difficile del solito, non e' il modello a essersi degradato.
+Prima di quella, dalla richiesta del **2026-08-30**, c'e' **tutta la
+Fase 14** — A0, A1, A2, A3, A4 — cioe' **l'aggiornamento automatico della
+stagione in corso sui cinque campionati e la previsione di tiri e tiri in porta
+su una partita futura**. Il deliverable e' `reports/previsioni.html`; il comando
+settimanale e' `scripts/aggiorna_stagione.py`. **A2 ha un esito che va letto
+prima di riaprirlo**: la miscela fra prior e partite nuove NON supera il criterio
+scritto in anticipo, e cio' che vince sulle prime giornate e' il modello
+dell'anno scorso applicato tale e quale. Prima di quella: **fasi 0-5 completate, tutti i blocchi della Fase 6 (6A-6F), il blocco
 7A, l'acquisizione WhoScored 2021-2026, la verifica di stabilita' del criterio
 di rilevazione, il Blocco 0 della Fase 8 (ricognizione), l'acquisizione dei
 voti fantacalcio 2021-2026 e i blocchi E0, E1, E2, E3 (entrambi con la loro coda)
 ed E4 della Fase 9 — cioe' **la Fase 9 e' chiusa** — e **tutta la Fase 10**:
 R0, R1, R2, la coda R2-bis (calibrazione) e R3. **Il ramo G1 e' chiuso.** Dalla
 richiesta dell'utente del 2026-08-11 c'e' anche il **blocco S1 della Fase 11**
-(le soglie di tiri in porta del Como 2026-27 partita per partita). Dettaglio ed esiti nella
+(le soglie di tiri in porta del Como 2026-27 partita per partita), e dalla
+richiesta del 2026-08-13 **tutta la Fase 12** — V0, V1, V2, V3 e V4 — cioe' il
+modello dei TIRI (tentativi totali) per QUALSIASI squadra. **V1 e' il modello che
+risponde a quella domanda e batte il baseline migliore per t = 9,63**, il margine
+piu' netto che il progetto abbia prodotto; **V4 e' il ponte
+`previsione(squadra, avversario, campo)`**, che prima non esisteva per una
+squadra qualsiasi. V2 ha provato la gerarchia volume × precisione e **non la
+adotta**; V3 ha ritestato gli otto predittori da dati evento e li **scarta per la
+terza volta**. Dettaglio ed esiti nella
 sezione "Le fasi e i
 risultati raggiunti" piu' sotto. Il deliverable e' `README.md`. La Fase 6 e'
-descritta in `docs/prompt_fase6.md`, la Fase 7 in `docs/prompt_fase7.md`, la
-Fase 9 in `docs/prompt_fase9.md` (che contiene anche le specifiche di E2,
+descritta in `docs/fasi/prompt_fase6.md`, la Fase 7 in `docs/fasi/prompt_fase7.md`, la
+Fase 9 in `docs/fasi/prompt_fase9.md` (che contiene anche le specifiche di E2,
 dall'utente il 2026-08-04, e di E4, dall'utente il 2026-08-07).
 
-> **Prima di scegliere dove andare, si legge `docs/bilancio_fase9.md`.** E' il
+> **Prima di scegliere dove andare, si legge `docs/fasi/bilancio_fase9.md`.** E' il
 > bilancio della fase in una pagina, richiesto dall'utente a chiusura di E4, e
 > non e' un elenco di blocchi chiusi: dice che cosa ha funzionato (**una** cosa,
 > QI sulle presenze, +1,49%), che cosa e' stato escluso e **con quanta potenza**,
@@ -55,6 +81,11 @@ rami che non si toccano, e si sceglie a ogni giro quale blocco fare.
 | **Fase 7** (7B → 7C → 7D) | `rho` e l'ancora 4.90, cioe' il **livello** della proiezione SoT di squadra (D1, D2, D5) | **7B** | football-data.co.uk, **da acquisire** |
 | **Fase 9** (E0 → E1 → E2 → E3 → E4) | punti stagionali del **giocatore**: impiego, portieri, modificatore | **chiusa** (E0 ✅, E1 ✅, E2 ✅, E3 ✅, E4 ✅). Resta la domanda su **un valore pre-stagione dalla fonte**, che ora sono **tre appaiate**: maglia d'agosto, FVM pulito, rating WhoScored | WhoScored + voti + listoni, **gia' in casa** |
 | **Fase 10** (R0 → R1 → R2 → R2-bis → R3) = **G1** | la **distribuzione del risultato**: 1X2, over/under, classifica. Poggia sul modello dei gol di E3.1 | **chiusa** (R0 ✅, R1 ✅, R2 ✅, R2-bis ✅, R3 ✅) | E3 + aggancio Fase 8, **gia' in casa** |
+| **Fase 12** (V0 → V1 → V2 → V3 → V4) | i **TIRI** (tentativi totali) per **qualsiasi** squadra, within-season, in due strati (volume + precisione) | **chiusa** (V0 ✅, V1 ✅, V2 ✅, V3 ✅, V4 ✅) | `team_match` delle cinque stagioni, **gia' in casa** |
+| **Fase 13 = G2** (terne ✅ → M1 ✅ → acquisizione ✅ → modello ✅) | i **GOL** sui **cinque** campionati top europei, piu' le metriche avanzate da dati evento | **chiusa nei quattro blocchi**: 8.884 partite acquisite, 25 tabelle costruite, **il modello dei gol TRASFERISCE** (t 3,1-5,4 in 4 campionati su 5) | WhoScored 5 campionati x 5 stagioni, **gia' in casa** |
+| **Fase 14** (A0 → A1 → A2 → A3 → A4) | la **stagione IN CORSO**: aggiornamento settimanale automatico dei cinque campionati, e previsione di **tiri e tiri in porta** su una partita futura a scelta | **chiusa** (A0 ✅, A1 ✅, A2 ✅, A3 ✅, A4 ✅). Il deliverable e' `reports/previsioni.html` | WhoScored 2026-2027, **da acquisire ogni martedi'** |
+| **Fase 15** (T1 → C1 → P1) | il **totale di partita**, il **calendario** della stagione in corso e la pagina a giornata | **chiusa** (T1 ✅, C1 ✅, P1 ✅). Il deliverable e' `reports/previsioni.html` | walk-forward di V1 **gia' in casa**; il calendario da **WhoScored + Wikipedia**, acquisito |
+| **Fase 16** (O1) | la **verifica prospettica**: previsione scritta prima, esito letto dopo, sulle prime due giornate 2026-27 dei cinque campionati | **chiusa** (O1 ✅). Il deliverable e' `reports/fase16_o1_verifica_prospettica.md` | le previsioni **congelate il 2026-08-30** + i dati arrivati il 2026-09-03, **gia' in casa** |
 
 **La Fase 10 e' il ramo G1, aperto dall'utente il 2026-08-07** con l'ordine
 dichiarato **G1 prima di G2**, per tre ragioni di costo: (a) G2 senza G1
@@ -71,7 +102,7 @@ lavora su player-match Opta, gia' verificati identici al flag nativo su tutte e
 cinque le stagioni. Tirare la fonte tabellare dentro il ramo giocatore
 aprirebbe l'obbligo di riconciliazione di 7C senza aggiungere capacita'.
 
-Le tre direzioni **G1-G3** in fondo a `docs/prompt_fase9.md` (risultato, altri
+Le tre direzioni **G1-G3** in fondo a `docs/fasi/prompt_fase9.md` (risultato, altri
 campionati, scouting) chiedevano che la Fase 9 avesse dei blocchi chiusi: con E4
 la Fase 9 **e' chiusa**, quindi la condizione e' soddisfatta. **`[SCELTO
 2026-08-07]` l'utente ha aperto G1**, cioe' la Fase 10, con l'ordine dichiarato
@@ -101,7 +132,7 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # ambiente (gia' creato)
 ./.venv/Scripts/python.exe -m pip install -r requirements.txt
 
-./.venv/Scripts/python.exe -m pytest tests/ -q      # 759 test, ~525 s
+./.venv/Scripts/python.exe -m pytest tests/ -q      # 1.119 test, ~790 s
 ./.venv/Scripts/python.exe scripts/run_phase1.py    # tabelle + audit
 ./.venv/Scripts/python.exe scripts/run_phase2.py    # modello + predittori (~5 min)
 ./.venv/Scripts/python.exe scripts/run_phase3.py    # proiezione + Monte Carlo
@@ -199,11 +230,129 @@ bloccanti D7-D9 del Blocco 0. Nomenclatura adottata: **Fase 8** come contenitore
 # (~2 min). NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase11_s1.py
 
+# Fase 12 / Blocco V1: lo strato del VOLUME. Walk-forward dentro la stagione sui
+# tentativi, validazione rifatta da capo contro i quattro baseline, r NB2, PIT,
+# copertura, Brier sulle cinque linee, segmenti (~30 s da cache; con --force
+# rifa' il walk-forward, ~50 s). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase12_v1.py
+
+# Fase 12 / Blocco V2: lo strato della PRECISIONE e la composizione. Il modello
+# binomiale della quota, la marginale composta contro il modello DIRETTO sui
+# tiri in porta, il rapporto delle dispersioni (~40 s da cache). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase12_v2.py
+
+# Fase 12 / Blocco V3: gli otto predittori da dati evento, ritestati sui
+# tentativi e sulle cinque stagioni. NON ha un modulo proprio: parametrizza
+# `predictor_power` su `target` (~10 s da cache; con --force rifa' nove
+# walk-forward per cinque stagioni, ~5 min). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase12_v3.py
+
+# Fase 12 / Blocco V4: IL PONTE `previsione(squadra, avversario, campo)`, che e'
+# cio' che l'utente ha chiesto. Scrive anche reports/fase12_v4_simulatore.html,
+# la pagina locale interattiva per tutte e venti le squadre (~20 s).
+# NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase12_v4.py
+
+# Fase 12 / Blocco V0: il perimetro del bersaglio TIRI (tentativi totali) e
+# l'identita' di dispersione che decide se lo strato della precisione si stima o
+# collassa a un numero. NON stima nessun modello predittivo (~1 min; con
+# --repliche e --repliche-taratura si cambia la precisione del nullo simulato).
+# NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase12_v0.py
+
 # Fase 10 / Blocco R3: la classifica. Simula il RESTO di una stagione dalla
 # giornata k, data la classifica vera a k — non si simula da zero (R0). Copertura
 # e PIT sui punti finali, quattro varianti a confronto (~5 min, Monte Carlo).
 # NON stima nessun parametro nuovo e NON tocca la rete.
 ./.venv/Scripts/python.exe scripts/run_fase10_r3.py
+
+# Fase 13 — accerta le terne (regione, torneo, slug) di WhoScored invece di
+# ricavarle a memoria. Porta un controllo positivo (Serie A, gia' accertata) e
+# due negativi (nome sbagliato, id inesistenti): senza, un "confermata" non
+# significa niente. Usa CHROME, non Firefox. `--dry-run` non tocca la rete.
+./.venv/Scripts/python.exe acquisition/whoscored/verifica_terne.py --dry-run
+./.venv/Scripts/python.exe acquisition/whoscored/verifica_terne.py
+
+# Fase 13 — il modello dei GOL sui cinque campionati, un fit per campionato e
+# MAI poolati (§7.2). Riporta t per riga E per cluster di partita, piu' il MDE
+# che distingue "non c'e' effetto" da "non lo vedo" (~2 min). NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase13_gol.py
+
+# ---------------------------------------------------------------------------
+# Fase 14 — LA STAGIONE IN CORSO. E' l'unico gruppo di comandi che TOCCA LA RETE.
+# ---------------------------------------------------------------------------
+
+# L'aggiornamento settimanale: scarica le partite nuove dei cinque campionati,
+# raccoglie il CALENDARIO delle partite future (--calendario), rinfresca la
+# seconda fonte (Wikipedia, che porta la giornata),
+# rigenera i Parquet, aggiorna il manifest e rifa' la pagina delle previsioni.
+# `--dry-run` NON apre il browser e NON tocca la rete. Rilanciarlo e' sicuro:
+# una partita gia' su disco viene saltata e i derivati si rifanno solo se un CSV
+# e' piu' recente dei Parquet.
+./.venv/Scripts/python.exe scripts/aggiorna_stagione.py --dry-run
+./.venv/Scripts/python.exe scripts/aggiorna_stagione.py
+./.venv/Scripts/python.exe scripts/aggiorna_stagione.py --league ITA-serie-a
+./.venv/Scripts/python.exe scripts/aggiorna_stagione.py --solo-derivati
+
+# Lo stesso, dal .cmd: e' cio' che lancia l'attivita' pianificata del martedi'
+# e anche il modo di lanciarlo a mano. Logga in reports/aggiornamento_auto.log.
+scripts\aggiorna_stagione.cmd
+
+# La pianificazione. GIA' REGISTRATA il 2026-08-31: martedi' alle 21:00,
+# prima esecuzione il 2026-09-01, stato Ready. Il comando serve a rifarla
+# da capo (/F sovrascrive) o su un'altra macchina. Per lo stato:
+#   schtasks /Query /TN "Calcio-aggiorna-martedi" /V /FO LIST
+# per lanciarla subito: schtasks /Run /TN "Calcio-aggiorna-martedi"
+# per toglierla:        schtasks /Delete /TN "Calcio-aggiorna-martedi" /F
+schtasks /Create /TN "Calcio-aggiorna-martedi" /XML "scripts\attivita_martedi.xml"
+
+# Fase 14 / A2: il prior dalla stagione precedente, MISURATO su 20 transizioni
+# (5 campionati x 4) e due bersagli. ~4 min a --force, secondi dalla cache.
+# NON tocca la rete.
+./.venv/Scripts/python.exe scripts/run_fase14_prior.py
+./.venv/Scripts/python.exe scripts/run_fase14_prior.py --force
+
+# Fase 15 / T1: il TOTALE di partita (la somma delle due squadre). Ruota il
+# walk-forward di V1 da squadra-partita a PARTITA e stima `r_tot` sui totali
+# osservati (~6 s). NON tocca la rete e NON scrive niente sotto data/.
+./.venv/Scripts/python.exe scripts/run_fase15_totale.py
+
+# Fase 15 / C1 — IL CALENDARIO DELLE PARTITE FUTURE. Tocca la rete.
+# Prima si ACCERTA che si possa leggere, poi lo si raccoglie: la verifica porta
+# un controllo positivo (30 righe di stagione conclusa, tutte gia' su disco) e
+# uno negativo (30 righe future, nessuna su disco). Senza, "ho trovato delle
+# partite" non significa niente. `--dry-run` non tocca la rete.
+./.venv/Scripts/python.exe acquisition/whoscored/verifica_calendario.py --dry-run
+./.venv/Scripts/python.exe acquisition/whoscored/verifica_calendario.py
+
+# Il calendario da WhoScored: naviga IN AVANTI e scrive calendario.json, che e'
+# un file SEPARATO da matches.json (~4 min per campionato).
+./.venv/Scripts/python.exe acquisition/whoscored/scrape_season.py     --season 2026-2027 --league ITA-serie-a --solo-calendario
+
+# La SECONDA fonte: Wikipedia, che porta la GIORNATA — che WhoScored non ha.
+# Una richiesta per campionato, cinque in tutto.
+./.venv/Scripts/python.exe -m acquisition.wikipedia.scrape_calendario --dry-run
+./.venv/Scripts/python.exe -m acquisition.wikipedia.scrape_calendario
+
+# Fase 15 / P1 (era A4): le previsioni dei cinque campionati e la pagina
+# autonoma reports/previsioni.html, ora A GIORNATA — si sceglie una partita
+# vera dal calendario e si legge il TOTALE delle due squadre (~15 s).
+# NON tocca la rete e NON scrive sotto data/. Con --csv esce anche un CSV
+# del calendario per campionato, oltre a quello delle coppie.
+./.venv/Scripts/python.exe scripts/run_previsioni.py
+./.venv/Scripts/python.exe scripts/run_previsioni.py --csv
+
+# Fase 16 / O1 — LA VERIFICA PROSPETTICA. Confronta le previsioni CONGELATE il
+# 2026-08-30 con cio' che e' successo nelle prime due giornate. Si apre con una
+# GUARDIA: se le previsioni non risultano anteriori ai dati E riproducibili da
+# un modello che finisce a maggio 2026, lo script esce con 1 invece di
+# pubblicare (~1 min). NON tocca la rete e NON scrive sotto data/.
+#
+# ATTENZIONE: `run_previsioni.py --csv` riscrive `reports/previsioni_<L>.csv`
+# sovrascrivendo e SENZA data nel nome. Le copie datate
+# `reports/fase16_o1_congelate_*.csv` sono l'unico artefatto non rigenerabile
+# del progetto, e stanno in git per questo.
+./.venv/Scripts/python.exe scripts/run_fase16_o1.py
 
 # acquisizione dei listoni (quotazioni) — una pagina per stagione, 5 richieste
 ./.venv/Scripts/python.exe -m acquisition.fantacalcio.scrape_quote --dry-run
@@ -290,7 +439,14 @@ sot/
   walkforward.py   split per data + predittori pre-partita
   validate.py      walk-forward, MAE/bias/corr/calibrazione/Brier/affidabilita',
                    Murphy, PIT randomizzato, copertura, confronti appaiati,
-                   `r` e tasso base stimati sul solo passato
+                   `r` e tasso base stimati sul solo passato. Dalla Fase 16
+                   contiene anche `crps_conteggi`, **l'unica regola di punteggio
+                   PROPRIA sui conteggi** del repository: il Brier guarda una
+                   linea alla volta, la log-verosimiglianza solo `P(Y = y)`, e
+                   l'RPS di `esiti.py` vive sulle tre classi dell'1X2. Sta qui e
+                   non nel modulo che la usa perche' una metrica ha un posto
+                   solo. `crps_k_max` rende il troncamento un numero
+                   **dichiarato** invece di una costante scelta a occhio
   dispersion.py    NB2 condizionata a lambda
   model_player.py  Poisson gerarchico, shrinkage al ruolo
   squad_2627.py    rosa Como 2026-27 + proiezione minuti
@@ -475,6 +631,135 @@ sot/
                    **squalificata**: con margine proporzionale il guadagno atteso
                    vale `1/overround - 1` identicamente, su ogni partita e ogni
                    linea, e non contiene una sola informazione sul Como
+  volume.py        Fase 12 / V1 (+ la parte che calcola di V3). Lo strato del
+                   VOLUME: `TeamModel(target="shots")`, walk-forward **dentro** la
+                   stagione come E3, validazione rifatta da capo. E' il modello che
+                   risponde alla domanda dell'utente, e **batte il baseline
+                   migliore per t = 9,63** — sui tiri in porta valeva 1,86.
+                   `predittori_per_stagione()` costruisce le EWM **una stagione
+                   per volta**: sul concatenato settembre 2023 userebbe maggio 2023
+                   con peso 0,57. `confronto_predittori()` passa `df=None` di
+                   proposito — il tetto in campione multi-stagione vorrebbe un fit
+                   poolato attraverso l'estate, cioe' cio' che V1 rifiuta
+  precisione.py    Fase 12 / V2. Lo strato della PRECISIONE e la composizione.
+                   **NON riusa `TeamModel`** ed e' dichiarato: li' la
+                   verosimiglianza e' Poisson-log su un conteggio, qui binomiale-
+                   logit su `k` successi in `n` prove. `pmf_composta` ha **due
+                   strade** — forma chiusa a `rho = 0` e convoluzione
+                   beta-binomiale a `rho > 0` — e si rifiuta di usare la
+                   scorciatoia dove non vale. `rapporto_dispersioni()` e' la
+                   coerenza della gerarchia resa un numero, e la **falsifica**
+                   (1,63, IC95 che non contiene 1). Esito del blocco: **la
+                   gerarchia non si adotta**
+  previsione.py    Fase 12 / V4. **IL PONTE `previsione(squadra, avversario,
+                   campo)`**, cioe' cio' che l'utente ha chiesto. Prima non
+                   esisteva per una squadra qualsiasi: `soglie_2627` lo aveva per
+                   il **solo Como** e il **solo 2026-27**, ancorato a un livello
+                   fornito. Qui il livello non serve — la previsione e'
+                   **within-season** ed e' l'unica forma validabile.
+                   `verifica_squadre()` + `TeamModel(strict_teams=True)` sono la
+                   guardia **a due livelli**: una sola all'ingresso si aggira
+                   chiamando il modello direttamente. `campo` e' una **stringa**
+                   e non un booleano, perche' uno `0/1` si scambia senza rumore.
+                   `quota_pareggio` si **importa** da `soglie_2627`, mai
+                   riscritta. Da P1 contiene anche **il ponte sul
+                   CALENDARIO**: `tabella_calendario()` risponde su una
+                   partita vera invece che su una coppia, e ne da' il
+                   **totale**. `_r_tot_corrente` e' `_r_corrente` ruotata a
+                   partita, con lo stesso vincolo 1; e
+                   `RICALIBRAZIONE_IN_PAGINA = False` e' una **decisione
+                   dichiarata col suo perche'**, non un'omissione
+  tentativi.py     Fase 12 / V0. **IL PERIMETRO DEL BERSAGLIO `shots`** (tentativi
+                   totali) e l'identita' che decide lo strato della precisione.
+                   Non stima nessun modello predittivo: conta e misura, come R0.
+                   `LINEE_TIRI` e `CRITERIO_STRATO2` sono dichiarate prima, e un
+                   test vieta `argmax`/`idxmax`/**`quantile`** nel CODICE del
+                   modulo — il terzo divieto e' una regola NUOVA e piu' severa di
+                   quella di S1. `livello_sbagliato()` sta qui per essere citata
+                   contro se stessa: mette a verbale che il `phi = 1,101` gia'
+                   pubblicato NON risponde alla domanda dello strato 2, perche' e'
+                   la dispersione a livello squadra-PARTITA e mescola rumore di
+                   partita, squadra e avversario. `nullo_simulato()` genera il
+                   nullo con la sovradispersione di partita dentro: senza, il test
+                   sarebbe **garantito di rifiutare**. `taratura_test()` +
+                   `mde_da_taratura()` sono cio' che rende leggibile il risultato,
+                   e hanno **corretto il MDE** (quello analitico e' ottimistico di
+                   un terzo)
+  calendario.py    Fase 15 / C1. **IL CALENDARIO DELLA STAGIONE IN CORSO, DA DUE
+                   FONTI**, che non sono ridondanti: WhoScored porta URL e
+                   `matchId` ma **non la giornata** (si naviga per GIORNO, e la
+                   giornata non compare da nessuna parte); Wikipedia porta la
+                   giornata ma non gli URL. `mappa_squadre()` riconcilia i nomi
+                   in tre passi — esatto, contenimento **se unico**, e poi
+                   pretende una **biiezione su tutte** le squadre: una mappa
+                   parziale farebbe sparire in silenzio le partite di una
+                   squadra intera. Al livello di squadra il nome **non e' una
+                   chiave** (Fase 8): `AC Milan` contro `Milan`, `Parma Calcio
+                   1913` contro `Parma`. **Non sceglie fra le due fonti dove
+                   divergono**: `divergenze()` le mette a verbale (vincolo 7).
+                   Da P1 contiene anche **il TURNO**: `data()` legge la data
+                   nella forma **accertata** della fonte (italiana, `dic` e
+                   non `dec`) e `con_turno()` raggruppa in tre passi
+                   dichiarati — la giornata vera, il **contenimento nella
+                   finestra di date se e solo se e' unico**, i blocchi di
+                   date. La **capienza `squadre/2` e' strutturale e non una
+                   soglia**: senza, la Ligue 1 usciva con una «5a giornata»
+                   da 12 partite su 18 squadre, perche' i rinvii hanno una
+                   data che cade nella finestra di un altro turno. **La
+                   deduzione non diventa mai la giornata della riga**:
+                   `fonte_giornata` resta `assente` e cambia solo il turno
+                   in cui la riga e' mostrata
+  totale.py        Fase 15 / T1. **IL TOTALE DI PARTITA**, cioe' la somma delle due
+                   squadre, che era la domanda aperta n. 3 di V1 e di V4. La
+                   risposta e' che **la congiunta non serve**: `E[X+Y]=E[X]+E[Y]`
+                   non richiede ipotesi, quindi `lambda_tot` e' esatto, e cio' che
+                   la dipendenza rompe e' la dispersione — assorbita stimando
+                   `r_tot` sui totali OSSERVATI invece di ereditarla (83,97 contro
+                   20,00 per lato, IC95 del rapporto [3,46, 5,66]).
+                   `confronto_indipendenza()` **resta nel modulo** e calcola la
+                   convoluzione delle due NB2 per lato: e' l'alternativa scartata,
+                   e cancellarla renderebbe la scelta un'asserzione.
+                   La rotazione a partita e' quella di `perimetro.partite()`, con
+                   la stessa verifica gratuita via `lam_subiti`. **Non scrive
+                   niente** (`SCRIVE_SU_DISCO = False`) e un test lo pretende
+  prior_stagione.py Fase 14 / A2. **IL PONTE FRA UNA STAGIONE E LA SUCCESSIVA**,
+                   che il repository rifiutava per costruzione: tutto e'
+                   within-season perche' le squadre cambiano, e la conseguenza e'
+                   che a settembre non c'e' niente su cui stimare. Qui il centro
+                   della penalita' ridge si sposta dai coefficienti nulli (media
+                   di campionato) a quelli di **fine stagione precedente**. Il
+                   prior **si scioglie da solo** — la verosimiglianza cresce con
+                   `n`, la penalita' no — quindi non c'e' nessun decadimento da
+                   sintonizzare, e porta la forza **relativa** e non il livello,
+                   perche' `mu` e `gamma` restano non penalizzati. `centra()` non
+                   e' cosmesi: senza, lo zero di una neopromossa non sarebbe la
+                   media delle altre. **L'esito e' misurato e non e' quello
+                   atteso**: la miscela perde, e cio' che vince e' l'anno scorso
+                   applicato **tale e quale** (`modello prec`, che era il
+                   DIAGNOSTICO del blocco e non il candidato da adottare). Vedi
+                   la sezione di A2
+  verifica_prospettica.py  Fase 16 / O1. **LA PRIMA VERIFICA DEL PROGETTO IN CUI
+                   LA PREVISIONE E' STATA SCRITTA PRIMA E L'ESITO LETTO DOPO.**
+                   Non stima nessun modello predittivo: legge le previsioni
+                   congelate il 2026-08-30, le rimette accanto ai candidati di
+                   A2 e misura. **L'anteriorita' non poggia su un orologio**:
+                   `verifica_anteriorita` pretende sia il `mtime` sia che le
+                   colonne si RIPRODUCANO da `PS.lam_dal_prior` sul fit della
+                   sola stagione precedente — una previsione riproducibile da
+                   dati che finiscono a maggio 2026 non puo' contenere
+                   informazione sulle giornate 1-2 qualunque sia la data del
+                   file. `TOLL_RIPRODUZIONE` e' **derivata dalla `ftol` di
+                   L-BFGS-B**, non scelta guardando lo scarto: dentro un
+                   processo il re-fit e' bit-identico, fra processi resta
+                   `sqrt(ftol)`. `verifica_giornata` tiene separati **tre**
+                   esiti che e' facile confondere — assente dalla fonte,
+                   **ambigua** (un rinvio elencato a due giornate) e discorde —
+                   e solo il terzo e' un disaccordo: tenerne una a caso inventa
+                   un errore che e' del codice, ed e' l'errore che la prima
+                   stesura ha davvero commesso su `Paris FC-Nizza`.
+                   `ripiego_ammesso` non ha una soglia sull'accordo medio
+                   (si sceglierebbe dopo aver visto gli scarti): pretende
+                   accordo **totale dove la seconda fonte si dichiara completa**
 acquisition/       cio' che porta dati dentro il repository (Fase 7A)
   whoscored/       gli script del fork: main.py, scrape_matches.py,
                    scrape_season.py, utils.py. Sono SCRIPT, non moduli: si
@@ -494,14 +779,31 @@ acquisition/       cio' che porta dati dentro il repository (Fase 7A)
     scrape_quote.py il listone: una pagina per stagione. Distingue "listone non
                    ancora pubblicato" da "markup cambiato" — la 2026-27 e' il
                    primo caso, e mandarla in quarantena sarebbe stato sbagliato
+  wikipedia/       la SECONDA fonte del calendario, quella che porta la
+                   **giornata**. Pacchetto vero come `fantacalcio`.
+    target.py      titoli di pagina ACCERTATI (la Liga sta sotto `Primera
+                   Division ... (Spagna)`, fuori dallo schema degli altri
+                   quattro) e percorsi. NON importa requests
+    pagina.py      il parser, funzione pura. Contiene le due trappole di questa
+                   fonte: la cella della partita e' TESTO e non due link, quindi
+                   `dividi()` prova ogni trattino e tiene solo lo split in cui
+                   **entrambe** le meta' sono squadre note (in Ligue 1 c'e'
+                   Saint-Etienne); e una partita da giocare mostra l'**orario**
+                   dove una giocata mostra il risultato — il discriminante e'
+                   il separatore, ed e' **diverso** da quello di WhoScored
+    scrape_calendario.py  una sola richiesta per campionato, con attesa
+                   crescente sul 429
 scripts/  run_phase1..5.py, run_phase6a.py .. run_phase6f.py,
           run_phase7_stabilita.py, run_blocco0.py, run_voti_fantacalcio.py,
           run_aggancio.py, run_modello_asta.py, run_asta_2627.py,
           run_fase9_e0.py, run_fase9_e1.py, run_fase9_e2.py, run_fase9_e3.py,
           run_fase9_e4.py, run_fase10_r0.py, run_fase10_r1.py,
-          run_fase10_r2.py,
+          run_fase10_r2.py, run_fase13_gol.py,
+          aggiorna_stagione.py + aggiorna_stagione.cmd + attivita_martedi.xml,
+          run_fase14_prior.py, run_previsioni.py + pagina_previsioni.py,
+          run_fase15_totale.py, run_fase16_o1.py,
           tiri_in_porta.py
-tests/    conftest + 33 moduli
+tests/    conftest + 45 moduli
 legacy/   backtest circolare archiviato (NON riusare)
   fork/            materiale d'origine del fork, conservato per attribuzione:
                    EPV_grid.csv, linecollection.py, visuals.py, tutorial.ipynb,
@@ -612,7 +914,7 @@ cancellati dalla Fase 7A**. Erano trappole di lettura, non dati.
   arrivato **empiricamente** (`sot/minutes.py`: una sola occorrenza di `1` per
   squadra-partita, e x medio dei tocchi monotono nel codice — 11.2 / 39.6 /
   52.4 / 62.3); la codifica e' **dichiarata** come codifica Opta da uno script R
-  dell'utente precedente al repository (`Role Modifier.R:5`), scritto su una
+  dell'utente precedente al repository (`scripts/r/Role Modifier.R:5`), scritto su una
   forma diversa dei dati. Due derivazioni indipendenti che concordano, quindi il
   codebook non e' piu' un'inferenza. Verificato sulle cinque stagioni: i valori
   osservati sono **esattamente** `{1,2,3,4,5}` e i `1` sono 3.778, cioe' uno per
@@ -3430,6 +3732,1412 @@ noto e negativo mai stimato — su quelle partite queste probabilita' sono
 **ottimistiche**; (3) la difesa delle promosse resta uno **scenario**, e qui pesa
 meno di quanto si temesse; (4) la 6.5 e la 7.5 non hanno una validazione propria;
 (5) la guardia del vincolo 3 di Fase 10, sopra.
+
+### Fase 12 — Blocco V0: il perimetro del bersaglio TIRI ✅
+
+`reports/fase12_v0_perimetro.md` + cinque CSV, da `scripts/run_fase12_v0.py`;
+modulo `sot/tentativi.py`, test `tests/test_fase12_v0.py` (34). **Nessuna
+richiesta di rete. Nessuna stima predittiva**: nessun walk-forward, nessun
+iperparametro — il blocco *conta e misura*, ed e' l'analogo di R0. **Nessun
+numero pubblicato e' cambiato**, verificato rieseguendo: `run_phase1.py` ridà
+4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi, `run_phase5.py` ridà Como 4.34 e
+5.03 / 191 / [151, 240].
+
+**Apre la Fase 12, chiesta dall'utente il 2026-08-13**: il modello dei **tiri**
+(tentativi totali) per **qualsiasi** squadra, non piu' i soli tiri in porta del
+Como. Quattro decisioni dell'utente: bersaglio **`shots` e `sot` gerarchici**,
+perimetro **cinque stagioni**, uso **within-season** (l'unica forma validabile —
+la pre-stagione vorrebbe un'ancora che per le altre 19 squadre non esiste),
+predittori **gli stessi otto**, ritestati.
+
+```
+strato 1 (volume)      shots_ij ~ NB2(lambda_ij, r)
+strato 2 (precisione)  sot_ij | shots_ij ~ Binomiale(shots_ij, p_ij)
+```
+
+| | esito |
+|---|---|
+| `sot <= shots` su 3.778 righe | **0 violazioni** — se cadesse, la binomiale sarebbe *impossibile* |
+| `matchId` unico fra le cinque stagioni | **sì**, e nessuno l'aveva verificato: e' la sicurezza del join di `build_predictors` |
+| livello dei tentativi | 13,03 → 12,31 (**−5,5%**), quota in porta **ferma** (0,3250-0,3408) |
+| correlazione fra i due lati | **−0,349**, e il segno **non era l'attesa** |
+| eterogeneita' della precisione | **attacco sì** (tau 2,12 punti, MDE 1,61, z +5,91) · **difesa no** · **campo no** |
+| thinning NB2 | **esatto** su 200.000 estrazioni (media +0,10%, `r` +3,8%) |
+
+**Il verdetto: lo strato 2 si stima, ma con il solo lato ATTACCO.** La precisione
+e' una proprieta' di chi tira, non di chi difende e non del campo.
+
+- **`phi = 1,101` non rispondeva alla domanda, ed e' l'errore che il blocco esiste
+  per non commettere.** Il numero gia' pubblicato e' la dispersione a livello
+  **squadra-partita** e mescola rumore di partita, effetto squadra ed effetto
+  avversario. «La quota di campionato non si muove fra stagioni» e «la quota non
+  varia fra squadre» sono **due nulli diversi**, e il secondo non era mai stato
+  testato. A ~12,6 tentativi la sd binomiale della quota vale **13,3 punti** e una
+  differenza fra squadre di 2-3 punti ci sparisce dentro; a ~475 scende a **2,2**.
+  Il livello sbagliato ha un MDE **2,4 volte peggiore**, e `livello_sbagliato()`
+  lo mette in tabella apposta.
+- **Il nullo e' generato, non letto da una tabella.** Il `chi2` teorico assume
+  binomialita' esatta; con la sovradispersione di partita dentro (`rho` intraclasse
+  **0,00827**) il nullo sta a `phi0 ~ 1,17`, non a 1. Un test che la ignorasse
+  sarebbe **garantito di rifiutare**, scambiando il rumore di partita per
+  eterogeneita' di squadra.
+- **La taratura ha CORRETTO il MDE, ed e' il motivo per cui esiste.** Il MDE
+  analitico vale 1,38 punti, ma a quel `tau` la potenza **vera** e' **53%**, non
+  80%: la formula assume `phi` normale a sd costante, mentre sotto l'alternativa
+  la sd cresce. Il MDE pubblicato e' quello **tarato** (1,61), un terzo piu'
+  grande. **Ed e' cio' che tiene fuori il lato difesa** (tau 1,39 contro 1,59). Un
+  MDE sbagliato nella direzione comoda e' peggio che non averlo.
+- **A `tau = 0` la frequenza di rifiuto vale 0,021-0,039**, sotto il 5% nominale e
+  coerente con Sidak per k = 3 (~1,7%): **il test non e' liberale**. Senza questa
+  riga, «il test ha trovato eterogeneita'» e «il test rifiuta sempre» darebbero lo
+  stesso verdetto.
+- **La correlazione fra i due lati e' NEGATIVA (−0,349), e l'attesa era il
+  contrario.** Si temeva positiva — ritmo, punteggio e arbitro condivisi — il che
+  avrebbe gonfiato ogni `t` di questa fase. Il meccanismo vero e' piu' forte: **il
+  possesso e' a somma costante**, chi domina tira molto e lascia tirare poco. La
+  conseguenza va nel verso **favorevole** (fattore 0,807 sugli errori standard
+  appaiati) e va applicata lo stesso: un fattore favorevole non dichiarato resta un
+  numero sbagliato.
+- **Un difetto vero, trovato perche' due lati diversi davano lo stesso identico
+  `phi`**: `sot_conceded` sulla riga `(i, j)` sono i tiri in porta di `j`, quindi
+  aggregarli sotto la chiave `j` ricostruisce **l'attacco di `j`**. La chiave della
+  difesa e' `team`, non `opponent`. Con una chiave sbagliata ma non degenere sarebbe
+  passato.
+- **Il disegno sul lato `campo` era sbagliato e l'esecuzione l'ha corretto**: si era
+  scritto che fosse «il piu' potente dei tre» per via dell'`n` per cella. Ha **10
+  unita' e 5 gradi di liberta'**, quindi li' il test di dispersione e' quasi cieco.
+  La strada buona per il campo e' il test F della GLM.
+- **Le due strade concordano sull'attacco e non sulla difesa, e non e' una
+  contraddizione**: la GLM stima coefficienti invece di dispersione, quindi ha piu'
+  potenza e sulla difesa rifiuta (F = 2,83, p = 2,3e-06) mentre il test di
+  dispersione dichiara di **non poterla risolvere**. L'effetto difensivo c'e' ed e'
+  piccolo.
+- **Le linee sono dichiarate prima** (`LINEE_TIRI = (8.5, 10.5, 12.5, 14.5, 16.5)`,
+  tassi base 0,77-0,21) e coprono lo **stesso intervallo in deviazioni standard**
+  che `validate.LINES` copre sui tiri in porta. **Le linee di `sot` non si
+  toccano**: inventarne di nuove renderebbe la Fase 12 non confrontabile con la
+  Fase 4.
+- **La guardia delle soglie guarda il CODICE, non la prosa.** Le guardie a
+  sottostringa di questo repository hanno gia' sbagliato due volte (i voti
+  fantacalcio, il `roi` dentro `proiezione` di S1): qui il sorgente e' tokenizzato e
+  commenti e stringhe sono esclusi, cosi' che una docstring che spiega **perche' una
+  cosa non si fa** non venga punita. Un meta-test verifica entrambe le direzioni.
+
+**Cosa V0 consegna**: a **V1**, il walk-forward **dentro** la stagione (cosi' `mu`
+assorbe il livello e non serve un effetto di stagione), `build_predictors` **per
+stagione separatamente** (sul concatenato settembre 2023 userebbe maggio 2023 con
+peso 0,57), il fattore di cluster **0,807** da applicare a ogni errore standard
+appaiato; a **V2**, che lo strato 2 **si stima** col solo attacco, e che **la forma
+chiusa del thinning non e' valida cosi' com'e'** — servono entrambe le strade,
+chiusa e convoluzione numerica.
+
+**Quattro domande aperte**: (1) il lato **difesa e' al limite** e le due strade lo
+trattano diversamente — V2 deve decidere se includerlo **prima** di guardarne
+l'effetto predittivo, altrimenti e' un iperparametro scelto sul bersaglio; (2) la
+correlazione negativa fra i lati e' **misurata e non spiegata** (il possesso a somma
+costante e' compatibile, non verificato); (3) `tau` e' **assunto costante fra
+stagioni**, e con 100 unita' non se ne possono stimare cinque; (4) il **totale di
+partita** e' la linea di mercato piu' comune e la correlazione negativa dice che
+**non e' la somma di due indipendenti** — serve la congiunta, che sui tentativi non
+e' misurata.
+
+### Fase 12 — Blocco V1: lo strato del volume ✅ (e qui il modello VINCE)
+
+`reports/fase12_v1_volume.md` + sei CSV, da `scripts/run_fase12_v1.py`; modulo
+`sot/volume.py`, test `tests/test_fase12_v1.py` (27). **Nessuna richiesta di
+rete.** Unica scrittura sotto `data/`: la cache `fase12_walkforward_tiri.parquet`.
+**Nessun numero pubblicato e' cambiato.**
+
+**E' il modello che risponde alla domanda dell'utente**, e il suo risultato e' il
+piu' netto che il progetto abbia prodotto su un confronto con i baseline.
+
+| bersaglio | fase | `t` contro `media squadra + campo` |
+|---|---|---:|
+| tiri in porta | Fase 2 / Fase 4 | 1,86 — dentro il rumore |
+| gol | Fase 9 / E3.1 | 5,52 |
+| **tentativi** | **Fase 12 / V1** | **9,63** |
+
+**Non e' un modello migliore: e' un bersaglio piu' facile da distinguere.** I
+tentativi sono tre volte piu' numerosi dei tiri in porta, quindi il rumore
+relativo e' minore, e dipendono dal dominio territoriale, che e' la cosa piu'
+persistente che una squadra abbia. Il tiro in porta aggiunge a quel volume un
+passaggio di precisione — ed e' proprio quello a renderli piu' rumorosi (V2).
+
+- **3.278 righe valutabili su 3.778**, le stesse di E3 sui gol: due bersagli
+  diversi sullo stesso universo devono dare lo stesso perimetro, e un test lo
+  pretende. **I cold start sono cinque, non uno** (60 righe senza previsione + 40
+  perse per burn-in, per stagione), e sono in colonne separate perche' le due
+  cause non si sommano.
+- **MAE 3,573 · bias +0,086 · corr 0,494 · pendenza 1,0075 ± 0,0245 (z +0,31)**.
+  Il modello e' l'unico candidato informativo compatibile con 1.0; `media squadra
+  + campo` e `media squadra` stanno a 0,755 e 0,682 con z −9,6 e −11,3. E' la
+  stessa forma dell'argomento della Fase 4, molto piu' netta.
+- **Vince in tutte e cinque le stagioni** (t per cluster 3,3-5,5), **su tutte e
+  cinque le linee** Brier e **in tutti e sette i segmenti**.
+- **Il terzile alto non si inverte, ma si attenua** (delta +0,154 contro +0,362
+  del basso). Sui tiri in porta la Fase 4 trovava che li' il modello **perde**:
+  e' la stessa firma dello shrinkage — la quinta misura dello stesso effetto dopo
+  Fase 3, Fase 4, 6A e R3 — che su un bersaglio piu' informativo non arriva a
+  rovesciare il confronto. **Non va corretta.**
+- **`r` NB2 = 20,02** contro i 26,0 dei tiri in porta: i tentativi sono
+  sovradispersi e la Poisson pura sarebbe sbagliata. Condizionare a lambda porta
+  var/media da 2,18 a 1,61, cioe' il modello spiega una parte importante ma non
+  tutta. **PIT p = 0,90**, copertura 57,6/84,1/96,4 sul nominale 50/80/95
+  (conservativa, com'e' strutturale sui conteggi).
+- **`validate.paired_t` ha ora un parametro `cluster`**, con default `None`
+  identico bit per bit a prima (un test lo blocca su 1e-12). Serve perche' la riga
+  e' la squadra-partita ma l'unita' indipendente e' la **partita**.
+- **La previsione di V0 sul fattore di cluster (0,807) NON descrive il confronto
+  appaiato**: l'osservato e' 0,92-0,99. Quel fattore riguardava la correlazione
+  fra i **valori** dei due lati (forte e negativa); qui conta quella fra gli
+  **errori**, che e' debole. La conclusione non cambia, ma il numero di V0 non va
+  citato come se descrivesse questo.
+- **Vantaggio del campo x1,260** sui tentativi (contro x1,217 sui tiri in porta).
+  I ratings sono **una descrizione, non una previsione** (fit su tutta la
+  stagione) e stanno sulla scala di `fig5`, cioe' **avversario medio in
+  trasferta** e non campo neutro — dichiarato subito invece di doverlo scoprire
+  dopo come in 6A. Juventus 14,24 → Cremonese 8,61 nel 2025-26.
+
+> **Una guardia riscritta a fine fase, e il motivo e' generale.**
+> `test_v1_scrive_una_sola_cache` contava un letterale (`to_parquet` una volta
+> sola) ed e' diventata rossa quando **V3** ha aggiunto `CACHE_PRED` allo stesso
+> modulo — cioe' segnalava un fatto **innocuo** invece del fatto che deve
+> sorvegliare (il vincolo 9: mai scrivere sotto `raw/`). Ora e' legata alle
+> costanti **dichiarate**: pretende che ogni `to_parquet` corrisponda a una
+> `CACHE*` e che ognuna stia sotto `processed/`. E' la terza volta che in questo
+> repository una guardia scritta su una **forma** invece che su una **proprieta'**
+> da' un falso positivo — dopo il gate sui qualifier e le guardie a sottostringa
+> del vincolo 3.
+
+**Quattro domande aperte**: (1) perche' la correlazione degli **errori** fra i due
+lati sia molto piu' debole di quella dei valori; (2) `r` e' assunto costante fra
+squadre e stagioni; (3) il **totale di partita** vuole la congiunta, che sui
+tentativi non e' misurata (`lam_subiti` e' gia' nella cache); (4) il `gamma` della
+2021-22 non e' confrontabile (ritorno del pubblico).
+
+### Fase 12 — Blocco V2: la precisione ✅ (la gerarchia NON si adotta)
+
+`reports/fase12_v2_precisione.md` + quattro CSV, da `scripts/run_fase12_v2.py`;
+modulo `sot/precisione.py`, test `tests/test_fase12_v2.py` (26). **Nessuna
+richiesta di rete.** **Nessun numero pubblicato e' cambiato.**
+
+| | esito |
+|---|---|
+| la quota e' prevedibile meglio di un numero unico? | **no**: lo strato 2 perde contro `p_lega` |
+| la difesa (voluta dall'utente) paga? | **no, COSTA**: t = −2,21 |
+| la marginale composta batte il modello diretto? | **no**: delta +0,0024, t = 0,60, dentro il MDE |
+| il segno e' stabile fra stagioni? | **no**: 3 su 5, il criterio ne chiedeva 4 |
+| la composizione e' internamente coerente? | **no**: `r_sot/r_shots` = 1,63, IC95 [1,15, 2,80] |
+| **verdetto** | **modello diretto (meno parti)** |
+
+- **L'eterogeneita' che V0 ha trovato e' reale ma NON e' predittiva**, e le due
+  cose non si contraddicono. V0 misurava `tau` su squadre-stagione complete (~475
+  tentativi); qui il modello deve dire la quota di **una** squadra-partita (~12,6
+  tentativi) prima che si giochi, e li' il segnale non sopravvive al rumore. Il
+  modello ha correlazione **positiva** con la quota vera (+0,072) e
+  verosimiglianza **peggiore**: e' troppo estremo per quanto poco sa. **E' la
+  stessa forma del risultato della Fase 2 sugli otto predittori.**
+- **`[DECISO 2026-08-13]` l'utente ha voluto la difesa nello strato 2**, contro il
+  criterio di V0 che la escludeva (sotto il MDE tarato). **Il criterio non e' stato
+  riscritto** e `verdetto_strato2()` continua a rispondere `['attacco']`. Il costo
+  e' stato **misurato invece che assunto**: guadagno −0,0085 di log-verosimiglianza
+  per riga, t = **−2,21**, cioe' il peggioramento **non e' rumore**. Venti
+  coefficienti difensivi stimati su un segnale che il test primario non riusciva a
+  risolvere sono venti modi di adattarsi al rumore. **Il criterio di V0 aveva
+  ragione, e lo si sa adesso che e' misurato.**
+- **Una precisazione a V0**: il report di V0 diceva che la forma chiusa del
+  thinning «non e' valida cosi' com'e' perche' `p` varia fra squadre». E'
+  **impreciso** — la forma chiusa vale **riga per riga** anche con `p` diverso fra
+  righe, purche' dentro la riga sia un numero e non una variabile aleatoria. Cio'
+  che la romperebbe e' la variabilita' **dentro** la squadra-partita, cioe' la
+  sovradispersione residua (`rho` 0,0083). `pmf_composta(rho > 0)` e' quella
+  strada, e le due coincidono a `rho = 0` (verificato a 1e-6).
+- **Il rapporto delle dispersioni falsifica la coerenza della gerarchia**, ed e' il
+  numero piu' interessante del blocco: sotto il thinning `r_sot` e `r_shots`
+  devono essere **uguali**, e l'IC95 non contiene 1. Il verso e' l'**opposto** di
+  quello che l'eterogeneita' della quota prevedrebbe (`r_sot > r_shots` = **meno**
+  sovradispersione). **Non e' spiegato.**
+- **La gerarchia non si adotta, e non perche' sia peggiore: perche' non e'
+  migliore.** A parita' si tiene il modello con meno parti, ed e' la regola scritta
+  prima. **Cio' che V1 ha prodotto resta intatto e non dipende da questo esito**:
+  la gerarchia era il tentativo di ottenere *anche* i tiri in porta dallo stesso
+  oggetto, e il tentativo dice di no.
+
+> **Trappola per le sessioni future.** I tre risultati negativi di V2 sono il
+> contenuto del blocco. In particolare **non va ritoccato lo strato 2 finche' non
+> batte `p_lega`**, e non va tolta la difesa dalla tabella per far tornare il
+> conto: la decisione dell'utente e' registrata, il suo costo e' misurato, e le
+> due cose vanno lette insieme.
+
+### Fase 12 — Blocco V3: i predittori, ritestati ✅ (terzo negativo, il piu' potente)
+
+`reports/fase12_v3_predittori.md` + tre CSV, da `scripts/run_fase12_v3.py`. **V3
+non ha un modulo proprio**: parametrizza `sot/predictor_power.py` su `target`,
+eccezione dichiarata alla regola «1 blocco = 1 modulo» perche' duplicarlo
+violerebbe «una definizione in un posto solo». Test in `tests/test_fase12_v3.py`
+(16). **Nessuna richiesta di rete. Nessun numero pubblicato e' cambiato.**
+
+**Esito: zero candidati tenuti su 24 combinazioni** (8 candidati x 3 regimi). E'
+il **terzo** test indipendente con lo stesso risultato — Fase 2 sui tiri in
+porta, 6D nei regimi acerbi, V3 sui tentativi.
+
+- **Il default e' identico bit per bit**: `confronto(prev, r)` e
+  `confronto(prev, r, target="sot")` danno la stessa tabella, e i numeri di
+  `phase6_predittori.csv` si riproducono a 1e-12 (`poss_att` maturo,
+  t = 1.4200797158768528). Due test lo bloccano.
+- **Il difetto che la parametrizzazione poteva introdurre**, e che un test
+  blocca: `_fit` costruiva `TeamModel` **senza** `target`. Siccome `y_in` era gia'
+  del bersaglio giusto, il parametro sarebbe *sembrato* funzionare mentre il
+  modello veniva stimato su `sot` e valutato sui tentativi.
+- **I predittori si costruiscono per stagione**, mai sul concatenato: li'
+  `pre_match_ewm` raggruppa per `team`, che e' un nome e si ripete, quindi
+  settembre 2023 userebbe maggio 2023 con peso 0,57. La firma verificabile e' che
+  **la prima partita di ogni stagione abbia predittori nulli**, e un test la usa.
+- **Un errore di lettura corretto per strada, ed e' istruttivo.** Il blocco era
+  partito dall'aspettativa che cinque volte le righe dessero un MDE piu' stretto.
+  **In unita' assolute e' falso**: il MDE **peggiora** (maturo 0,00282 → 0,00312;
+  acerbo disgiunto 0,00483 → 0,01611), perche' la log-verosimiglianza Poisson di
+  un conteggio con media 12,6 ha varianza per riga molto maggiore di uno con media
+  4,0, e `sqrt(5)` non la compensa. **I MDE di due bersagli diversi non sono
+  confrontabili in unita' assolute**, e `mde_relativo()` porta l'unita' che lo e':
+  il MDE in **quota del guadagno del modello sul baseline migliore**. Li' il
+  maturo passa da 0,118 a **0,023** (5x piu' sensibile), l'acerbo disgiunto da
+  0,057 a 0,103 (**peggio**, perche' li' il modello stacca i baseline di piu' e il
+  denominatore cresce piu' del numeratore).
+- **Due candidati PEGGIORANO oltre la soglia** nel regime acerbo disgiunto —
+  `tilt_att` t = −2,48 e `poss_att` t = −2,01 — e la 6D non poteva vederlo: con 40
+  righe quei `t` sarebbero stati attorno a −0,8. E' coerente col meccanismo che la
+  6D ha reso visibile nei due termini dell'obiettivo: un predittore collineare con
+  l'effetto attacco compra riduzione di penalita' ridge e paga in adattamento, e
+  **dove l'effetto attacco e' acerbo la sostituzione e' peggiore**.
+- **Nessun candidato ha cinque segni positivi** fra le stagioni, il che toglie
+  l'ultima lettura possibile di un pooled vicino a zero.
+- Nel maturo il massimo vale t = 1,485 con `p = 0,435` su otto candidati, **sotto**
+  il valore atteso del massimo di otto normali standard (1,4236).
+
+> **Trappola per le sessioni future.** Terzo esito negativo sullo stesso insieme,
+> e il piu' potente in termini relativi. Non va "sistemato" reintroducendo il
+> candidato col `t` piu' alto: su otto candidati un massimo di 1,49 e' esattamente
+> quanto ci si aspetta sotto il nullo, e il blocco lo **calcola** invece di
+> lasciarlo intuire.
+
+### Fase 12 — Blocco V4: il ponte ✅ — **e' cio' che l'utente ha chiesto**
+
+`reports/fase12_v4_ponte.md` + `fase12_v4_tiri_attesi.csv` (760 righe) +
+**`reports/fase12_v4_simulatore.html`**, da `scripts/run_fase12_v4.py`
+(+ `scripts/pagina_v4.py`); modulo `sot/previsione.py`, test
+`tests/test_fase12_v4.py` (29). **Nessuna richiesta di rete, nessuna scrittura
+sotto `data/`. Nessun numero pubblicato e' cambiato.** Chiude la Fase 12.
+
+```python
+from sot import previsione as P
+p = P.previsione("Como", "Inter", "casa")
+p["lambda_tentativi"]   # 12.852
+p["p_over"]             # P(Over) per le cinque linee + quota di pareggio
+p["intervalli"]         # 50 / 80 / 95%
+```
+
+- **Prima non esisteva.** `soglie_2627` aveva il ponte per il **solo Como** e il
+  **solo 2026-27**, ancorato a un livello **fornito dall'utente** che per le altre
+  diciannove squadre non esiste. Qui il livello non serve: la previsione e'
+  **within-season**, il modello sa gia' quanto tira ciascuna squadra. Ed e'
+  l'unica forma **validabile** — V1 la misura su 3.278 righe.
+- **760 coppie**, da **6,55** (Cremonese-Como in trasferta) a **21,42**
+  (Juventus-Cremonese in casa): **un fattore 3,27**, contro una media di
+  campionato di 12,31. Un numero unico per squadra non basta, e nemmeno un numero
+  per squadra piu' il campo: **l'avversario sposta il lambda quanto il campo**.
+- **La guardia sulla squadra sconosciuta sta a DUE livelli, e servono entrambi**:
+  `verifica_squadre` all'API e `TeamModel(strict_teams=True)` nel modello — una
+  guardia sola all'ingresso si aggira chiamando il modello direttamente. Il
+  difetto e' **silenzioso**: la dummy resta a zero e la squadra viene trattata
+  **come esattamente media**, senza errore ne' avviso. Il caso realistico non e' la
+  squadra inventata: e' chiedere **Como-Venezia nel 2025-26**.
+- **`strict_teams` ha default `False`** e un test verifica l'identita' **bit per
+  bit**: dentro il walk-forward il coefficiente zero e' il comportamento *giusto*
+  (una squadra alla sua prima apparizione in un training parziale), e sollevare
+  romperebbe Fase 2, E3 e R0-R3.
+- **`campo` e' una stringa e non un booleano**: uno `0/1` si scambierebbe senza
+  rumore, e la differenza casa/trasferta vale un quarto del livello.
+- **`al` non e' cosmetico**: e' la data a cui ci si mette, e `dentro_campione`
+  **dichiara** se la partita chiesta e' gia' nella storia usata invece di lasciar
+  credere che sia una previsione.
+- **I tiri in porta vengono dal modello DIRETTO**, non dalla gerarchia: V2 l'ha
+  misurata e non l'ha adottata.
+- **La pagina locale e' autonoma** — nessun CDN, nessun font remoto, nessuna
+  richiesta di rete, e un test lo pretende. **Nessuna quota** (vincolo 3): mostra
+  la quota di **pareggio** (`1/p`), dichiarata come il punto in cui il guadagno
+  sarebbe zero, non come una previsione di prezzo.
+
+**Quattro domande aperte**: (1) `al` e' esposto ma il report non lo esercita
+giornata per giornata — sarebbe la coda naturale del blocco; (2) la stagione e'
+una sola; (3) **il totale di partita non e' esposto** ed e' la linea di mercato
+piu' comune: serve la congiunta, che V0 ha mostrato **non** essere quella di due
+indipendenti (correlazione −0,35); (4) senza prezzi di mercato reali «il modello
+e' meglio del mercato» resta una frase che questo progetto non puo' pronunciare.
+
+### Fase 13 / G2 — i cinque campionati, bersaglio GOL ⏳ (aperta, M1 chiuso)
+
+Aperta dall'utente il **2026-08-14**. Sblocca il ramo **G2**, che la Fase 10
+teneva chiuso dietro una condizione di autorizzazione. Decisioni in
+`docs/regole_fantacalcio.md` **§7.2**, che e' il posto dove stanno e non questo.
+
+| # | decisione dell'utente |
+|---|---|
+| 1 | **autorizzazione WhoScored estesa** a Premier League, Liga, Bundesliga, Ligue 1 |
+| 2 | perimetro **cinque stagioni per campionato** (~7.000 partite, ~18 GB) |
+| 3 | bersaglio **gol segnati** |
+| 4 | **progressivo** = avanzamento in x >= 10 m **e riuscito** |
+| 5 | metriche nuove: **tocchi per zona** (5 zone) e famiglia dei progressivi |
+
+#### Le terne WhoScored sono ACCERTATE, non ricavate a memoria ✅
+
+`acquisition/whoscored/verifica_terne.py` +
+`reports/fase13_terne_whoscored.json`. `config.LEAGUE_CODES` non ha piu' nessun
+`whoscored: None`.
+
+Il disegno e' una **falsificazione**: si dichiara una terna candidata, si carica
+la pagina e si pretende che il **`canonical` della fonte** rimandi indietro gli
+**stessi id** e lo slug atteso. Tre controlli la rendono leggibile — la Serie A
+(gia' accertata) **deve passare**, un nome sbagliato e una coppia di id
+inesistenti **devono fallire**. Con id inesistenti il sito **non ripiega su una
+competizione a caso**: cade sulla homepage senza `canonical`, quindi «il
+canonical contiene i miei id» non e' una tautologia.
+
+| campionato | regione | torneo | slug |
+|---|---:|---:|---|
+| ENG-premier-league | 252 | 2 | `england-premier-league` |
+| ESP-la-liga | 206 | 4 | `spain-laliga` |
+| GER-bundesliga | 81 | 3 | `germany-bundesliga` |
+| FRA-ligue-1 | 74 | 22 | `france-ligue-1` |
+
+> **La prima stesura della verifica ha sbagliato in due modi opposti insieme**,
+> ed e' la lezione del blocco. Cercava il paese in **inglese** dentro un **blob
+> concatenato** di tutti i campi: il sito serve la localizzazione italiana
+> (`it.whoscored.com`, «Italia/Inghilterra/Spagna/Germania/Francia»), quindi
+> quattro terne giuste sono state **rifiutate**; e la Ligue 1 e' stata
+> **confermata da "Coupe de France"**, che e' un'altra competizione elencata nel
+> breadcrumb. **Un criterio su un testo unito produce falsi positivi e falsi
+> negativi nello stesso momento.** Ogni controllo va cercato nel campo in cui
+> significa qualcosa. Il controllo positivo ha impedito il danno: fallendo lui,
+> lo script si e' rifiutato di dichiarare qualsiasi terna.
+
+**Due fatti nuovi sull'acquisizione, rilevati e non assunti:**
+
+1. **Il mirror `1xbet.whoscored.com` non esiste piu'**: risponde **301** verso
+   `www.whoscored.com` (2026-08-14). La domanda di §7.1 decisione 3 — «se
+   l'autorizzazione copre WhoScored ma non il mirror» — si e' risolta da se'.
+   `main.py:60` punta ancora al vecchio dominio e segue il redirect.
+2. **`main.py` istanzia `webdriver.Firefox()` in tre punti (66, 121, 240) e
+   Firefox NON e' installato su questa macchina.** C'e' Chrome 151 e Edge 151.
+   **L'acquisizione dei quattro campionati non partirebbe cosi' com'e'**, ed e'
+   un blocco indipendente dalle terne. `verifica_terne.py` usa Chrome e prova
+   che la strada del browser funziona, ma **non tocca `main.py`**: il difetto
+   resta dichiarato, non aggirato di nascosto.
+
+#### Blocco M1 — le metriche avanzate ✅
+
+`reports/fase13_m1_metriche_evento.md`, modulo `sot/metriche_evento.py`, test
+`tests/test_fase13_m1.py` (23). **Nessuna richiesta di rete, nessuna stima**:
+conta e misura, come R0 e V0. Suite a **961 test**, tutti verdi.
+
+**Le cinque zone sono una partizione, e la prova non passa dai dati veri**: gira
+su una griglia fitta che copre tutto il campo, perche' un buco in un angolo che
+la Serie A non ha mai visitato comparirebbe su un altro campionato — cioe'
+proprio dove la fase sta andando. Sui dati veri 468.883 tocchi, **zero senza
+zona**, quote che sommano a 1 con scarto **2,2e-16**. **La geometria si importa
+da `features.py`**, non si riscrive, e un test verifica che non sia ridefinita.
+
+**Il vincolo 7 dentro una fonte sola — «passaggio riuscito» ha due
+derivazioni.** `passAccurate = True` implica **sempre** `Successful` (zero
+contraddizioni su 273.027), ma **l'8,3% dei passaggi non ha nessuno dei due
+flag** e fra questi 17.440 sono riusciti. I non marcati sono **piu' lunghi**
+(22,2 m contro 18,0). **Si usa `outcomeType`**: `passAccurate` scarterebbe in
+silenzio il 6% dei riusciti **sbilanciato verso i lunghi**, cioe' esattamente la
+popolazione che definisce un progressivo — un errore **sistematico**, non rumore.
+
+**Le tre letture del progressivo restano colonne separate** (vincolo 7):
+`prog_tentati` 137,8 · **`prog_riusciti` 88,9 (la scelta)** ·
+`prog_per_distanza` 231,6 per squadra-partita. **Nessuna coincide con i
+"progressive passes" dei fornitori standard** (~40-50), che usano l'avanzamento
+relativo alla distanza dalla porta: e' una definizione diversa, dichiarata.
+**I 10 m sono una soglia NOMINALE** — 9,52 unita' di `x` sul campo 105x68
+assunto da `features.py`, mentre la norma FIFA ammette 100-110 x 64-75.
+
+> **`completamenti_profondi_cross_inclusi` ha quel nome lungo apposta.** La
+> *deep completion* standard **esclude i cross**, e in `events_slim` **non c'e'
+> nessun flag di cross**. Chiamarla `deep_completions` avrebbe prodotto una
+> tabella dell'ordine di grandezza giusto e del contenuto sbagliato: e'
+> `passFreekick` (E4) evitato in anticipo.
+
+**Il gate di deriva di E1 sulle cinque stagioni separa nettamente**, e la prima
+lettura non era prevista:
+
+- **`prog_riusciti` passa (4,56%), `prog_tentati` no (6,81%)**: il filtro sulla
+  riuscita **stabilizza la grandezza fra stagioni**. La decisione dell'utente
+  risulta la piu' robusta delle tre *dopo* averla presa, non prima.
+- **Le quote passano sistematicamente dove i conteggi falliscono**, che e'
+  esattamente cio' che la regola di E1 prevede.
+- Oltre soglia: `metri_progressione` **23,6%**, `metri_per_passaggio` 19,9%,
+  `completamenti_profondi` 14,2%, `ingressi_area` 11,8%, `tocchi_area_off`
+  8,4%, `tocchi_terzo_off` 7,3%, `prog_tentati` 6,8%, `quota_tocchi_area_off`
+  5,1%. **Non entrano grezze** in un modello multi-stagione, tanto meno
+  multi-campionato.
+- `prog_riusciti` scende 92,8 → 88,9, **coerente con la caduta gia' documentata
+  dei tentativi** (13,03 → 12,31): si gioca piu' corto, non si annota diverso.
+
+> **Trappola per le sessioni future.** M1 **non ha testato se queste metriche
+> predicano qualcosa**, ed e' voluto. I predittori da dati evento sono gia'
+> stati scartati **tre volte** (Fase 2, 6D, V3): il quarto test va disegnato con
+> la **potenza dichiarata prima**, e in **MDE relativo** al guadagno del modello
+> sul baseline — V3 ha mostrato che in unita' assolute piu' righe **peggiorano**
+> il MDE. E **`tocchi_area_off` non e' una candidata nuova**: e' `box_touches`,
+> gia' fra le otto bocciate. Sta li' perche' completa la partizione.
+
+#### Acquisizione ✅ — 8.884 partite, 23 GB, copertura 100% della fonte
+
+| campionato | acquisite | attese | assenti alla fonte |
+|---|---:|---:|---:|
+| Serie A | 1.889 | 1.901 | 12 |
+| Premier League | 1.897 | 1.900 | 3 |
+| Liga | 1.899 | 1.900 | 1 |
+| Bundesliga | 1.528 | 1.530 | 2 |
+| Ligue 1 | 1.671 | 1.678 | 7 |
+
+**Le 25 mancanti sono TUTTE `matchCentreData: null` alla fonte**, accertate da
+una passata di chiusura e non assunte: non si recuperano e non vanno ritentate.
+**Integrita' verificata**: 8.884 CSV, zero vuoti, zero troncati — nonostante
+molti spegnimenti del PC a scaricamento in corso.
+
+**Le assenze sono casuali rispetto alla squadra in QUATTRO campionati su
+cinque.** L'eccezione e' la sola Serie A: l'**Atalanta** ne perde 6 contro
+un'attesa di 1,2, p grezzo 0,0014 e **0,038 corretto** per aver scelto il
+massimo fra le squadre. Negli altri quattro il massimo e' 1-2 partite per
+squadra (p corretto 0,93-1,00). **L'anomalia e' dell'archivio Serie A, non una
+proprieta' di WhoScored.**
+
+> **Tre difetti trovati eseguendo, tutti gia' costati dati.** (1) Un **banner**
+> sopra `<select id="seasons">` sollevava `ElementClickInterceptedException` e
+> **costava un'intera stagione in silenzio** — era lo STESSO difetto gia' pagato
+> dalla Serie A e corretto allora sul solo menu `stages`, cioe' sul punto d'uso
+> invece che sulla classe: il ripiego ora sta in `_seleziona_con_ripiego`, in un
+> posto solo. (2) `scarica()` restituiva **meta' del risultato** (`failed` senza
+> `senza_dati`): il riepilogo andava in errore **solo a copertura piena** e con
+> esattamente due fallimenti avrebbe mentito in silenzio — ed e' la correzione
+> che ha reso possibile classificare le 25. (3) Un **browser morto** faceva
+> ciclare lo scraper sul resto della stagione marcando ritentabili centinaia di
+> partite mai tentate (236 sulla Ligue 1): ora `_driver_morto` interrompe la
+> stagione. **L'acquisizione NON era bloccata da Firefox**: Selenium Manager lo
+> risolve da se', e la diagnosi contraria era sbagliata.
+
+#### Il modello dei GOL sui cinque campionati ✅ — **trasferisce**
+
+`reports/fase13_gol_cinque_campionati.md`, da `scripts/run_fase13_gol.py`.
+**Nessun modello nuovo**: e' `TeamModel(target="gol_fatti")` di E3.1 su
+campionati diversi. **Un fit per campionato, mai poolati** (§7.2, conseguenza 3).
+
+| campionato | n | MAE | pendenza | delta | **t (cluster)** | MDE | delta/MDE |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Serie A | 3.278 | 0,8720 | 0,898 | 0,0302 | **5,40** | 0,0159 | 1,90 |
+| Premier League | 3.294 | 0,9554 | 0,929 | 0,0271 | **4,80** | 0,0160 | 1,69 |
+| Liga | 3.298 | 0,8634 | 0,947 | 0,0198 | **3,56** | 0,0158 | 1,25 |
+| Ligue 1 | 2.872 | 0,9498 | 0,868 | 0,0190 | **3,09** | 0,0175 | 1,09 |
+| Bundesliga | 2.606 | 1,0040 | 0,887 | 0,0102 | **1,44** | 0,0201 | **0,51** |
+
+- **Il vantaggio sul baseline migliore regge in quattro campionati su cinque**,
+  t fra 3,1 e 5,4. Non era scontato: poteva essere una proprieta' della Serie A.
+- **Il 5,52 della Serie A riproduce E3.1 a ogni cifra**, ed e' il controllo che
+  vale piu' del risultato nuovo.
+- **La Bundesliga non e' un nullo: e' un test senza potenza.** delta/MDE =
+  **0,51**, cioe' l'effetto osservato e' meta' del minimo rilevabile. «Qui il
+  confronto non conclude» e' l'affermazione difendibile; «non funziona» no.
+  Cause misurate: 18 squadre (2.606 righe contro 3.278) e piu' gol (1,51-1,59
+  contro 1,18-1,32), quindi bersaglio piu' rumoroso.
+- **Il `t` per cluster di partita non cambia niente** (scarto < 5% ovunque), ed
+  e' la **replica di V1**: la correlazione forte misurata da V0 (−0,349) e' fra
+  i **valori** dei due lati, non fra gli **errori**. Il fattore 0,807 di V0 non
+  descrive questo confronto.
+- **PIT p fra 0,17 e 0,77** e zeri osservati ~ attesi in tutti e cinque: regge
+  la forma, non solo la media.
+- **Il livello varia del 25% fra campionati** (Bundesliga 1,51-1,59 contro Liga
+  1,22-1,32): un fit unico avrebbe attribuito il contesto ai coefficienti di
+  squadra. E' la regola di E1 resa un numero.
+
+> La **pendenza e' sotto 1 in tutti e cinque** (0,868-0,947): e' lo shrinkage
+> della ridge, la **sesta** misura dello stesso effetto dopo Fase 3, 4, 6A, R3 e
+> V1. Non va corretta.
+
+**I cinque campionati non si poolano** (§7.2, conseguenza 3): e' la regola di E1
+e R0 l'aveva gia' scritta in anticipo proprio su G2. O cinque fit separati, o il
+campionato come **effetto esplicito**. E **il calendario non e' 380 partite per
+tutti**: Bundesliga ha 18 squadre e Ligue 1 e' passata a 18 dalla 2023-24 — i
+denominatori si **contano**, mai si assumono.
+
+### Fase 14 — la stagione IN CORSO ✅
+
+Aperta dall'utente il **2026-08-30**. Due richieste: un aggiornamento automatico
+dei dati evento dei cinque campionati per la stagione nuova, e una previsione di
+**tiri e tiri in porta** su una partita futura a scelta. Decisioni dell'utente:
+prior dalla stagione precedente per coprire l'avvio · **nessuno scraping delle
+partite future** (la partita si sceglie per nome) · l'interfaccia e' la **pagina
+HTML autonoma** · aggiornamento **il martedi' alle 21:00** (ora decisa
+dall'utente il 2026-08-31), con recupero al primo momento utile se il PC era
+spento, piu' il lancio su richiesta.
+
+**Nessun numero pubblicato e' cambiato**, verificato rieseguendo: `run_phase1.py`
+ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi, `run_phase5.py` ridà Como
+4.34 e 5.03 / 191 / [151, 240], `run_fase12_v4.py` ridà 12,85 · 6,55 · 21,42,
+`run_fase13_gol.py` ridà t = 5,40 sulla Serie A. Suite a **1.019 test**.
+
+#### A0 — la catena era cablata sulla Serie A senza dirlo
+
+`multistagione.carica` chiamava `config.team_match(season=…)` **senza
+campionato**, quindi tutto cio' che sta a valle — `tentativi.universo`, `volume`,
+`previsione` — rispondeva con numeri italiani a qualunque campionato le si
+chiedesse. E' lo stesso difetto che E0 aveva trovato in `aggancio.mappa_giocatori`
+(`stagione` nella firma, `config.PLAYER_MATCH` nel corpo). Ora `league=None`
+attraversa la catena e un test pretende l'identita' **bit per bit** col default.
+
+- **`config.SEASON_CORRENTE` NON entra in `SEASONS_STORICHE`**, ed e' l'invariante
+  che tiene in piedi la fase: quella tupla e' il default di mezzo repository
+  (`previsione` ne prende l'ultimo elemento, `universo` e `walkforward_tiri` la
+  usano quando `stagioni is None`), e allungarla sposterebbe in silenzio ogni
+  numero validato dalle Fasi 0-13 senza che un solo test se ne accorga.
+- **Le cache diventano una per campionato**, e la Serie A resta **dove era**:
+  cambia la cartella, non il nome del file, perche' `processed_league_dir` gia'
+  separa i campionati.
+- **Un difetto latente corretto**: `walkforward_tiri` leggeva la cache
+  **qualunque** cosa fosse passata in `stagioni`, quindi chiedere una stagione
+  sola restituiva in silenzio il walk-forward di tutte e cinque.
+
+#### A1 — l'aggiornamento settimanale
+
+**Una stagione in corso e' incompleta per definizione**, e il criterio di arresto
+dello scraper (`report_completeness`) non lo sa: ogni esecuzione avrebbe pagato
+`MAX_URL_PASSES = 4` navigazioni complete del calendario per cercare partite non
+ancora giocate. Il flag `--in-corso` cambia due cose e nessuna e' cosmetica —
+**una passata sola**, e la **cache degli URL sempre rinfrescata** (li' una cache
+completa e' la risposta definitiva, qui e' vecchia di sette giorni per
+costruzione). Le partite gia' in cache non si perdono mai.
+
+- **`avanzamento()` non e' `report_completeness` con un flag**, ed e' voluto:
+  quella ritorna un **booleano** che lo scraper usa come criterio di arresto,
+  questa una **misura**. Farle dire `True` significherebbe far dire «completo» a
+  un calendario che non lo e'. Il denominatore si deduce dalle squadre viste, mai
+  assunto a 38 — la Bundesliga e la Ligue 1 ne hanno 34.
+- **La navigazione all'indietro basta**, e le partite future **non** si scaricano
+  (decisione 2): se entrassero in `matches.json` lo scraper proverebbe a
+  scaricarne gli eventi a ogni giro, fallendo ogni volta.
+- **`build_cache` e' idempotente per ESISTENZA del file**: con CSV nuovi e
+  `force=False` restituirebbe il Parquet della settimana prima. `aggiorna_stagione`
+  forza **se e solo se** almeno un CSV e' piu' recente dei Parquet.
+- **Sotto `xg.N_FOLDS` partite i derivati si saltano**, non si costruiscono a
+  meta': il `GroupKFold` dell'xG non ha abbastanza gruppi. La soglia non e'
+  scelta, e' imposta dalla procedura.
+- **L'attivita' pianificata e' un XML e non una riga di `schtasks /SC WEEKLY`**
+  per una voce sola: `StartWhenAvailable`, che fa partire l'aggiornamento al
+  primo momento utile se il martedi' il PC era spento. `schtasks` da riga di
+  comando non la espone. **Registrata il 2026-08-31**, martedi' 21:00, stato
+  `Ready`, prima esecuzione 2026-09-01: e' quella che fara' il primo
+  scaricamento della 2026-2027, che fino a li' non e' mai stato lanciato.
+- **Provenienza falsa corretta**: `manifest.DEFINIZIONI` dichiarava ancora
+  `1xbet.whoscored.com` come dominio contattato, mentre `main.py` punta a `www`
+  dal 2026-08-14. Il mirror resta **citato** — i file vecchi ci sono passati — ma
+  non come dominio corrente.
+
+#### A2 — il prior: l'ipotesi cade, e cio' che vince e' il diagnostico ⚠️
+
+`TeamModel` guadagna `prior` e `alpha_prior`: il centro della penalita' ridge si
+sposta da zero (media di campionato) ai coefficienti di **fine stagione
+precedente**. `prior=None` e' identico bit per bit, con un test che lo blocca.
+
+**Il criterio di adozione era scritto prima** (`CRITERIO_ADOZIONE`) e
+`verdetto()` lo applica meccanicamente. **NON e' soddisfatto su nessuno dei due
+bersagli**: sui tentativi t = 0,40 (ne serviva > 2) e 3 campionati su 5 positivi;
+sui tiri in porta t = **−2,82**, cioe' la miscela e' **significativamente
+peggiore** del baseline «media squadra dell'anno scorso».
+
+**Cio' che vince e' `modello prec`** — la stagione precedente applicata **tale e
+quale**, senza guardare una sola partita nuova, cioe' il caso limite
+`alpha_prior → ∞`. Era il **diagnostico** del blocco, messo li' apposta perche'
+senza di lui un negativo sarebbe stato ambiguo (non si saprebbe se a non
+funzionare fosse il *prior* o la *miscela*). Poolato sulle transizioni tarate,
+righe di avvio (`team_match_idx ≤ 5`), 1.386 righe e 697 partite:
+
+| bersaglio | `modello prec` batte «media squadra prec» | delta/MDE | batte la miscela |
+|---|---:|---:|---:|
+| tentativi | +0,0906 · **t 4,36** | 1,56 | t 3,33 |
+| tiri in porta | +0,0423 · **t 4,25** | 1,52 | t 4,73 |
+
+Soglia di Sidak su cinque candidati dichiarati: |t| > 2,32. Entrambi la passano.
+
+**Sul controllo il quadro si rovescia**, ed e' cio' che rende la lettura
+coerente invece che contraddittoria: da `team_match_idx` 6 in poi vince la
+**miscela** (t 2,02 sui tentativi e 2,55 sui tiri in porta contro `modello prec`;
+4,97 contro il within-season puro sui tiri in porta). Le poche partite di
+settembre non aiutano; dalla sesta in poi si'.
+
+Ne segue la **regola a due regimi** (`REGOLA_DUE_REGIMI`), che **non e' un terzo
+modello**: e' la composizione di due candidati gia' dichiarati a una soglia
+dichiarata **altrove** — `config.BURN_IN_ROUND`, che la Fase 2 ha fissato e che
+tutto il repository usa. La stessa disciplina con cui la Fase 8 ha tenuto l'80'
+invece di leggerlo da un `argmax`.
+
+- **Lo scambio vero cade attorno alla 4a giornata, non alla 6a**, e il fatto e'
+  **scritto, non usato**: spostare la soglia li' sarebbe sceglierla guardando il
+  campione su cui poi la si valuta. Il costo e' piccolo e sta in tabella.
+- **`alpha_prior` si sceglie sul solo passato**: per valutare la transizione
+  verso `s` si usa la migliore delle transizioni precedenti, e la prima resta
+  **marcata come non tarata** — la stessa forma della 2021-2022 non ricalibrata
+  di R2-bis. Gli ottimi cadono all'interno della griglia tranne che sulla
+  Bundesliga, dove il report lo segnala.
+- **Il prior si scioglie da solo**, e non c'e' nessun decadimento da
+  sintonizzare: la verosimiglianza cresce con `n` e la penalita' no.
+- **Il prior porta la forza RELATIVA, non il livello** (`mu` e `gamma` non sono
+  penalizzati). E' cio' che evita il difetto gia' misurato in E4 sui cinque fit
+  di xG e in V0 sui tentativi: forma stabile, livello che si muove.
+- **Le neopromosse non hanno prior e prendono centro zero**, cioe' la media di
+  campionato dell'anno scorso. E' l'unico default onesto, ed e' il motivo per cui
+  il prior va **centrato**: senza, quello zero sarebbe un punto arbitrario
+  accanto alla media e le tre promosse finirebbero tutte dalla stessa parte per
+  un motivo aritmetico. Vengono **contate** e dichiarate, mai lasciate sparire.
+
+> **Trappola per le sessioni future.** Il criterio scritto prima **non e' stato
+> riscritto per farlo tornare**, ed e' la stessa disciplina di `LATI_STRATO2` in
+> V2: `verdetto()` continua a rispondere «non adottato» per la miscela sulle
+> righe di avvio. Cio' che si adotta e' `modello prec` sotto il burn-in, che e'
+> un candidato **dichiarato prima** e che passa la correzione per molteplicita'.
+> **Non va ritoccato `alpha_prior` finche' la miscela supera il baseline**: il
+> segno e' spiegato da un meccanismo misurato — con quattro-otto partite le
+> nuove informazioni sono meno del rumore che introducono — e cambiarlo
+> cancellerebbe la spiegazione.
+
+#### A3 — i tiri in porta accanto ai tiri
+
+`previsione()` restituiva `lambda_sot` ma **nessuna probabilita' Over** per i
+tiri in porta. Ora ci sono, su **`validate.LINES` invariate** (2,5-5,5):
+`tentativi.LINEE_SOT_INVARIATE` lo prescrive, perche' linee nuove renderebbero
+questi numeri non confrontabili con la Fase 4.
+
+- **Una `r` per bersaglio e per campionato**: ~20 sui tentativi, **31,6** sui
+  tiri in porta. Non si eredita, e `volume.walkforward_tiri` e' parametrizzata su
+  `target` con una cache separata perche' altrimenti la seconda sovrascriverebbe
+  la prima.
+- **`quota_pareggio` ora si IMPORTA davvero da `soglie_2627`.** La docstring di
+  `previsione.py` lo dichiarava dalla Fase 12 e il codice riscriveva `1.0/p` a
+  mano: due copie che coincidevano per caso, e il test verificava l'uguaglianza
+  **numerica** invece dell'unicita' della definizione.
+
+#### A4 — la pagina
+
+`reports/previsioni.html`, autonoma (nessun CDN, nessun font remoto, nessuna
+richiesta di rete) e con quattro selettori: **campionato**, squadra, avversario,
+campo. Per ogni coppia: λ tiri, λ tiri in porta, precisione implicita, P(Over) e
+quota di **pareggio** su entrambe le famiglie di linee. **Nessuna quota**
+(vincolo 3).
+
+- **Il regime e' dichiarato riga per riga**, accanto al numero e non in fondo:
+  sotto il burn-in la pagina scrive che quel numero viene dalla stagione
+  precedente, e conta le squadre che il prior non conosce.
+- **Le squadre non si ereditano dal prior**, mai: prenderle da li' rimetterebbe
+  dentro le **retrocesse**. Si prendono dalle partite viste in questa stagione, e
+  alla prima giornata sono percio' meno di venti — il conteggio lo dichiara.
+- **Il ripiego di stagione e' dichiarato**: se la stagione chiesta non ha ancora
+  dati si scende alla piu' recente che ne ha e **lo si scrive**. Mostrare i
+  numeri dell'anno scorso credendo che siano di quest'anno e' il difetto peggiore
+  che questa pagina possa avere.
+- **Il generatore non calcola niente**, come `pagina_v4`: serializza una tabella
+  gia' prodotta da `previsione`. Un solo conto qui e pagina e modello potrebbero
+  divergere senza che nessuno se ne accorga — un test lo blocca.
+
+#### Due guardie di E0 corrette, e sorvegliavano un formato invece di una proprieta'
+
+Trovate rieseguendo `run_phase1.py`, che e' un passo di **verifica** prescritto
+da questo documento: rigenerando il Parquet della 2025-2026 sono diventate rosse
+due guardie che passavano solo perche' i dati su disco erano **piu' vecchi del
+codice**.
+
+1. **`test_xg_fit_dichiara_la_stagione`** pretendeva `xg_fit == stagione`, cioe'
+   la forma che `etichetta_fit` aveva **fino alla Fase 13**: da li' e'
+   `campionato/stagione`, perche' con cinque campionati i fit sono venticinque e
+   `"2025-2026"` ne identificherebbe cinque. Ora verifica la **proprieta'** — un
+   valore solo, che contiene la stagione, e se contiene anche il campionato deve
+   essere quello dichiarato da `etichetta_fit`.
+2. **`test_le_medie_non_stanno_dentro_player_match`** cercava `"campionato" not
+   in c` e puniva la colonna `campionato`, che e' legittima e sta nella lista
+   dichiarata di `build_player_match`. Ora cerca `media_campionato`, con un
+   controllo positivo che pretende la colonna vera.
+
+> **E' la quinta volta** che in questo repository una guardia scritta su una
+> **forma** invece che su una **proprieta'** da' un falso positivo — dopo il gate
+> sui qualifier (E1), le guardie a sottostringa del vincolo 3 (S1), la cache di
+> V1 e il `--league` di questa stessa fase. Il fatto che i Parquet fossero
+> stantii e' un secondo avviso: **un test che sorveglia un formato dichiara verde
+> una cache vecchia**.
+
+**Cinque domande aperte**: (1) **lo scambio dei due regimi cade alla 4a e la
+soglia usata e' la 6a**, per disciplina: misurare quanto costi vorrebbe una
+soglia scelta fuori campione, cioe' altri campionati o altre stagioni; (2) perche'
+le partite di settembre **peggiorino** invece di essere neutre non ha una
+spiegazione misurata — il sospetto e' `mu` e `gamma` ristimati su 4-8 partite, ma
+non e' stato separato; (3) **il calendario 2026-27 non e' nel repository**, quindi
+la partita si nomina a mano: scaricarlo vorrebbe la navigazione in avanti e un
+modo **misurato** di distinguere una partita non giocata (l'orario `20:45` si
+legge come punteggio `20:45`); (4) `alpha_prior` e' assunto costante dentro una
+stagione, mentre il peso giusto del prior cala giornata dopo giornata; (5) senza
+prezzi di mercato reali «il modello e' meglio del mercato» resta una frase che
+questo progetto non puo' pronunciare.
+
+### Fase 15 / Blocco C1 - il calendario della stagione in corso ✅ (due fonti)
+
+`acquisition/whoscored/verifica_calendario.py` (il verbale
+`reports/fase15_calendario_verifica.json`), l'estensione di
+`acquisition/whoscored/scrape_season.py`, il pacchetto nuovo
+`acquisition/wikipedia/`, il modulo `sot/calendario.py` e i test
+`tests/test_fase15_calendario.py` (35). **Tocca la rete**, ed e' il primo blocco
+dopo la Fase 14 che lo faccia.
+
+**Il blocco comincia da una verifica falsificabile, non dallo scraper**, perche'
+poggiava su un'ipotesi mai osservata: che WhoScored avesse una navigazione in
+avanti. `dayChangeBtn-next` **non compariva in nessun punto del repository**.
+
+| controllo | esito |
+|---|---|
+| `dayChangeBtn-next` esiste e **muove** la pagina | **si** |
+| positivo: 30 righe di stagione conclusa | **30/30 giocate, 30/30 gia' su disco** |
+| negativo: 30 righe future | **0/30 giocate, 0/30 su disco** |
+| i due criteri indipendenti discordano? | **0 volte** |
+
+**Cio' che si e' accertato, e che era congettura:** una partita da giocare ha
+**`/show/`** nell'href — non `/preview/`, che era l'ipotesi — e mostra **`-:-`**
+al posto del punteggio. Ne segue che la domanda aperta n. 3 della Fase 14
+(«l'orario `20:45` si legge come punteggio `20:45`») **su WhoScored non si pone**.
+Si pone eccome su **Wikipedia**, dove l'orario sta davvero nella cella del
+risultato: due fonti, due discriminanti, e non si scambiano (vincolo 7).
+
+**Il calendario futuro va in un file SEPARATO** (`calendario.json`), e la ragione
+e' misurabile, non organizzativa: `matches.json` e' il criterio di arresto dello
+scraper (`report_completeness`) e il denominatore di `avanzamento`. Mescolarci le
+partite da giocare manderebbe la quota a **1,00 dal giorno zero** e farebbe
+ritentare ogni settimana lo scarico di partite non ancora giocate.
+
+**Serie A 2026-2027: 360 partite da giocare + 20 gia' giocate = 380.** Nessuna
+violazione di struttura, 360 accoppiamenti unici, 20 squadre — e le promosse
+sono **Frosinone, Monza, Venezia**, cioe' esattamente quelle che la Fase 11
+aveva dichiarato da fonte esterna: corroborazione indipendente, non usata per
+costruirle.
+
+#### La seconda fonte: Wikipedia, perche' la giornata a WhoScored NON c'e'
+
+Le due fonti **non sono ridondanti**:
+
+| | WhoScored | Wikipedia |
+|---|---|---|
+| URL e `matchId` | **si** | no |
+| **giornata di campionato** | **NO** | **si** |
+| copertura 2026-2027 | completa | variabile per campionato |
+
+Sulla Serie A Wikipedia da' **380/380 partite su 38 giornate, completo e senza
+violazioni**, e le sue 20 giocate coincidono con i 20 CSV su disco. La
+riconciliazione (`sot/calendario.py`) aggancia **20 squadre su 20** con due soli
+nomi diversi (`Milan` → `AC Milan`, `Parma` → `Parma Calcio 1913`), e il
+confronto incrociato torna esatto: **360 comuni, 0 solo-WhoScored**, e le 20
+solo-Wikipedia sono le gia' giocate, che il calendario futuro esclude per
+costruzione.
+
+Sugli altri quattro campionati la pagina italiana e' **parziale o incoerente** e
+il blocco lo **dichiara** invece di forzarla: Premier 303/380 e Bundesliga 32/306
+(pulite ma incomplete), Liga 35/380, Ligue 1 272/306 con accoppiamenti ripetuti
+che sono **rinvii veri** della fonte. `completezza()` e' tenuta separata da
+`verifica()` per questo: una stagione in corso e' incompleta per definizione, non
+storta — la stessa distinzione che `scrape_quote.py` fa fra «listone non ancora
+pubblicato» e «markup cambiato».
+
+**La riconciliazione dei nomi funziona su tutti i campionati raccolti**, con tre
+livelli e una verifica: esonimi **dichiarati**, aggancio esatto, contenimento su
+nomi **senza accenti**. La normalizzazione degli accenti e' una regola generale
+(`Alavés` = `Alaves`); gli esonimi sono informazione esterna e stanno scritti in
+`calendario.NOMI_FONTE`, dove si vedono. **Non c'e' un tetto al loro numero**: in
+Bundesliga ne servono **undici**, perche' Wikipedia italiana traduce quasi ogni
+citta' tedesca (`Amburgo`, `Magonza`, `Stoccarda`), ed e' una proprieta'
+dell'accoppiata di fonti, non una regola mancante. Cio' che un test **vieta** e'
+un esonimo che accento e contenimento risolverebbero da soli: quello si', sarebbe
+il sintomo di una regola rotta.
+
+> **Un difetto della prima stesura, che il blocco ha corretto**: la mappa
+> confrontava le squadre **viste nelle righe**, e su una pagina parziale sono
+> meno di venti — Premier e Liga fallivano con "numero diverso di squadre" su una
+> fonte che invece le ha tutte. Si usa l'elenco dei **partecipanti**, che c'e'
+> anche quando il calendario e' scritto a meta'.
+
+Il calendario, raccolto su tutti e cinque (2026-2027):
+
+| campionato | giocate | da giocare | totale | con giornata |
+|---|---:|---:|---:|---:|
+| Serie A | 20 | 360 | **380** | **360** |
+| Premier League | 21 | 360 | 381 (vedi difetto 3) | 287 |
+| Liga | 30 | 350 | **380** | 11 |
+| Bundesliga | 9 | 297 | **306** | 24 |
+| Ligue 1 | 18 | 288 | **306** | 251 |
+
+I totali tornano al calendario vero di ogni campionato — 380 a venti squadre,
+306 a diciotto — e i denominatori si **contano**, mai si assumono. La giornata
+arriva dove Wikipedia ha scritto; le mancanti non si inventano e
+`fonte_giornata` dice `assente`.
+
+> **La guardia sui doppioni e' stata resa selettiva, e la prima versione costava
+> cara.** Una coppia `(casa, trasferta)` dovrebbe essere unica in una stagione,
+> ma la Ligue 1 elenca le partite **rinviate** sia alla giornata originale sia a
+> quella di recupero. La prima stesura, trovando un solo doppione, saltava
+> **l'intero aggancio**: 0 giornate su 288. Ora si tolgono le **sole** coppie
+> ambigue — tutte le loro copie, perche' non c'e' modo di sapere quale sia la
+> buona — e se ne conta il numero (6). Una guardia troppo grossolana costa
+> quanto una assente.
+
+> **Trappola per le sessioni future.** La divisione in «Girone di andata / di
+> ritorno» e' una convenzione della **pagina italiana della Serie A**: Premier e
+> Bundesliga non ce l'hanno affatto. La prima stesura chiedeva quelle sezioni per
+> indice e falliva su tre campionati su cinque; ora si legge la pagina **intera**
+> con una sola richiesta, il che risolve anche il **429** che la fonte restituisce
+> se la si interroga troppo in fretta.
+
+#### Quattro difetti trovati eseguendo, tutti gia' attivi
+
+1. **Il confronto degli URL non trovava niente su 30 partite che erano tutte gia'
+   su disco.** Il sito serve la localizzazione italiana (`it.whoscored.com`) e il
+   mio criterio sottraeva la stringa `www.whoscored.com`. Si confronta il
+   **percorso**, non una sottostringa dell'URL. E' la **sesta** volta che in
+   questo repository un criterio scritto su una FORMA invece che su una
+   PROPRIETA' da' un falso esito.
+2. **`--solo-calendario` produceva zero partite**, e non era la navigazione: quel
+   ramo salta `load_match_urls`, che e' l'unico posto in cui qualcuno apriva la
+   pagina — lo scraper leggeva `about:blank` senza accorgersene. L'apertura sta
+   ora in `_apri_calendario`, **una sola** per i due chiamanti.
+3. **`'live'` sta dentro `'liverpool'`, e sporcava `matches.json`.** Il criterio
+   storico cercava la **sottostringa nuda** `'live'` nell'href
+   (`scrape_season.py`, e ancora `main.py:356`). Su
+   `/matches/1983580/show/...-ipswich-liverpool` fa match dentro il nome della
+   squadra, quindi **ogni partita del Liverpool passava come giocata anche se non
+   lo era**: `Ipswich-Liverpool` e' finita in `matches.json` con punteggio
+   `-:-`, e lo scraper prova a scaricarne gli eventi a ogni giro. Il criterio
+   accertato (`'/live/'`, con le barre) non ci cade. **Le righe gia' scritte
+   restano**: la cache si rinfresca sommando, non sostituendo, quindi la Premier
+   2026-2027 conta 21 partite giocate contro 20 CSV, e `coerenza_fonti()` lo
+   dichiara invece di lasciarlo passare. E' il difetto **piu' vecchio** che il
+   blocco abbia trovato, e non lo si sarebbe visto senza una seconda lista con
+   cui incrociare.
+4. **L'aggiornamento del martedi' riportava da settimane un errore inesistente**:
+   `object of type 'int' has no len()` su tutti e cinque i campionati, attribuito
+   ai **derivati**, che erano riusciti. La riga colpevole era il riepilogo del
+   manifest (`len()` su `nuovi`, che e' un contatore intero). I due passi hanno
+   ora due `try` separati: con uno solo, un guasto **vero** dei derivati era
+   indistinguibile da quello cosmetico.
+
+#### Due test-fotografia della Fase 14, riscritti come proprieta'
+
+Sono diventati rossi **da soli**, senza che nessuno li toccasse: a romperli e'
+stata la prima esecuzione dell'attivita' pianificata, che ha dato dei dati alla
+2026-2027.
+
+1. `test_stato_su_una_stagione_mai_scaricata_non_solleva` asseriva `csv == 0` e
+   `in_calendario is None` — vero solo finche' quella stagione non esisteva su
+   disco. Ora verifica la **coerenza col disco**, che e' la proprieta' che il
+   test voleva davvero.
+2. `test_la_pagina_contiene_i_numeri_della_previsione` confrontava la pagina con
+   `P.previsione(...)` chiamata **senza `contesto`**: sotto il burn-in la pagina
+   usa il **prior** e il test il within-season, quindi 14,56 contro 12,85. Ora
+   riusa `run_previsioni.blocco()`, cioe' la stessa funzione della pagina, e
+   verifica anche il **regime**. Rifare qui la costruzione del contesto sarebbe
+   stata una seconda copia della stessa regola.
+
+E' la stessa lezione delle guardie di forma, applicata al **tempo** invece che
+alla sintassi: un test che descrive uno stato transitorio invece di una
+proprieta' invecchia da solo.
+
+**Tre domande aperte**: (1) il calendario degli altri quattro campionati e'
+raccolto da WhoScored ma **la giornata manca dove Wikipedia e' parziale**, e non
+va inventata; (2) i **rinvii** della Ligue 1 sono una proprieta' della fonte che
+la guardia coglie ma che nessuno ha ancora deciso come trattare; (3) `data_fonte`
+di Wikipedia e' `None` dove la pagina usa un `rowspan`, e **non viene ereditata**
+dalla riga precedente: sarebbe una ricostruzione non verificabile, e la data vera
+ce l'ha gia' l'altra fonte.
+
+### Fase 15 / Blocco T1 - il totale di partita ✅ (chiude due domande aperte)
+
+`reports/fase15_totale.md` + otto CSV, da `scripts/run_fase15_totale.py`;
+modulo `sot/totale.py`, test `tests/test_fase15_totale.py` (27). **Nessuna
+richiesta di rete e nessuna scrittura sotto `data/`**: il modulo legge il
+walk-forward gia' prodotto da V1 e lo **ruota** da squadra-partita a partita.
+**Nessun numero pubblicato e' cambiato**, verificato rieseguendo:
+`run_phase1.py` ridà 4.034 / 4.432 / 3.637 / 5.105 su 562.672 eventi,
+`run_phase5.py` ridà Como 4.34 e 5.03 / 191 / [151, 240],
+`run_fase12_v4.py` ridà 12,85 · 6,55 · 21,42, `run_fase13_gol.py` ridà
+t = 5,40 sulla Serie A. Suite a **1.046 test**.
+
+Aperto dalla richiesta dell'utente del **2026-08-31**: la stima della **somma
+delle due squadre** per una partita. Chiude la domanda aperta **n. 3 di V1** e
+**n. 3 di V4**, che erano la stessa domanda scritta due volte.
+
+**La risposta e' che la congiunta NON serve**, ed e' il contenuto del blocco:
+
+```
+lambda_tot = lambda_casa + lambda_trasferta      esatto, qualunque dipendenza
+y_tot      ~ NB2(lambda_tot, r_tot)              r_tot STIMATA sui totali
+```
+
+`E[X+Y] = E[X] + E[Y]` non richiede ipotesi. Cio' che la dipendenza rompe e' la
+**dispersione**, e `r_tot` stimata sui totali osservati la assorbe per misura
+invece che per assunzione.
+
+| | esito |
+|---|---|
+| il perimetro | **1.638 partite**, lo stesso numero che R0 conto' sui gol |
+| `r_tot` si eredita da `r` per lato? | **no**: 83,97 contro 20,00, IC95 del rapporto [3,46, 5,66] |
+| la NB2 diretta batte l'indipendenza? | **si sulle code**, fino a 3,4 punti percentuali |
+| il modello batte i baseline? | **si**: +0,548 di MAE, **t = 8,33** |
+| il totale e' calibrato? | **NO**: pendenza 0,633 contro 1,008 per lato |
+| la correzione si adotta? | **si sui tiri, no sui tiri in porta** |
+
+- **Il perimetro riproduce R0 a ogni cifra**, ed e' il controllo interno piu'
+  forte disponibile: 1.739 partite con previsione, **1.638 validabili**, e le **2
+  partite con un lato solo stanno entrambe nel 2021-2022**, esattamente dove R0
+  le aveva trovate sui gol. `eligible` e' una proprieta' della **squadra**, e
+  cade dove WhoScored ha perso partite.
+- **La rotazione e' quella di `perimetro.partite()`**, ripetuta nei suoi due
+  controlli (due lati per partita, esattamente un lato di casa) e nella sua
+  **verifica gratuita via `lam_subiti`**. Un test guasta una riga sola e pretende
+  che la verifica lo veda: senza, "la verifica passa" e "la verifica non
+  controlla niente" sarebbero indistinguibili.
+- **La dipendenza e' negativa in tutte e cinque le stagioni** (-0,285 a -0,397).
+  Sul perimetro validabile la sd del totale vale **5,85** contro i **7,29** che
+  due lati indipendenti darebbero: **20% in meno**.
+- **`r_tot` non si eredita, ed e' falsificato** con la stessa forma che
+  `precisione.rapporto_dispersioni()` uso' per rifiutare l'ereditarieta' fra
+  `r_shots` e `r_sot`: rapporto **4,20**, IC95 [3,46, 5,66], che non contiene 1 e
+  sta tutto sopra.
+- **L'alternativa scartata resta nel modulo.** `confronto_indipendenza()`
+  calcola la convoluzione delle due NB2 per lato: l'indipendenza **ingrassa
+  entrambe le code** (-0,033 sotto la linea piu' bassa, +0,035 sopra la piu'
+  alta) contro -0,004 e +0,021 della diretta. **Due avvertenze**: sulla linea
+  centrale l'indipendenza e' leggermente piu' vicina, e **il Brier non distingue
+  le due** — si guadagna calibrazione della coda, non capacita' di ordinare.
+
+**I quattro baseline diventano DUE sul totale, ed e' aritmetica.** Dopo la
+rotazione `media squadra + campo` e' **identica** a `media squadra` (a 7e-15) e
+`media casa/trasferta` a `media campionato`: il termine di campo aggiunge alla
+squadra di casa quello che toglie alla trasferta, quindi **si cancella nella
+somma**. Per lato le colonne differiscono fino a 1,83 tiri. Il vincolo 6 e'
+rispettato, ma con **due** concorrenti distinti e non quattro, e un test fissa il
+fatto perche' non sparisca.
+
+**Il risultato che non era previsto: il totale e' SOTTO-CALIBRATO.** Per lato il
+modello sta a **1,008** (z = +0,33, cioe' il numero di V1 riprodotto); sul totale
+la pendenza crolla a **0,633** (z = -4,82) sui tiri e a **0,480** (z = -4,87) sui
+tiri in porta. **Le due cose non si contraddicono, e il meccanismo e' misurato**:
+il modello crede i due lati molto piu' anti-correlati di quanto siano — da -0,40
+a -0,75 contro un osservato da -0,29 a -0,40, e sui tiri in porta il divario e'
+anche piu' largo (nel 2023-2024 il modello crede -0,398 dove l'osservato e'
+**+0,007**, cioe' nessuna dipendenza affatto). Sommando, la parte di segnale che
+i due lati hanno in comune si **cancella**, e sopravvive proporzionalmente piu'
+rumore.
+
+**Il verdetto sulla correzione e' DIVISO, e non e' stato aggiustato per farlo
+tornare uguale.** `CRITERIO_ADOZIONE` e' scritto prima di misurare e `verdetto()`
+lo applica meccanicamente, come in R2-bis:
+
+| | tiri | tiri in porta |
+|---|---|---|
+| pendenza dopo la correzione | 0,812 (z = **-1,91**) | 0,644 (z = -2,44) |
+| (1) entro 2 errori standard | si | **no** |
+| (2) il MAE non peggiora | si | si |
+| (3) segno concorde | si (4/4) | si (4/4) |
+| **adottata** | **SI** | **NO** |
+
+Sui tiri passa ma **appena**: z = -1,91 contro una soglia di 2, e va letto cosi'.
+La ricalibrazione e' **walk-forward** e la stagione piu' vecchia **resta non
+ricalibrata**, marcata invece che riempita — lo stesso trattamento della
+2021-2022 in R2-bis.
+
+**Le tre firme TRASFERISCONO su tutti e cinque i campionati**, un fit per
+campionato e mai poolati — la domanda che la Fase 13 pose ai gol, applicata qui.
+In tutte e dieci le righe `(campionato, bersaglio)`: la correlazione fra i lati e'
+**negativa** (da -0,11 a -0,41), **`r_tot` sta fra 2,3 e 5,8 volte `r` per lato**,
+e la pendenza del totale sta **sotto 1** (z da -2,37 a -7,01). Non e'
+un'idiosincrasia italiana.
+
+> **Conseguenza operativa**: `r_tot` va presa **da quel campionato**, mai da un
+> altro. Fra Bundesliga e Liga sui tiri in porta vale 190,6 contro 70,5, cioe' un
+> fattore 2,7: un `r_tot` preso in prestito sbaglierebbe le code grossolanamente.
+
+> **Trappola per le sessioni future.** La sotto-calibrazione del totale **non va
+> "sistemata" ritoccando lo shrinkage** finche' la pendenza torna a 1,0: sarebbe
+> la settima volta che il progetto rifiuta quella strada, e per giunta il modello
+> per lato e' **gia' calibrato** — toccarlo romperebbe V1 per aggiustare T1. E la
+> ricalibrazione **non e' una spiegazione**: corregge il sintomo e non sa da dove
+> venga, che e' la lezione di R2-bis parola per parola.
+
+**Quattro domande aperte**: (1) **perche' il modello anti-correli i due lati piu'
+del vero** e' misurato ma non spiegato — il sospetto e' che attacco e difesa
+della stessa partita condividano coefficienti stimati sulle stesse righe, quindi
+l'errore di stima entri con segno opposto nei due lati, ma separarlo vuole un
+disegno apposito; (2) la correzione e' **una trasformazione monotona sul
+lambda** e non sa da dove venga l'errore; (3) `r_tot` e' assunta costante fra
+squadre e stagioni, come `r` in V1; (4) senza prezzi di mercato reali nessuna
+valutazione di scommessa e' possibile (vincolo 3).
+
+### Fase 15 / Blocco P1 - la pagina a giornata, e il totale in scheda ✅
+
+`reports/previsioni.html`, da `scripts/run_previsioni.py` +
+`scripts/pagina_previsioni.py` (riscritto); il ponte sta in `sot/previsione.py`
+e il turno in `sot/calendario.py`; test `tests/test_fase15_pagina.py` (28); suite a **1.119 test**, tutti verdi.
+**Nessuna richiesta di rete e nessuna scrittura sotto `data/`.** **Nessun numero
+pubblicato e' cambiato**, verificato rieseguendo: `run_phase1.py` ridà
+4.034 / 4.432 / 3.637 / 5.105, `run_phase5.py` ridà Como 4.34 e
+5.03 / 191 / [151, 240], `run_fase12_v4.py` ridà 12,85 · 6,55 · 21,42,
+`run_fase13_gol.py` ridà t = 5,40 sulla Serie A. **Chiude la Fase 15.**
+
+E' cio' che l'utente aveva chiesto il 2026-08-31: si sceglie una **partita vera**
+dal calendario della stagione in corso e si legge la **stima della somma delle
+due squadre**. Le tre cose che mancavano — il totale (T1), il calendario (C1) e
+la giornata (C1, seconda fonte) — sono arrivate nei due blocchi precedenti; qui
+si mettono insieme.
+
+`[DECISO 2026-09-03]` dall'utente: **raggruppamento per giornata**. La decisione
+6 del piano (blocchi di date) era vincolata da un limite che Wikipedia ha tolto,
+e **resta come ripiego** dove la giornata non c'e'.
+
+| | esito |
+|---|---|
+| Serie A | **36 turni da 10 partite**, tutti con la giornata della fonte |
+| Premier | 39 turni: 33 giornate vere, 3 dedotte, 3 blocchi di date |
+| Liga · Bundesliga | quasi tutti **blocchi di date**: li' Wikipedia e' parziale |
+| Ligue 1 | 51 turni, e i 19 blocchi sono i **rinvii** gia' dichiarati da C1 |
+| partite senza numeri | **zero** su tutti e cinque |
+
+**Il turno si costruisce in tre passi dichiarati, e il secondo e' quello che
+rende leggibile il risultato** (`calendario.con_turno`):
+
+1. **la giornata della fonte**, dove c'e';
+2. **il contenimento nella finestra di date di una giornata, se e solo se e'
+   unico** — la stessa disciplina di `mappa_squadre`. Serve perche' Wikipedia
+   copre una giornata *in parte*: in Premier League ne arrivano 8 righe su 10, e
+   senza questo passo le altre due finivano in un turno separato lo stesso
+   weekend. Sono **70 turni contro 39**;
+3. **i blocchi di date** per cio' che resta.
+
+- **La deduzione non diventa MAI la giornata della riga.** `fonte_giornata`
+  resta `assente` e cambia solo il turno in cui la riga e' mostrata. Scrivere
+  quel numero nella colonna della giornata sarebbe inventarla, ed e' il difetto
+  che C1 aveva rifiutato di commettere. Un test lo blocca.
+- **La capienza `squadre/2` e' strutturale, non una soglia.** Senza, la Ligue 1
+  usciva con una «5a giornata» da **12 partite su 18 squadre**: i rinvii hanno
+  una data che cade nella finestra di un altro turno e il contenimento li tirava
+  dentro. E dove i candidati sono troppi **si rifiutano tutti**, non i primi che
+  ci stanno: quale sia la partita di troppo non e' sapibile. Lo stesso vincolo
+  chiude i blocchi di date, che altrimenti si concatenavano — la Liga usciva con
+  **un blocco solo da 29 partite** su dieci giorni, cioe' tre giornate insieme.
+- **La data della fonte e' testo italiano** (`venerdi, set 04 2026`), e la forma
+  e' **accertata su tutte le righe di tutti e cinque i calendari**: zero non
+  conformi. Nove mesi su dodici sono osservati; i tre che mancano (`giu lug
+  ago`) sono completamento della serie e stanno in `MESI_OSSERVATI` per non
+  perdere la distinzione. `data()` **ritorna `None` invece di sollevare**: una
+  cella storta e' un limite di quella riga, non la fine del calendario di un
+  campionato.
+- **I nomi dei giorni e dei mesi si costruiscono a mano**, non con `strftime`:
+  quelli di `strftime` dipendono dal `locale` della macchina, e la stessa pagina
+  uscirebbe in inglese su un PC configurato diversamente.
+
+**Il totale e' la somma esatta, e la pagina non mostra altro** (`p1` =
+`previsione.tabella_calendario`). `E[X+Y] = E[X] + E[Y]` non richiede nessuna
+ipotesi sulla dipendenza; cio' che la dipendenza rompe e' la dispersione, ed e'
+il motivo per cui `r_tot` si **stima sui totali osservati di quel campionato**.
+Un test pretende `lam_totale == lam_casa + lam_trasferta` su tutte le righe e su
+tutti i campionati, in tabella **e** nel blob della pagina.
+
+> **La ricalibrazione di T1 NON si applica in pagina**
+> (`previsione.RICALIBRAZIONE_IN_PAGINA = False`), ed e' una decisione
+> dichiarata col suo perche' invece di un'omissione. T1 l'aveva adottata col
+> criterio scritto in anticipo, ma l'adozione e' **per (campionato, bersaglio)**
+> e vale in **3 celle su 10**: applicarla dove passa e non dove non passa
+> renderebbe i cinque campionati non confrontabili fra loro — che e' cio' che la
+> regola di E1 vieta, e la pagina li mostra uno accanto all'altro. In piu' la
+> correzione e' validata **dentro** il walk-forward delle cinque stagioni
+> storiche, e portarla sulla 2026-2027 e' un passo che nessuno ha misurato.
+> **Quello che si fa invece e' il vincolo 5**: la pendenza di quel campionato
+> sta nella stessa riga della probabilita' — 0,63 in Serie A, 0,65 in Premier,
+> 0,87 in Liga — con scritto che le `P(Over)` sono piu' affidabili al centro che
+> sulle code.
+
+**Il turno zero funziona, ed e' la decisione dell'utente messa in codice.** In
+Bundesliga **quattro squadre su diciotto non hanno ancora giocato**: il modello
+within-season non le conosce affatto, e senza la strada del prior sarebbero
+sparite **122 partite su 297**. Le squadre vengono dal **calendario**, i numeri
+dal **prior**, e la squadra si **conta** (`squadre_non_viste`) invece di essere
+trattata come media in silenzio. Se nemmeno il prior c'e', la partita esce e
+finisce in `attrs["scartate"]` — una riga senza numeri e' meglio di una riga con
+un numero inventato. **Le due guardie di V4 non sono state allentate**:
+`verifica_squadre` e `TeamModel(strict_teams=True)` restano dove sono, e P1
+aggiunge un regime, non toglie una guardia.
+
+- **Il calendario non e' una dipendenza**: se la stagione mostrata non e' quella
+  chiesta, il calendario **non si attacca** e la pagina ripiega sulla sola
+  modalita' a coppia libera, dichiarandolo. Partite di un'annata accostate ai
+  numeri di un'altra sarebbero una divergenza silenziosa fra la riga e il suo
+  contenuto.
+- **La modalita' a coppia libera resta**, come secondo pannello: toglierla
+  avrebbe fatto sparire una risposta che il repository sa gia' dare e che il
+  calendario non copre (una coppia che non si gioca).
+- **Il generatore continua a non calcolare niente**: serializza una tabella
+  gia' prodotta da `previsione`, e un test lo pretende. Le tabelle per lato del
+  dettaglio si **cercano** fra le coppie gia' in pagina invece di essere
+  serializzate una seconda volta; dove non ci sono — perche' una squadra non ha
+  ancora giocato — la pagina lo **scrive** invece di mostrare un vuoto.
+
+**Due guardie corrette, e sono la settima e l'ottava volta.**
+
+1. **`test_il_generatore_della_pagina_non_calcola_niente` cercava sottostringhe
+   nel sorgente intero**, e ha dichiarato colpevole la docstring che dice «questo
+   modulo non calcola: un test vieta `TeamModel` nel sorgente». Ora usa il
+   `_codice()` tokenizzato di V0 — riusato, non riscritto — con un meta-test
+   bidirezionale.
+2. **`_codice()` stesso non toglieva le f-string.** Da Python 3.12 un'f-string
+   non e' piu' un unico token `STRING`: viene spezzata in `FSTRING_START` /
+   `FSTRING_MIDDLE` / `FSTRING_END`, e il testo letterale sopravviveva alla
+   setacciatura — il nome di colonna `f"p_over_{ln}"` faceva scattare il divieto
+   di `p_over` su un modulo che quel conto non lo fa affatto. Corretto
+   **nell'helper condiviso**, che e' il posto dove vale per tutti.
+
+> **Trappola per le sessioni future.** La sotto-calibrazione del totale e'
+> **dichiarata e non corretta**, e non va «sistemata» applicando la
+> ricalibrazione in pagina finche' la pendenza torna a 1,0: sarebbe l'ottava
+> volta che il progetto rifiuta quella strada, e per giunta il modello **per
+> lato e' gia' calibrato** (1,008) — toccarlo romperebbe V1 per aggiustare la
+> pagina. E il **blocco di date non e' una giornata**: la pagina lo scrive sotto
+> la griglia, e quella riga non va tolta perche' «tanto si capisce».
+
+**Quattro domande aperte**: (1) sui campionati dove Wikipedia e' parziale il
+turno resta in gran parte un blocco di date, e l'unico rimedio e' una fonte
+migliore della giornata — non una regola piu' aggressiva; (2) i **rinvii** della
+Ligue 1 restano dichiarati e non trattati, ed e' la domanda aperta n. 2 di C1;
+(3) la pagina mostra il totale **atteso** e le sue `P(Over)`, ma non e' mai stata
+misurata la calibrazione del totale **fuori dalle cinque stagioni storiche**;
+(4) senza prezzi di mercato reali «il modello e' meglio del mercato» resta una
+frase che questo progetto non puo' pronunciare (vincolo 3).
+
+### Fase 16 / Blocco O1 - la verifica prospettica ✅ (previsione prima, esito dopo)
+
+`reports/fase16_o1_verifica_prospettica.md` + 12 CSV, da
+`scripts/run_fase16_o1.py`; modulo `sot/verifica_prospettica.py`, metrica nuova
+`validate.crps_conteggi`, test `tests/test_fase16_o1.py` (34) + 6 in
+`tests/test_validate.py`. **Nessuna richiesta di rete. Nessun modello predittivo
+nuovo. Nessuna scrittura sotto `data/`.**
+
+Chiesta dall'utente il **2026-09-03**. Tutto cio' che il repository aveva
+validato era **within-season** o **retrospettivo** — il walk-forward di V1, il
+prior di A2 su venti transizioni concluse, la trasferibilita' di F13. Il
+deliverable operativo della Fase 14 non aveva **nessuna** misura di quanto
+sbagliasse.
+
+**Non c'e' stato bisogno di simulare l'esclusione: era gia' avvenuta.**
+
+| | |
+|---|---|
+| previsioni congelate | `reports/previsioni_*.csv`, **2026-08-30 13:47 UTC** |
+| primo CSV di evento 2026-2027 | **2026-09-03 12:33 UTC** |
+| anticipo minimo sui cinque | **3,95 giorni** |
+
+#### L'anteriorita' non poggia su un orologio, ed e' il punto metodologico
+
+Il `mtime` e' un argomento **debole**: un timestamp si cambia. Quello che regge
+il blocco e' il secondo controllo, che non chiede di fidarsi di niente:
+
+> **Le previsioni congelate si riproducono da `PS.lam_dal_prior` applicato al
+> fit della sola stagione precedente.** Sono percio' una funzione di dati che
+> finiscono a maggio 2026, e **non possono contenere informazione sulle
+> giornate 1-2 qualunque sia la data in cui il file e' stato scritto.**
+
+E sono **`modello prec`**, cioe' esattamente il candidato che
+`PS.REGOLA_DUE_REGIMI` prescrive sotto `config.BURN_IN_ROUND`: si misura la
+regola dichiarata, non una variante costruita per l'occasione.
+
+**La riproduzione non e' bit-per-bit, e la ragione e' misurata invece che
+aggirata**: dentro un solo processo il re-fit da' scarto **0,0 esatto**; fra due
+processi resta ~1e-7 relativo, che e' l'ordine che L-BFGS-B con `ftol = 1e-12`
+dichiara (`sqrt(ftol)` sui parametri; l'ordine delle somme in BLAS multithread
+sposta il punto di arresto dentro quella tolleranza). `TOLL_RIPRODUZIONE` e'
+**derivata da li'**, non scelta guardando lo scarto osservato — che sarebbe far
+tornare un numero — e un test la lega alla `ftol` scritta in `model_team.py`.
+
+#### La metrica: CRPS su conteggi, dichiarata prima
+
+`crps_conteggi(y, lam, r) = somma_k (F(k) - 1[y <= k])^2`, in **unita' di tiri**.
+E' propria, e' **ordinale** (sbagliare di 8 costa piu' che sbagliare di 1, cosa
+che la log score non distingue), ed e' robusta alle code — con 170 righe una sola
+osservazione estrema deciderebbe il verdetto. **E' la stessa scelta che R2 ha
+fatto preferendo l'RPS alla log-loss sull'1X2**, su un bersaglio con piu' classi:
+non una metrica nuova nel progetto, la stessa rifatta dove mancava.
+
+Accanto, mai al posto: log score (l'unita' di A2, per essere confrontabili con
+`fase14_prior.md`), Brier sulle linee dichiarate, MAE, bias, PIT e copertura.
+**Due metriche del repository NON si usano, e il perche' e' scritto**: la
+scomposizione di Murphy vuole otto fasce e a questo `n` il termine di binning
+non e' trascurabile; la pendenza di calibrazione ha un errore standard che la
+rende non interpretabile, lo stesso `nan` dichiarato di `media campionato` in
+Fase 4.
+
+`r` e' quella **PUBBLICATA**, mai ristimata: valutare con una dispersione
+migliore misurerebbe un modello che nessuno ha mai pubblicato. Un test lega il
+divieto alle **funzioni** che valutano e non al file, perche' il diagnostico
+`dispersione_di_avvio` deve stimarla.
+
+#### Il perimetro, e la giornata come grandezza da ACCERTARE
+
+`team_match_idx <= 2` — le prime due partite di ogni squadra. **170 righe / 85
+partite**: ITA 40 · ENG 40 · ESP 40 · FRA 36 · GER 14 (li' 7 partite su 9
+giocate hanno gli eventi su disco).
+
+«Giornata» e «prime due partite di squadra» sono **due grandezze diverse**
+(vincolo 7), e la giornata vera e' accertabile solo dove la seconda fonte e'
+sana. **La Serie A e' il controllo positivo** (Wikipedia 380/380): li' l'accordo
+e' **20 su 20**. Su tutti i campionati insieme, dove entrambe le fonti parlano
+senza ambiguita', sono **67 confronti e zero discordi**.
+
+> **Tre esiti restano separati, e confonderli inventa un disaccordo.** Una
+> partita **assente** dalla seconda fonte dice solo che la pagina e' parziale;
+> una **ambigua** e' un rinvio che la fonte elenca a due giornate diverse, e si
+> tolgono **tutte** le copie come fa gia' `calendario.py`; solo una elencata
+> **senza ambiguita'** sopra la soglia e' un disaccordo. **La prima stesura ha
+> sbagliato proprio qui**: costruiva `coppia -> giornata` con l'ultima scrittura
+> che vinceva e su `Paris FC-Nizza` (elencata **alla 2 e alla 7**) teneva la 7,
+> attribuendo al ripiego un errore che era suo.
+
+`ripiego_ammesso` **non ha una soglia sull'accordo medio** — si sceglierebbe
+dopo aver visto gli scarti — ma una condizione sulla fonte: accordo **totale
+dove la seconda fonte si dichiara completa**. Un test pretende che sappia dire
+anche di no.
+
+#### Le neopromosse: al giorno 1 una riga su quattro non ha previsione documentale
+
+Il file congelato contiene **solo le squadre della stagione precedente**, quindi
+una riga che coinvolga una neopromossa non ha un numero scritto prima:
+**126 righe su 170 (74,1%) sono documentali**, le altre 44 no. La previsione
+esiste lo stesso — `lam_dal_prior` da' coefficiente 0 a una squadra sconosciuta
+— ma **e' un DEFAULT, non una stima**: la media di campionato dell'anno scorso.
+Tutte le tabelle escono in due versioni, perimetro pieno e sole congelate, e la
+conclusione non cambia fra le due.
+
+#### L'esito: le due meta' vanno tenute insieme
+
+**Le previsioni congelate hanno il CRPS migliore di ogni baseline reale su
+entrambi i bersagli.** Solo l'`oracolo di livello` — che usa la media vera delle
+giornate 1-2, cioe' un numero che il 30 agosto non esisteva — fa meglio.
+
+| bersaglio | `modello prec` | `media squadra prec` | `media campionato prec` | `con prior` | oracolo |
+|---|---:|---:|---:|---:|---:|
+| tiri | **2,8260** | 2,9765 | 3,1889 | 3,0390 | 2,7245 |
+| tiri in porta | **1,1991** | 1,2735 | 1,3851 | 1,2926 | 1,1813 |
+
+**Ma quasi nessun confronto raggiunge il proprio MDE**, ed era dichiarato prima:
+
+| bersaglio | contro | delta CRPS | t (cluster) | delta/MDE | conclude |
+|---|---|---:|---:|---:|---|
+| tiri | `media squadra prec` | -0,1505 | -1,63 | 0,58 | **no** |
+| tiri | `media campionato prec` | -0,3628 | -3,13 | **1,12** | **si** |
+| tiri in porta | `media squadra prec` | -0,0744 | -2,53 | 0,90 | **no** |
+| tiri in porta | `senza prior` | -0,2707 | -3,96 | **1,41** | **si** |
+| tiri in porta | `media campionato prec` | -0,1860 | -4,57 | **1,63** | **si** |
+
+> Con 85 partite il test **esclude divari grandi, non divari piccoli**. Il
+> `t = -2,53` sui tiri in porta passa la soglia a due code del 5% e persino
+> quella di Sidak, ma **non** il criterio dichiarato `delta/MDE >= 1`, che chiede
+> `|t| >= 2,80`: significativo non e' la stessa cosa di «il test aveva la potenza
+> per vederlo», e il criterio scritto prima non e' stato riscritto per farlo
+> tornare.
+
+**A2 e' confermata prospetticamente**: `con prior` — la miscela fra prior e
+partite nuove — **perde** contro `modello prec` su entrambi i bersagli
+(-0,213 e -0,093). E' la stessa conclusione che A2 aveva tratto su venti
+transizioni passate, ora su dati che A2 non aveva.
+
+#### La taratura storica: senza, un CRPS e' un numero e non un risultato
+
+La **stessa identica procedura** sulle prime due partite di ogni squadra nelle
+20 transizioni gia' concluse (4 per campionato), aggregando **allo stesso modo
+sui due lati** — pesata per righe, per stagione. E' il gemello di
+`tentativi.taratura_test()` e del nullo simulato di V0.
+
+| bersaglio | grandezza | 2026-27 | intervallo storico | dentro |
+|---|---|---:|---|---|
+| tiri | CRPS assoluto | **2,826** | [2,618 · 2,660] | **no, peggiore di tutte** |
+| tiri | delta sul baseline | -0,150 | [-0,212 · -0,073] | si (rango 2 su 5) |
+| tiri | scarto di livello | **+8,2%** | [-3,8% · +6,1%] | **no** |
+| tiri in porta | CRPS assoluto | 1,199 | [1,117 · 1,368] | si (rango 2 su 5) |
+| tiri in porta | delta sul baseline | **-0,074** | [-0,049 · -0,014] | **no, il migliore di tutte** |
+| tiri in porta | scarto di livello | **+3,6%** | [-9,7% · +3,1%] | **no** |
+
+> **E' la taratura a rendere leggibile il risultato, e senza si sarebbe letto al
+> contrario.** Sui tiri il CRPS assoluto e' il peggiore dei cinque avvii, ma il
+> **vantaggio sul baseline e' ordinario**: non e' il modello a essersi
+> degradato, e' l'avvio 2026-27 a essere piu' difficile. La causa e' misurata e
+> sta nella stessa riga: **il livello e' fuori dall'intervallo storico su
+> entrambi i bersagli**, e la scomposizione dice che vale il **3,6%** del CRPS
+> sui tiri. Il resto e' rumore di partita, che nessun modello puo' prendere.
+
+Si riporta il **rango**, non un p-value: venti transizioni danno una scala di
+riferimento, non un campione da cui estrarre una probabilita'.
+
+#### La dispersione di avvio - DIAGNOSTICO, non adozione
+
+**L'attesa era dichiarata prima**: `r` viene dal walk-forward **within-season**,
+dove i lambda sono piu' accurati di quelli cross-stagione di `modello prec`,
+quindi la predittiva pubblicata dovrebbe essere **troppo stretta** all'avvio.
+
+Misurata sulle transizioni storiche: `r_avvio` **16,3 contro 20,2** pubblicata
+sui tiri (rapporto 0,805, IC95 **[0,649 · 1,078]**) e **22,5 contro 31,0** sui
+tiri in porta (0,727, IC95 [0,448 · 2,038]). **Il segno e' quello atteso ma
+l'IC95 contiene 1 su entrambi**: l'attesa non e' confermata ne' esclusa. IC da
+bootstrap **sui cluster**, la stessa forma con cui
+`precisione.rapporto_dispersioni()` ha falsificato l'ereditarieta' fra
+`r_shots` e `r_sot`. **Questo blocco non ricalibra niente.**
+
+#### Il totale di partita - secondario, e non conclude
+
+`lam_tot = lam_casa + lam_trasferta` e' esatto (T1), `r_tot` **non si eredita** e
+viene da quella gia' stimata sulle stagioni storiche di ogni campionato. CRPS
+3,687 sui tiri e 1,748 sui tiri in porta, bias -2,49 e -0,61. T1 aveva gia'
+misurato la sotto-calibrazione del totale su 1.638 partite; qui i cluster sono
+85 e ci si aspettava di non concludere. **Non si adotta niente.**
+
+#### Il registro e' l'unico artefatto non rigenerabile del progetto
+
+`run_previsioni.py --csv` riscrive `reports/previsioni_<L>.csv` **sovrascrivendo
+e senza data nel nome**, e l'attivita' pianificata del martedi' e' attiva: una
+sola esecuzione avrebbe cancellato l'evidenza. Le copie
+`reports/fase16_o1_congelate_*.csv` conservano il `mtime` (`shutil.copy2`) e
+stanno in **git** come eccezione dichiarata in `.gitignore`, con la stessa
+motivazione gia' scritta per `data/raw/manifest.json`.
+
+> **Il commit non prova la data**: la storia in git comincia dopo i fatti. A
+> provare che quei numeri non guardano le giornate 1-2 e' la **riproducibilita'**
+> da dati che finiscono a maggio 2026, non il timestamp. E' scritto nel
+> `.gitignore` accanto all'eccezione, perche' e' li' che qualcuno lo leggera'.
+
+> **Trappola per le sessioni future.** Il risultato **non va gonfiato**: «le
+> previsioni battono tutti i baseline» e' vero e vale poco da solo, perche' su 85
+> partite quattro confronti su cinque non raggiungono il proprio MDE. E **non va
+> sminuito**: il segno e' coerente su entrambi i bersagli, su tutti i confronti,
+> e concorda con la taratura. Le due meta' si citano insieme. In particolare
+> **non si riapra `alpha_prior`** perche' `con prior` perde: e' la conferma
+> prospettica di A2, non una sorpresa da sistemare.
+
+**Quattro domande aperte**: (1) **85 partite sono poche, e l'unico rimedio e' il
+tempo** — il blocco si rifa' identico fra qualche giornata, ma allora il regime
+non sara' piu' `modello prec` e si misurera' un'altra cosa; (2) **perche' il
+livello 2026-27 sia fuori dall'intervallo storico** e' misurato e non spiegato,
+e con due giornate non e' distinguibile da un avvio anomalo; (3) la dispersione
+di avvio ha il segno atteso e un IC che contiene 1: serve piu' storia, non piu'
+repliche; (4) senza prezzi di mercato reali «il modello e' meglio del mercato»
+resta una frase che questo progetto non puo' pronunciare (vincolo 3).
+
 
 ## Convenzioni
 
